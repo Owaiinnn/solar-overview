@@ -1,0 +1,19 @@
+# Credentials and local runtime data
+.env
+.env.*
+!.env.example
+.local/
+
+# macOS / Python
+.DS_Store
+__pycache__/
+*.py[cod]
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+coverage/
