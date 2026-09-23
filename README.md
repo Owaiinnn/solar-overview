@@ -14,9 +14,11 @@ power history are available. Household consumption, grid flow, and battery power
 were not present in the tested power-flow response. See the
 [verification report](docs/solaredge-check.md).
 
-The Flutter app has not been scaffolded yet. The first milestone is a SolarEdge
-overview and history screen. Battery and smart-meter integrations follow once
-their access methods are known.
+The Flutter starter is in [app](app/README.md), with Android/iOS targets and
+SolarEdge settings for testing and saving a connection on each phone. A basic
+overview and sample mode are included. Native device builds/storage verification
+remain pending because this Mac lacks the mobile toolchains. History, battery,
+and smart-meter integrations follow in later work.
 
 ## Tickets
 
