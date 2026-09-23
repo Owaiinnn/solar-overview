@@ -3,15 +3,22 @@ import 'package:flutter/material.dart';
 import 'connection_controller.dart';
 
 class SolarApp extends StatefulWidget {
-  const SolarApp({super.key, required this.controller});
+  const SolarApp({super.key, required this.controller, this.preview = false});
   final ConnectionController controller;
+  final bool preview;
 
   @override
   State<SolarApp> createState() => _SolarAppState();
 }
 
 class _SolarAppState extends State<SolarApp> {
-  int _tab = 1;
+  late int _tab;
+
+  @override
+  void initState() {
+    super.initState();
+    _tab = widget.preview ? 0 : 1;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +26,17 @@ class _SolarAppState extends State<SolarApp> {
     return MaterialApp(
       title: 'Solar overview',
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => widget.preview
+          ? ColoredBox(
+              color: const Color(0xFFE4EBE5),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: child,
+                ),
+              ),
+            )
+          : child!,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF22634A)),
         scaffoldBackgroundColor: const Color(0xFFF5F7F3),
@@ -66,7 +84,10 @@ class _SolarAppState extends State<SolarApp> {
                               controller: controller,
                               openSettings: () => setState(() => _tab = 1),
                             ),
-                            SettingsPage(controller: controller),
+                            SettingsPage(
+                              controller: controller,
+                              preview: widget.preview,
+                            ),
                           ],
                         ),
                 ),
@@ -98,8 +119,13 @@ class _SolarAppState extends State<SolarApp> {
 }
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key, required this.controller});
+  const SettingsPage({
+    super.key,
+    required this.controller,
+    this.preview = false,
+  });
   final ConnectionController controller;
+  final bool preview;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -198,7 +224,16 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                if (controller.storageUnavailable) ...[
+                if (widget.preview) ...[
+                  const Text(
+                    'Browser preview',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Explore the app with sample readings. Connect your real SolarEdge account from the Android or iPhone app.',
+                  ),
+                ] else if (controller.storageUnavailable) ...[
                   const Text(
                     'Your phone’s saved connection could not be opened.',
                   ),
@@ -336,11 +371,14 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
         const SizedBox(height: 16),
-        const Text(
-          'Your key stays in this phone’s protected storage and is used only to contact SolarEdge. Enter it separately on each phone.',
-        ),
+        if (!widget.preview)
+          const Text(
+            'Your key stays in this phone’s protected storage and is used only to contact SolarEdge. Enter it separately on each phone.',
+          ),
         const SizedBox(height: 24),
-        if (!controller.isSample)
+        if (widget.preview)
+          const Text('No API key is needed for this preview.')
+        else if (!controller.isSample)
           OutlinedButton(
             onPressed: controller.busy ? null : controller.showSample,
             child: const Text('Try sample data'),

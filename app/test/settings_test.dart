@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:solar_overview/src/app.dart';
+import 'package:solar_overview/src/browser_preview.dart';
 import 'package:solar_overview/src/connection_controller.dart';
 
 import 'fakes.dart';
 
 void main() {
+  testWidgets(
+    'browser preview shows sample readings without credential entry',
+    (tester) async {
+      const preview = BrowserPreview();
+      final controller = ConnectionController(preview, preview);
+      await controller.initialize();
+      controller.showSample();
+      await tester.pumpWidget(SolarApp(controller: controller, preview: true));
+      expect(find.text('SAMPLE DATA · Example readings'), findsOneWidget);
+      expect(find.text('1.85 kW'), findsOneWidget);
+      await tester.tap(find.text('Settings'));
+      await tester.pumpAndSettle();
+      expect(find.text('Browser preview'), findsOneWidget);
+      expect(find.byKey(const Key('api-key')), findsNothing);
+      expect(await controller.connect('123', fakeKey), isFalse);
+      expect(await preview.read(), isNull);
+    },
+  );
   testWidgets('key is hidden, validated, cleared after saving, and removable', (
     tester,
   ) async {

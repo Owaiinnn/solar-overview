@@ -1,11 +1,11 @@
 {
-    "name": "solar_overview",
-    "short_name": "solar_overview",
+    "name": "Solar overview preview",
+    "short_name": "Solar overview",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F5F7F3",
+    "theme_color": "#22634A",
+    "description": "Sample-data preview of the Solar overview app.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
