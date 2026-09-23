@@ -22,6 +22,12 @@ the native credential-storage integration test passed using synthetic data.
 Full Xcode and iOS native verification remain pending. Broader sample data and
 Appliances/History navigation are also still pending, so this ticket stays open.
 
+The owner chose Android-first development. Keep the iOS target, but defer full
+Xcode installation and native iOS checks rather than blocking Android tickets.
+The owner confirmed live SolarEdge connection, credential persistence after
+closing/reopening, and removal on the Android emulator. Physical Android phone
+testing is planned but has not yet been performed.
+
 ## Todo
 
 - [x] Install/verify Flutter and document the Android and iOS tooling requirements.

@@ -16,9 +16,38 @@ were not present in the tested power-flow response. See the
 
 The Flutter starter is in [app](app/README.md), with Android/iOS targets and
 SolarEdge settings for testing and saving a connection on each phone. A basic
-overview and sample mode are included. Native device builds/storage verification
-remain pending because this Mac lacks the mobile toolchains. History, battery,
-and smart-meter integrations follow in later work.
+overview and sample mode are included. Android is the current development priority;
+iOS remains a target but native iOS verification is deferred.
+
+Verified as of 2026-09-23: the Android debug build and API 36 emulator launch,
+plus a native storage integration test using synthetic data. The owner also
+confirmed a live SolarEdge connection updates both screens, credentials persist
+after closing/reopening the app, and removal works on the Android emulator.
+Real Android phone testing is still pending. Full Xcode is not installed; iOS
+build/storage checks remain pending. Android Studio, the Android SDK and CocoaPods
+are installed on the development Mac.
+
+Next: finish the remaining reliability work in ticket #3 (refresh/caching,
+timezone-aware timestamps, stale readings and failure handling), then ticket #4
+(overview). Ticket #2 retains deferred iOS checks and unfinished navigation/sample
+data. History, battery and smart-meter integrations follow in later work.
+
+## Working one ticket per chat
+
+Start a new chat with this repository selected as the workspace. `AGENTS.md`
+contains durable project and workflow instructions; the selected GitHub issue and
+its local copy contain the task scope and progress. Update those notes at each
+handoff instead of relying on previous conversations.
+
+Example starting message:
+
+> Work on ticket #3. Read AGENTS.md and the GitHub issue first. Inspect what
+> already exists and implement only the remaining work on a new branch with
+> small logical commits. Android first. Do not merge without asking.
+
+For development commands, see [app/README.md](app/README.md). On the owner's Mac,
+the ignored `LOCAL_LAUNCH.md` includes a one-command emulator launcher; local
+helpers are not included in fresh clones.
 
 ## Tickets
 
@@ -33,8 +62,8 @@ and smart-meter integrations follow in later work.
 9. [Add weather and investigate solar forecasts](https://github.com/Owaiinnn/solar-overview/issues/9)
 10. [Add animated energy icons with a green flow effect](https://github.com/Owaiinnn/solar-overview/issues/11)
 
-The initial ticket descriptions are in [docs/tickets](docs/tickets); GitHub issues
-track ongoing status and discussion.
+Ticket copies are in [docs/tickets](docs/tickets); check GitHub issues for current
+open/closed state and discussion. A local file's existence does not mean it is open.
 
 All ticket bodies use exactly three sections: **Purpose**, **Description**, and
 **Todo**. Keep local ticket copies and GitHub issues synchronized, put progress and
@@ -72,5 +101,5 @@ python3 -m unittest discover -s scripts -p 'test_*.py' -v
 ```
 
 These offline checks cover error redaction, redirect blocking, and distinguishing
-missing readings from zero. Platform-specific Flutter setup and checks will be
-added in ticket 2.
+missing readings from zero. Flutter setup and checks are documented in
+[app/README.md](app/README.md).

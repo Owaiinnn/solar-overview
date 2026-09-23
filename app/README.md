@@ -56,9 +56,12 @@ Replace `DEVICE_ID` with an Android or iOS device/simulator ID from `flutter dev
 On another computer, install Flutter and use that installation's `bin` directory.
 Once running, pressing `r` in the terminal applies most code changes with hot reload.
 
-This Mac currently lacks the Android SDK, full Xcode, and CocoaPods. Android/iOS
-builds and the actual OS storage plugin have **not** been verified here. Complete
-the relevant official setup before running on a phone or simulator:
+Android is the current development priority. As of 2026-09-23, Android Studio,
+the Android SDK and CocoaPods are installed on the owner's Mac. The Android debug
+build, API 36 emulator launch and native storage integration test have passed.
+Full Xcode is not installed, so iOS builds/storage verification remain deferred.
+Real Android phone testing is still pending. For a fresh machine, follow the
+relevant official setup:
 
 - [Android setup](https://docs.flutter.dev/platform-integration/android/setup)
 - [iOS setup](https://docs.flutter.dev/platform-integration/ios/setup)
@@ -120,6 +123,10 @@ flutter test integration_test/credential_storage_test.dart -d DEVICE_ID
 ```
 
 It uses a separate synthetic test record and leaves the user's connection alone.
-Also verify on both platforms: save a real connection, fully close/reopen the app,
+The owner confirmed on the Android emulator that a live SolarEdge connection
+updates both screens, credentials persist after fully closing/reopening the app,
+and removing the connection works. These are user-reported manual checks, separate
+from the automated native test. Physical Android phone and iOS checks are pending.
+When testing those targets, save a real connection, fully close/reopen the app,
 confirm readings return without reentering the key, then remove the connection
-and reopen to confirm it is gone. These native checks remain pending.
+and reopen to confirm it is gone. Enter credentials only through the app settings.
