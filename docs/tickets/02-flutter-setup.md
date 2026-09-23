@@ -1,27 +1,34 @@
-# Set up Flutter for Android and iOS with a sample-data app
+## Purpose
+
+Provide a runnable Flutter foundation for Android and iPhone that is easy to develop ticket by ticket.
+
+## Description
 
 Create the starter app and beginner-friendly instructions so the owner can run
 and change it one ticket at a time.
 
-## Acceptance criteria
-
-- [ ] Install/verify Flutter and document the Android and iOS tooling requirements.
-- [ ] Generate Android and iOS targets and show the starter screen on an available simulator/emulator.
-- [ ] Record any platform build that could not be verified and the specific missing prerequisite.
-- [ ] Add navigation for Overview, Appliances, and History.
-- [ ] Add clearly labelled sample data for SolarEdge, battery solar input, battery power, and household consumption.
-- [ ] Document run commands and the basics of Dart, widgets, and hot reload used here.
-- [ ] Configure formatting, analysis, and useful automated checks in GitHub Actions.
-
 Can proceed while hardware access is being investigated.
 
-## Progress — 2026-09-22
+Progress — 2026-09-23:
 
 Flutter 3.47.5 is installed locally, and the `app/` directory now contains Android
 and iOS projects, Settings/Overview navigation, a SolarEdge sample mode, and CI
 configuration for formatting, analysis, and tests. The app README explains the
 structure and run commands.
 
-This ticket remains open: full Xcode, Android SDK, and CocoaPods are not installed
-on the development Mac, so neither mobile build has been verified. Broader sample
-data and the Appliances/History navigation in the original scope are also pending.
+PR #10 was merged on 2026-09-23. Android Studio, the Android SDK and CocoaPods
+are installed. The Android debug build and launch on an API 36 emulator succeeded;
+the native credential-storage integration test passed using synthetic data.
+Full Xcode and iOS native verification remain pending. Broader sample data and
+Appliances/History navigation are also still pending, so this ticket stays open.
+
+## Todo
+
+- [x] Install/verify Flutter and document the Android and iOS tooling requirements.
+- [x] Generate Android and iOS targets and show the starter screen on an available simulator/emulator.
+- [x] Record any platform build that could not be verified and the specific missing prerequisite.
+- [ ] Install full Xcode and verify the app on an iPhone simulator or device.
+- [ ] Add navigation for Overview, Appliances, and History.
+- [ ] Add clearly labelled sample data for SolarEdge, battery solar input, battery power, and household consumption.
+- [x] Document run commands and the basics of Dart, widgets, and hot reload used here.
+- [x] Configure formatting, analysis, and useful automated checks in GitHub Actions.
