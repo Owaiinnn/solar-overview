@@ -31,9 +31,15 @@ and smart-meter integrations follow in later work.
 7. [Connect household consumption](https://github.com/Owaiinnn/solar-overview/issues/7)
 8. [Add the appliance planner](https://github.com/Owaiinnn/solar-overview/issues/8)
 9. [Add weather and investigate solar forecasts](https://github.com/Owaiinnn/solar-overview/issues/9)
+10. [Add animated energy icons with a green flow effect](https://github.com/Owaiinnn/solar-overview/issues/11)
 
 The initial ticket descriptions are in [docs/tickets](docs/tickets); GitHub issues
 track ongoing status and discussion.
+
+All ticket bodies use exactly three sections: **Purpose**, **Description**, and
+**Todo**. Keep local ticket copies and GitHub issues synchronized, put progress and
+dependencies under Description, and use checkboxes under Todo. New issues can use
+the repository's Task template.
 
 ## Repeat the SolarEdge check
 
