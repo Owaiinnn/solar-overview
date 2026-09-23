@@ -1,0 +1,30 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  flutter:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Flutter SDK
+        run: git clone --depth 1 --branch 3.47.5 https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+      - name: Resolve dependencies
+        run: '"$RUNNER_TEMP/flutter/bin/flutter" pub get'
+      - name: Check formatting
+        run: '"$RUNNER_TEMP/flutter/bin/dart" format --output=none --set-exit-if-changed lib test integration_test'
+      - name: Analyze
+        run: '"$RUNNER_TEMP/flutter/bin/flutter" analyze'
+      - name: Unit and widget tests
+        run: '"$RUNNER_TEMP/flutter/bin/flutter" test'
+      - name: SolarEdge script checks
+        working-directory: .
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
