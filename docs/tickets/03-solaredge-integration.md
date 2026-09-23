@@ -21,11 +21,22 @@ The first overview request, safe HTTP errors, explicit sample mode, and an
 in-session manual-refresh cooldown are implemented. All 21 unit/widget tests cover
 storage lifecycle, failure cases and sample preview behavior. The separate native
 storage integration test passed on Android API 36 with a synthetic record; iOS
-native verification remains pending. PR #10 was merged on 2026-09-23. The API itself was verified in #1
-using the Python check; a live request from the mobile app remains unverified.
+native verification remains pending. PR #10 was merged on 2026-09-23. The API
+itself was verified in #1 using the Python check. The owner subsequently confirmed
+that a live SolarEdge connection updates both screens on the Android emulator,
+credentials persist after fully closing/reopening the app, and removal works.
+These manual results are user-reported; physical Android phone testing is pending.
 
-Keep this ticket open for native/live app verification, persistent shared
-caching/rate-limit handling as needed, and timezone-aware stale-data behavior.
+Keep this ticket open for persistent caching/rate-limit handling as needed,
+timezone-aware stale-data behavior, and remaining failure-path verification.
+Inspect the existing normalization/redaction code and tests before implementing
+unchecked items: some are partly implemented and require completion/verification,
+not a rewrite. Document the limits of any device-local cache across multiple phones;
+do not introduce a backend without agreeing its scope with the owner.
+
+Android is the current priority; iOS native verification is deferred under #2 and
+should not block this ticket's Android work. Physical Android phone testing remains
+a separate pending manual check. Finish this reliability work before expanding #4.
 
 ## Todo
 
@@ -36,3 +47,5 @@ caching/rate-limit handling as needed, and timezone-aware stale-data behavior.
 - [ ] Show connection failures, expired/denied access, rate limiting, and stale data clearly.
 - [ ] Redact credential-bearing URLs and response details from logs and crash reports.
 - [ ] Verify against the live site and representative failure responses.
+  - [x] Owner confirmed live connection, persistence and removal on the Android emulator.
+  - [ ] Complete representative failure-response verification for the remaining behavior.
