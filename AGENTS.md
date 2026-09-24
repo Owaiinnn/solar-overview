@@ -50,7 +50,7 @@ device rebuild. CI remains required for merging.
 On the owner's Mac, `LOCAL_LAUNCH.md` and `.local/run-android.sh` provide the
 one-command emulator launch. They are ignored, machine-local helpers: keep them
 untracked and do not assume they exist in a fresh clone. See `app/README.md` for
-portable commands. Browser preview is sample-only, not live API testing.
+portable commands. Browser preview shows empty screens without live API testing.
 
 ## Data and credentials
 
@@ -58,7 +58,8 @@ portable commands. Browser preview is sample-only, not live API testing.
   own inverter and two panels. Its API and the smart-meter interface are unknown.
 - Keep battery discharge separate from solar production. Do not call SolarEdge
   alone combined production or calculate household surplus without all inputs.
-  Missing readings must not become zero; distinguish sample and stale data.
+  Missing readings must not become zero; distinguish stale data. The owner does
+  not want sample data in the app; keep synthetic fixtures in tests only.
 - Credentials are entered in mobile Settings and stored in device secure storage.
   Never commit real credentials, screenshots, raw API responses, credential-bearing
   URLs, or keys in `.env`, app assets or build flags. Use synthetic data in tests.
