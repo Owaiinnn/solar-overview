@@ -6,9 +6,12 @@ them with SolarEdge before saving one credential record in protected device
 storage. On later launches it reads that record automatically. Replacement and
 removal are available from the same screen.
 
-No real key is bundled, prefilled, or loaded from `.env` files. The Overview can
-show the returned production and today's energy, or explicitly labelled sample
-data. The PowerFlex and household-meter sources are not connected yet.
+No real key is bundled, prefilled, or loaded from `.env` files. The app opens on
+Overview, which shows returned production and today's energy after connecting.
+Without a connection it offers a link to Settings. There is no sample mode.
+Appliances and History have navigation and clear coming-later screens; their
+features belong to tickets #8 and #5. The PowerFlex and household-meter sources
+are not connected yet.
 
 ## Run locally
 
@@ -19,9 +22,9 @@ Install the recommended Flutter extension, open **Run and Debug**, select
 **Solar overview — Browser preview**, and press **F5** (or click the green play
 button). The configuration opens Chrome at a local URL with an available port.
 
-The browser target uses sample data automatically. It has no API-key entry,
-credential persistence, or live SolarEdge requests. Use it to develop the UI;
-test the real connection and protected storage on a mobile target.
+The browser target shows the same navigation and empty states without readings.
+It has no API-key entry, credential persistence, or live SolarEdge requests. Use it
+to develop the UI; test the real connection and protected storage on a mobile target.
 
 For a terminal development server that you open in any browser:
 
@@ -74,7 +77,7 @@ development default. The bundle IDs are provisional.
 
 - `lib/main.dart`: starts Flutter and opens the saved connection.
 - `lib/src/app.dart`: the screens, composed from Flutter widgets (UI building blocks).
-- `lib/src/connection_controller.dart`: coordinates loading, testing, saving, sample mode, and removal.
+- `lib/src/connection_controller.dart`: coordinates loading, testing, saving, refresh, and removal.
 - `lib/src/credential_store.dart`: stores one credential record using `flutter_secure_storage`.
 - `lib/src/solaredge.dart`: makes a read-only HTTPS request and parses the overview.
 
@@ -111,10 +114,12 @@ flutter analyze
 flutter test
 ```
 
-The 21 unit/widget tests cover connection validation, restoration, failed
+The unit/widget tests cover connection validation, restoration, failed
 replacement/save/removal, error redaction, refresh limiting, missing values,
-sample mode, hidden/cleared inputs, a small screen with larger text, and the
-browser preview's sample-only behavior.
+hidden/cleared inputs, and browser preview without readings or credential entry.
+Navigation checks cover all four tabs, the Overview shortcut to Settings, form
+state across tabs, a small screen with larger text, and retaining restored
+readings without extra API requests when changing tabs.
 
 When a mobile target is available, run the native storage test:
 

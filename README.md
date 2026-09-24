@@ -16,8 +16,9 @@ were not present in the tested power-flow response. See the
 
 The Flutter starter is in [app](app/README.md), with Android/iOS targets and
 SolarEdge settings for testing and saving a connection on each phone. A basic
-overview and sample mode are included. Android is the current development priority;
-iOS remains a target but native iOS verification is deferred.
+overview and navigation for Appliances, History, and Settings are included.
+Android is the current development priority; iOS remains a target but native iOS
+verification is deferred.
 
 Verified as of 2026-09-23: the Android debug build and API 36 emulator launch,
 plus a native storage integration test using synthetic data. The owner also
@@ -29,8 +30,9 @@ are installed on the development Mac.
 
 Next: finish the remaining reliability work in ticket #3 (refresh/caching,
 timezone-aware timestamps, stale readings and failure handling), then ticket #4
-(overview). Ticket #2 retains deferred iOS checks and unfinished navigation/sample
-data. History, battery and smart-meter integrations follow in later work.
+(overview). Ticket #2’s navigation is implemented and sample mode has been
+removed at the owner’s request; only deferred iOS verification remains. History,
+battery and smart-meter integrations follow in later work.
 
 ## Working one ticket per chat
 
