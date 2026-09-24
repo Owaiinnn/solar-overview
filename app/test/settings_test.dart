@@ -8,15 +8,15 @@ import 'fakes.dart';
 
 void main() {
   testWidgets(
-    'browser preview shows sample readings without credential entry',
+    'browser preview has empty screens without readings or credential entry',
     (tester) async {
       const preview = BrowserPreview();
       final controller = ConnectionController(preview, preview);
       await controller.initialize();
-      controller.showSample();
       await tester.pumpWidget(SolarApp(controller: controller, preview: true));
-      expect(find.text('SAMPLE DATA · Example readings'), findsOneWidget);
-      expect(find.text('1.85 kW'), findsOneWidget);
+      expect(find.text('Connect SolarEdge'), findsOneWidget);
+      expect(controller.overview, isNull);
+      expect(find.textContaining('kW'), findsNothing);
       await tester.tap(find.text('Settings'));
       await tester.pumpAndSettle();
       expect(find.text('Browser preview'), findsOneWidget);
@@ -32,6 +32,8 @@ void main() {
     final controller = ConnectionController(store, FakeSource());
     await controller.initialize();
     await tester.pumpWidget(SolarApp(controller: controller));
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
     final keyField = find.byKey(const Key('api-key'));
     final editable = find.descendant(
       of: keyField,
@@ -74,6 +76,8 @@ void main() {
       final controller = ConnectionController(MemoryStore(), FakeSource());
       await controller.initialize();
       await tester.pumpWidget(SolarApp(controller: controller));
+      await tester.tap(find.text('Settings'));
+      await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('Test & save connection'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Test & save connection'));

@@ -21,7 +21,7 @@ class BrowserPreview implements CredentialStore, SolarEdgeSource {
   @override
   Future<SolarOverview> overview(SolarEdgeCredentials credentials) async {
     throw const SolarEdgeFailure(
-      'This browser preview uses sample readings only.',
+      'Live readings are available in the Android and iPhone app.',
     );
   }
 }

@@ -14,7 +14,6 @@ Future<void> main() async {
     const preview = BrowserPreview();
     final controller = ConnectionController(preview, preview);
     await controller.initialize();
-    controller.showSample();
     runApp(SolarApp(controller: controller, preview: true));
     return;
   }

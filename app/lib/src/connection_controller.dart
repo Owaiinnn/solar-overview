@@ -16,7 +16,6 @@ class ConnectionController extends ChangeNotifier {
   bool busy = false;
   bool initialized = false;
   bool storageUnavailable = false;
-  bool isSample = false;
   String? error;
 
   String? get siteId => _credentials?.siteId;
@@ -60,7 +59,6 @@ class ConnectionController extends ChangeNotifier {
       _credentials = candidate;
       overview = reading;
       _lastAttempt = _now();
-      isSample = false;
       return true;
     } on SolarEdgeFailure catch (failure) {
       error = failure.message;
@@ -72,7 +70,7 @@ class ConnectionController extends ChangeNotifier {
   }
 
   Future<void> refresh() async {
-    if (busy || _credentials == null || isSample) return;
+    if (busy || _credentials == null) return;
     if (_lastAttempt != null &&
         _now().difference(_lastAttempt!) < const Duration(minutes: 5)) {
       error = 'Please wait five minutes between refreshes. SolarEdge readings are cloud updates.';
@@ -104,7 +102,6 @@ class ConnectionController extends ChangeNotifier {
       overview = null;
       _lastAttempt = null;
       storageUnavailable = false;
-      isSample = false;
       return true;
     } on SolarEdgeFailure catch (failure) {
       error = failure.message;
@@ -113,20 +110,5 @@ class ConnectionController extends ChangeNotifier {
       busy = false;
       notifyListeners();
     }
-  }
-
-  void showSample() {
-    if (busy) return;
-    isSample = true;
-    error = null;
-    overview = const SolarOverview(powerWatts: 1850, energyWh: 7200);
-    notifyListeners();
-  }
-
-  Future<void> leaveSample() async {
-    if (busy) return;
-    isSample = false;
-    overview = null;
-    await initialize();
   }
 }
