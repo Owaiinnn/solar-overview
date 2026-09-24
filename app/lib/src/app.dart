@@ -11,14 +11,10 @@ class SolarApp extends StatefulWidget {
   State<SolarApp> createState() => _SolarAppState();
 }
 
-class _SolarAppState extends State<SolarApp> {
-  late int _tab;
+enum _AppTab { overview, appliances, history, settings }
 
-  @override
-  void initState() {
-    super.initState();
-    _tab = widget.preview ? 0 : 1;
-  }
+class _SolarAppState extends State<SolarApp> {
+  _AppTab _tab = _AppTab.overview;
 
   @override
   Widget build(BuildContext context) {
@@ -78,11 +74,29 @@ class _SolarAppState extends State<SolarApp> {
                           child: Text('Opening your saved connection…'),
                         )
                       : IndexedStack(
-                          index: _tab,
+                          index: _tab.index,
                           children: [
                             OverviewPage(
                               controller: controller,
-                              openSettings: () => setState(() => _tab = 1),
+                              openSettings: () =>
+                                  setState(() => _tab = _AppTab.settings),
+                            ),
+                            const _ComingSoonPage(
+                              title: 'Plan your appliance use',
+                              icon: Icons.local_laundry_service_outlined,
+                              description:
+                                  'Appliance planning is coming later. '
+                                  'You’ll be able to compare estimated appliance '
+                                  'demand with available power once your energy '
+                                  'sources are connected.',
+                            ),
+                            const _ComingSoonPage(
+                              title: 'Your production history',
+                              icon: Icons.show_chart,
+                              description:
+                                  'Production history is coming later. '
+                                  'Your SolarEdge history will appear here once '
+                                  'history charts are available.',
                             ),
                             SettingsPage(
                               controller: controller,
@@ -95,15 +109,24 @@ class _SolarAppState extends State<SolarApp> {
             ),
           ),
           bottomNavigationBar: NavigationBar(
-            selectedIndex: _tab,
+            selectedIndex: _tab.index,
             onDestinationSelected: controller.busy
                 ? null
-                : (index) => setState(() => _tab = index),
+                : (index) => setState(() => _tab = _AppTab.values[index]),
             destinations: const [
               NavigationDestination(
                 icon: Icon(Icons.wb_sunny_outlined),
                 selectedIcon: Icon(Icons.wb_sunny),
                 label: 'Overview',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.local_laundry_service_outlined),
+                selectedIcon: Icon(Icons.local_laundry_service),
+                label: 'Appliances',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.show_chart),
+                label: 'History',
               ),
               NavigationDestination(
                 icon: Icon(Icons.settings_outlined),
@@ -231,7 +254,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Explore the app with sample readings. Connect your real SolarEdge account from the Android or iPhone app.',
+                    'Explore the app’s screens here. Connect your SolarEdge account from the Android or iPhone app to see real readings.',
                   ),
                 ] else if (controller.storageUnavailable) ...[
                   const Text(
@@ -376,26 +399,10 @@ class _SettingsPageState extends State<SettingsPage> {
             'Your key stays in this phone’s protected storage and is used only to contact SolarEdge. Enter it separately on each phone.',
           ),
         const SizedBox(height: 24),
-        if (widget.preview)
-          const Text('No API key is needed for this preview.')
-        else if (!controller.isSample)
-          OutlinedButton(
-            onPressed: controller.busy ? null : controller.showSample,
-            child: const Text('Try sample data'),
-          )
-        else
-          OutlinedButton(
-            onPressed: controller.busy ? null : controller.leaveSample,
-            child: const Text('Leave sample mode'),
-          ),
-        if (controller.isSample)
-          const Padding(
-            padding: EdgeInsets.only(top: 8),
-            child: Text(
-              'Sample mode is on. The Overview uses example readings.',
-            ),
-          ),
-        const SizedBox(height: 24),
+        if (widget.preview) ...[
+          const Text('No API key is needed for this preview.'),
+          const SizedBox(height: 24),
+        ],
         Text('Coming later', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         const Text(
@@ -426,13 +433,9 @@ class OverviewPage extends StatelessWidget {
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         const SizedBox(height: 12),
-        Text(
-          controller.isSample
-              ? 'SAMPLE DATA · Example readings'
-              : 'SolarEdge panels',
-        ),
+        const Text('SolarEdge panels'),
         const SizedBox(height: 24),
-        if (!controller.connected && !controller.isSample) ...[
+        if (!controller.connected) ...[
           const Text('Connect your SolarEdge site to see production here.'),
           const SizedBox(height: 16),
           FilledButton(
@@ -456,28 +459,26 @@ class OverviewPage extends StatelessWidget {
             icon: Icons.bolt_outlined,
           ),
           const SizedBox(height: 16),
-          if (!controller.isSample) ...[
-            Text(
-              'Last reported: ${data?.reportedAt ?? 'unavailable'}${data?.reportedAt == null ? '' : ' (site time)'}',
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Cloud readings may lag behind your panels. Refresh is available every five minutes.',
-            ),
-            if (controller.error != null)
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text(
-                  'Any readings shown are from the last successful request.',
-                ),
+          Text(
+            'Last reported: ${data?.reportedAt ?? 'unavailable'}${data?.reportedAt == null ? '' : ' (site time)'}',
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Cloud readings may lag behind your panels. Refresh is available every five minutes.',
+          ),
+          if (controller.error != null)
+            const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Text(
+                'Any readings shown are from the last successful request.',
               ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: controller.busy ? null : controller.refresh,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Refresh readings'),
             ),
-          ],
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: controller.busy ? null : controller.refresh,
+            icon: const Icon(Icons.refresh),
+            label: const Text('Refresh readings'),
+          ),
         ],
         const SizedBox(height: 28),
         const Text(
@@ -495,6 +496,49 @@ class OverviewPage extends StatelessWidget {
       ],
     );
   }
+}
+
+class _ComingSoonPage extends StatelessWidget {
+  const _ComingSoonPage({
+    required this.title,
+    required this.icon,
+    required this.description,
+  });
+
+  final String title;
+  final IconData icon;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) => ListView(
+    padding: const EdgeInsets.all(24),
+    children: [
+      Text(title, style: Theme.of(context).textTheme.headlineMedium),
+      const SizedBox(height: 24),
+      Card(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                icon,
+                color: Theme.of(context).colorScheme.primary,
+                size: 32,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Coming later',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(description),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
 }
 
 class _ReadingCard extends StatelessWidget {

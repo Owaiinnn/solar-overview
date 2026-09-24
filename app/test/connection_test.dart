@@ -91,12 +91,14 @@ void main() {
     expect(source.calls, 2);
   });
 
-  test('sample mode does not store credentials or call SolarEdge', () async {
-    await controller.initialize();
-    controller.showSample();
-    expect(controller.isSample, isTrue);
-    expect(controller.overview?.powerWatts, 1850);
-    expect(store.saved, isNull);
-    expect(source.calls, 0);
-  });
+  test(
+    'a fresh install has no readings and makes no SolarEdge requests',
+    () async {
+      await controller.initialize();
+      expect(controller.connected, isFalse);
+      expect(controller.overview, isNull);
+      expect(store.saved, isNull);
+      expect(source.calls, 0);
+    },
+  );
 }

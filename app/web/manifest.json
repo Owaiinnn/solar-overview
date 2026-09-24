@@ -5,7 +5,7 @@
     "display": "standalone",
     "background_color": "#F5F7F3",
     "theme_color": "#22634A",
-    "description": "Sample-data preview of the Solar overview app.",
+    "description": "Screen preview of the Solar overview app.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
