@@ -63,6 +63,7 @@ helpers are not included in fresh clones.
 8. [Add the appliance planner](https://github.com/Owaiinnn/solar-overview/issues/8)
 9. [Add weather and investigate solar forecasts](https://github.com/Owaiinnn/solar-overview/issues/9)
 10. [Add animated energy icons with a green flow effect](https://github.com/Owaiinnn/solar-overview/issues/11)
+11. [Replace the home-screen app icon with a house-outline logo](https://github.com/Owaiinnn/solar-overview/issues/15)
 
 Ticket copies are in [docs/tickets](docs/tickets); check GitHub issues for current
 open/closed state and discussion. A local file's existence does not mean it is open.
