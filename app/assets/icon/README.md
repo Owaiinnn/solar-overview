@@ -2,8 +2,10 @@
 
 The owner selected the latest green-and-ivory concept, including the front door
 to the right of the projecting bay window, on 2026-09-25.
-The final vector moves the lower bay left and widens the door into its own space,
-following the owner's requested adjustment during implementation.
+The final vector keeps the attic and both three-pane windows on one vertical
+centre line. The upper and lower middle-pane dividers align, while the lower bay
+is slightly wider overall. Its width is reduced slightly from the selected
+concept to fit a door between the narrow concept and the first wider-door revision.
 
 - `selected-concept.png`: selected generated concept, not the private house photo.
 - `house.svg`: editable vector master, simplified from that concept for small sizes.
