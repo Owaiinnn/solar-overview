@@ -75,6 +75,10 @@ development default. The bundle IDs are provisional.
 
 ## What the code does
 
+The Android and iOS launcher icons use the owner's house-outline design.
+See [icon assets and regeneration](assets/icon/README.md) for the editable master,
+selected concept, platform exports and device-verification instructions.
+
 - `lib/main.dart`: starts Flutter and opens the saved connection.
 - `lib/src/app.dart`: the screens, composed from Flutter widgets (UI building blocks).
 - `lib/src/connection_controller.dart`: coordinates loading, testing, saving, refresh, and removal.

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
+  <!-- Editable launcher master. Keep the house inside the central safe circle. -->
+  <rect id="background" width="108" height="108" fill="#22634A" />
+  <g fill="none" stroke="#FFF2D8" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Steep front gable, short eaves, exterior walls and ground line. -->
+    <path stroke-width="1.8" d="M 31 59 L 54 23 L 77 59 M 30 59 L 35 59 M 73 59 L 78 59 M 34 59 L 34 78 L 74 78 L 74 59" />
+    <!-- Narrow attic window and three-part upper window. -->
+    <path stroke-width="1.1" d="M 52.7 31 L 55.3 31 L 55.3 38.5 L 52.7 38.5 Z" />
+    <path stroke-width="1.2" d="M 44 44.5 L 64 44.5 L 64 54 L 44 54 Z M 48 44.5 L 48 54 M 60 44.5 L 60 54" />
+    <!-- Projecting bay canopy, three panes, sill and short base. -->
+    <path stroke-width="1.2" d="M 37.5 62 L 61.5 62 L 61.5 64.5 L 37.5 64.5 Z M 39.5 64.5 L 39.5 75.5 L 59.5 75.5 L 59.5 64.5 M 43.5 64.5 L 43.5 75.5 M 55.5 64.5 L 55.5 75.5 M 38.5 75.5 L 60.5 75.5 M 39 75.5 L 39 78 M 60 75.5 L 60 78" />
+    <!-- Front door to the right of the bay, with a small handle. -->
+    <path stroke-width="1.1" d="M 63.5 78 L 63.5 65.5 L 71.5 65.5 L 71.5 78 M 69.5 72.5 L 70 72.5" />
+  </g>
+</svg>
