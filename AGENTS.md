@@ -19,7 +19,12 @@ to Flutter: explain handoffs plainly and prefer one copy-paste launch command.
   local branch cleanup is separate.
 - At handoff, record implemented scope, tests actually run, remaining work and
   blockers in the ticket/local copy. Distinguish user-reported testing from tests
-  run by the agent. Do not close a ticket with outstanding scope.
+  run by the agent.
+- After a ticket’s implementation PR is merged, close its linked GitHub issue
+  and verify that the remote issue is closed; merging alone is not completion.
+  Use `Closes #N` in the PR when it completes the ticket. If verification or scope
+  is explicitly deferred, preserve it in a linked follow-up issue before closing
+  the merged implementation ticket. Keep local ticket copies synchronized.
 
 ## Development and verification
 
