@@ -29,9 +29,8 @@ These manual results are user-reported; physical Android phone testing is pendin
 
 Progress — 2026-09-28:
 
-The remaining reliability implementation is ready for review in
-[PR #18](https://github.com/Owaiinnn/solar-overview/pull/18) on
-`feat/solaredge-reliability`. A secure normalized snapshot and refresh deadline
+The remaining reliability implementation was merged on 2026-09-28 in
+[PR #18](https://github.com/Owaiinnn/solar-overview/pull/18). A secure normalized snapshot and refresh deadline
 survive restarts; startup, refresh and connection tests share a 15-minute wait.
 Each attempt uses up to two sequential requests (overview and site details),
 allowing 192 requests per day on one phone against the documented 300-request
@@ -57,18 +56,17 @@ aliases, DST changes, future dates, midnight rollover, and small screens with
 larger text. Native tests use isolated synthetic records; they do not exercise
 real credentials. The earlier live-site verification above remains user-reported.
 
-Remaining: owner/live verification of the newly added site-details/timezone and
-persistent-cache flow. Confirm a real reading and timezone, close/reopen within
-15 minutes to see saved readings and the remaining wait, then check offline
-retention after the wait and stale labeling after 30 minutes. Keep this ticket
-open until that follow-up is confirmed. Physical Android phone testing is pending;
-iOS build/native verification stays deferred under #2 and does not block Android.
-The implementation passed all GitHub Checks runs for PR #18 on 2026-09-28.
-Owner review and green checks on the final PR revision remain required before
-merging; no merge or issue closure has been performed.
+Closure — 2026-09-28:
+
+PR #18 is merged and its GitHub Checks passed. At the owner’s request, close
+this merged implementation ticket. The new live site-timezone/cache verification,
+physical Android testing and deferred iOS checks are preserved in
+[#19](https://github.com/Owaiinnn/solar-overview/issues/19). Those checks remain
+pending; earlier user-reported live checks and automated synthetic checks are
+listed above and do not substitute for them.
 
 Implementation policy and official API reference:
-[refresh, caching and freshness](https://github.com/Owaiinnn/solar-overview/blob/feat/solaredge-reliability/app/README.md#refresh-saved-readings-and-freshness).
+[refresh, caching and freshness](https://github.com/Owaiinnn/solar-overview/blob/main/app/README.md#refresh-saved-readings-and-freshness).
 
 ## Todo
 
@@ -78,7 +76,7 @@ Implementation policy and official API reference:
 - [x] Respect verified API limits using caching and a documented refresh interval; avoid per-widget polling.
 - [x] Show connection failures, expired/denied access, rate limiting, and stale data clearly.
 - [x] Redact credential-bearing URLs and response details from logs and crash reports.
-- [ ] Verify against the live site and representative failure responses.
+- [x] Verify the initial live connection and representative failure responses; track new live-flow checks separately in #19.
   - [x] Owner confirmed live connection, persistence and removal on the Android emulator.
   - [x] Complete representative failure-response verification for the remaining behavior.
-  - [ ] Confirm the new live site-timezone and persistent-cache flow on Android.
+  - [x] Carry forward pending live site-timezone and persistent-cache confirmation on Android to #19.

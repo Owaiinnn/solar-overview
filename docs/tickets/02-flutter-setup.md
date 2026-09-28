@@ -19,7 +19,7 @@ structure and run commands.
 PR #10 was merged on 2026-09-23. Android Studio, the Android SDK and CocoaPods
 are installed. The Android debug build and launch on an API 36 emulator succeeded;
 the native credential-storage integration test passed using synthetic data.
-Full Xcode and iOS native verification remain pending, so this ticket stays open.
+Full Xcode and iOS native verification remained pending at that handoff.
 
 The owner chose Android-first development. Keep the iOS target, but defer full
 Xcode installation and native iOS checks rather than blocking Android tickets.
@@ -46,14 +46,21 @@ visual check confirmed Overview displayed restored connection readings and all
 four navigation destinations. Native storage code was unchanged; its integration
 test was not rerun in this change (the previous passing run is recorded above).
 Full Xcode remains unavailable; iOS verification and physical Android testing
-are still pending. Keep this issue open for the deferred iOS work.
+are still pending; they are now tracked in #19.
+
+Closure — 2026-09-28:
+
+Implementation merged in PRs #10 and #14. At the owner’s request, close this
+merged implementation ticket. Outstanding iOS and physical Android verification
+is preserved in [#19](https://github.com/Owaiinnn/solar-overview/issues/19); it has
+not been reported as passed.
 
 ## Todo
 
 - [x] Install/verify Flutter and document the Android and iOS tooling requirements.
 - [x] Generate Android and iOS targets and show the starter screen on an available simulator/emulator.
 - [x] Record any platform build that could not be verified and the specific missing prerequisite.
-- [ ] Install full Xcode and verify the app on an iPhone simulator or device.
+- [x] Track deferred full Xcode installation and iPhone simulator/device verification in #19.
 - [x] Add navigation for Overview, Appliances, and History.
 - [x] Remove sample mode and example readings; the owner withdrew the sample-data requirement on 2026-09-23.
 - [x] Document run commands and the basics of Dart, widgets, and hot reload used here.

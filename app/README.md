@@ -192,5 +192,7 @@ Ticket #3 live follow-up: with the updated app on Android, confirm the site time
 and a real reading appear, fully close/reopen within 15 minutes to see the saved
 reading and remaining wait, then retry after the wait. Repeat offline after the
 wait to confirm the saved reading remains with a connection error. Check that
-readings age to stale after 30 minutes. These new live checks are pending; automated
-failure and native-storage checks use synthetic data. Keep keys in mobile Settings.
+readings age to stale after 30 minutes. These new live checks are pending in
+[#19](https://github.com/Owaiinnn/solar-overview/issues/19); automated failure and
+native-storage checks use synthetic data. Ticket #3’s implementation is merged
+and its issue is closed. Keep keys in mobile Settings.

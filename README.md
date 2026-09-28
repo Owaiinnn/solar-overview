@@ -28,22 +28,26 @@ Real Android phone testing is still pending. Full Xcode is not installed; iOS
 build/storage checks remain pending. Android Studio, the Android SDK and CocoaPods
 are installed on the development Mac.
 
-Ticket #3 reliability work is implemented in
+Ticket #3 reliability work was merged in
 [PR #18](https://github.com/Owaiinnn/solar-overview/pull/18):
 secure saved readings, a persistent 15-minute refresh wait, 24-hour rate-limit
 backoff, and site-timezone-aware stale readings and daily energy. Automated
-failure-path checks and Android native-storage tests are included. The new live
-cache/timezone flow still needs confirmation before closing #3; see its
-[progress notes](docs/tickets/03-solaredge-integration.md). Ticket #4 (overview)
-follows. Ticket #2's navigation is implemented and sample mode was removed at the
-owner's request; its iOS verification remains deferred. History, battery and
-smart-meter integrations follow in later work.
+failure-path checks and Android native-storage tests passed. Tickets #2 and #3
+are closed following their implementation merges. Remaining live cache/timezone,
+physical Android and deferred iOS verification is tracked separately in
+[#19](https://github.com/Owaiinnn/solar-overview/issues/19); those checks have not
+been reported as passed. Ticket #2's navigation is implemented and sample mode
+was removed at the owner's request.
+
+Ticket #4 (overview) is next, but has not been implemented in this handoff.
+History, battery and smart-meter integrations follow in later work.
 
 ## Working one ticket per chat
 
 Start a new chat with this repository selected as the workspace. `AGENTS.md`
-contains durable project and workflow instructions; the selected GitHub issue and
-its local copy contain the task scope and progress. Update those notes at each
+contains durable project and workflow instructions, including closing linked
+GitHub issues after merging and preserving deferred work in follow-up issues.
+The selected GitHub issue and its local copy contain the task scope and progress. Update those notes at each
 handoff instead of relying on previous conversations.
 
 Example starting message:
@@ -69,6 +73,7 @@ helpers are not included in fresh clones.
 9. [Add weather and investigate solar forecasts](https://github.com/Owaiinnn/solar-overview/issues/9)
 10. [Add animated energy icons with a green flow effect](https://github.com/Owaiinnn/solar-overview/issues/11)
 11. [Replace the home-screen app icon with a house-outline logo](https://github.com/Owaiinnn/solar-overview/issues/15)
+12. [Complete deferred live-data and device verification](https://github.com/Owaiinnn/solar-overview/issues/19)
 
 Ticket copies are in [docs/tickets](docs/tickets); check GitHub issues for current
 open/closed state and discussion. A local file's existence does not mean it is open.
