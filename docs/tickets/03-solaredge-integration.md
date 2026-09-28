@@ -29,7 +29,8 @@ These manual results are user-reported; physical Android phone testing is pendin
 
 Progress — 2026-09-28:
 
-The remaining reliability implementation is ready for review on
+The remaining reliability implementation is ready for review in
+[PR #18](https://github.com/Owaiinnn/solar-overview/pull/18) on
 `feat/solaredge-reliability`. A secure normalized snapshot and refresh deadline
 survive restarts; startup, refresh and connection tests share a 15-minute wait.
 Each attempt uses up to two sequential requests (overview and site details),
@@ -62,11 +63,12 @@ persistent-cache flow. Confirm a real reading and timezone, close/reopen within
 retention after the wait and stale labeling after 30 minutes. Keep this ticket
 open until that follow-up is confirmed. Physical Android phone testing is pending;
 iOS build/native verification stays deferred under #2 and does not block Android.
-CI and owner review remain required before merging; no merge or issue closure
-has been performed.
+The implementation passed all GitHub Checks runs for PR #18 on 2026-09-28.
+Owner review and green checks on the final PR revision remain required before
+merging; no merge or issue closure has been performed.
 
 Implementation policy and official API reference:
-[refresh, caching and freshness](../../app/README.md#refresh-saved-readings-and-freshness).
+[refresh, caching and freshness](https://github.com/Owaiinnn/solar-overview/blob/feat/solaredge-reliability/app/README.md#refresh-saved-readings-and-freshness).
 
 ## Todo
 
