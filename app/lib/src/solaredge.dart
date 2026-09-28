@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import 'site_time.dart';
+
 class SolarEdgeCredentials {
   SolarEdgeCredentials(String siteId, String apiKey)
     : siteId = siteId.trim(),
@@ -24,23 +26,54 @@ class SolarEdgeCredentials {
 }
 
 class SolarEdgeFailure implements Exception {
-  const SolarEdgeFailure(this.message);
+  const SolarEdgeFailure(this.message, {this.rateLimited = false});
   final String message;
+  final bool rateLimited;
 
   @override
   String toString() => message;
 }
 
+enum ReadingFreshness { recent, stale, unknown }
+
 class SolarOverview {
-  const SolarOverview({this.powerWatts, this.energyWh, this.reportedAt});
+  const SolarOverview({
+    this.powerWatts,
+    this.energyWh,
+    this.reportedAt,
+    this.timeZone,
+  });
 
   final double? powerWatts;
   final double? energyWh;
-  // SolarEdge's overview timestamp has no timezone offset. Do not interpret it
-  // in the phone's timezone or claim a precise age before site timezone support.
   final String? reportedAt;
+  final String? timeZone;
+  String get source => 'SolarEdge';
+  DateTime? get reportedAtUtc => siteTimestampUtc(reportedAt, timeZone);
 
-  factory SolarOverview.fromJson(Map<String, dynamic> json) {
+  ReadingFreshness freshness(DateTime now) {
+    final stamp = reportedAtUtc;
+    if (stamp == null || stamp.isAfter(now.toUtc())) {
+      return ReadingFreshness.unknown;
+    }
+    return now.toUtc().difference(stamp) >= const Duration(minutes: 30)
+        ? ReadingFreshness.stale
+        : ReadingFreshness.recent;
+  }
+
+  double? todayEnergyWh(DateTime now) {
+    final stamp = reportedAtUtc;
+    return stamp != null &&
+            !stamp.isAfter(now.toUtc()) &&
+            isSiteToday(stamp, now, timeZone)
+        ? energyWh
+        : null;
+  }
+
+  factory SolarOverview.fromJson(
+    Map<String, dynamic> json, {
+    String? timeZone,
+  }) {
     double? reading(String group, String field) {
       final object = json[group];
       final value = object is Map ? object[field] : null;
@@ -49,17 +82,19 @@ class SolarOverview {
           : null;
     }
 
-    final stamp = json['lastUpdateTime'];
-    final validStamp =
-        stamp is String &&
-        RegExp(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$').hasMatch(stamp) &&
-        DateTime.tryParse(stamp) != null;
     return SolarOverview(
       powerWatts: reading('currentPower', 'power'),
       energyWh: reading('lastDayData', 'energy'),
-      reportedAt: validStamp ? stamp : null,
+      reportedAt: validSiteTimestamp(json['lastUpdateTime']),
+      timeZone: siteLocation(timeZone)?.name,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'currentPower': {'power': powerWatts},
+    'lastDayData': {'energy': energyWh},
+    'lastUpdateTime': reportedAt,
+  };
 }
 
 abstract interface class SolarEdgeSource {
@@ -72,13 +107,26 @@ class SolarEdgeApi implements SolarEdgeSource {
 
   @override
   Future<SolarOverview> overview(SolarEdgeCredentials credentials) async {
+    // Sequential calls stay below the provider's concurrency limit. Fetch the
+    // overview first so rejected credentials never trigger a second request.
+    final data = await _get(credentials, 'overview');
+    final details = await _get(credentials, 'details');
+    final location = details['location'];
+    final zone = location is Map ? location['timeZone'] : null;
+    return SolarOverview.fromJson(data, timeZone: zone is String ? zone : null);
+  }
+
+  Future<Map<String, dynamic>> _get(
+    SolarEdgeCredentials credentials,
+    String endpoint,
+  ) async {
     try {
       final request =
           http.Request(
               'GET',
               Uri.https(
                 'monitoringapi.solaredge.com',
-                '/site/${credentials.siteId}/overview',
+                '/site/${credentials.siteId}/$endpoint',
                 {'api_key': credentials.apiKey},
               ),
             )
@@ -98,7 +146,8 @@ class SolarEdgeApi implements SolarEdgeSource {
           );
         case 429:
           throw const SolarEdgeFailure(
-            'SolarEdge’s request limit was reached. Please try again later.',
+            'SolarEdge’s request limit was reached. Requests are paused for 24 hours.',
+            rateLimited: true,
           );
         default:
           throw const SolarEdgeFailure(
@@ -107,14 +156,18 @@ class SolarEdgeApi implements SolarEdgeSource {
       }
       final data = jsonDecode(response.body);
       if (data is! Map<String, dynamic> ||
-          data['overview'] is! Map<String, dynamic>) {
+          data[endpoint] is! Map<String, dynamic>) {
         throw const SolarEdgeFailure(
           'SolarEdge returned an unexpected response. Your connection was not changed.',
         );
       }
-      return SolarOverview.fromJson(data['overview'] as Map<String, dynamic>);
+      return data[endpoint] as Map<String, dynamic>;
     } on SolarEdgeFailure {
       rethrow;
+    } on FormatException {
+      throw const SolarEdgeFailure(
+        'SolarEdge returned an unreadable response. Please try again later.',
+      );
     } catch (_) {
       // HTTP exceptions can contain the request URL, which includes the key.
       // Never forward exception strings or raw provider responses to the UI/logs.
