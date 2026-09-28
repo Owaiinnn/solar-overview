@@ -35,16 +35,27 @@ class MemoryStore implements CredentialStore {
 
 class FakeSource implements SolarEdgeSource {
   bool reject = false;
+  bool rateLimit = false;
+  SolarOverview? reading;
   int calls = 0;
 
   @override
   Future<SolarOverview> overview(SolarEdgeCredentials credentials) async {
     calls++;
     if (reject) throw const SolarEdgeFailure('Connection rejected.');
-    return const SolarOverview(
-      powerWatts: 177,
-      energyWh: 152,
-      reportedAt: '2026-09-22 10:35:16',
-    );
+    if (rateLimit) {
+      throw const SolarEdgeFailure('Request limit reached.', rateLimited: true);
+    }
+    return reading ??
+        SolarOverview(
+          powerWatts: 177,
+          energyWh: 152,
+          reportedAt: DateTime.now()
+              .toUtc()
+              .toIso8601String()
+              .substring(0, 19)
+              .replaceFirst('T', ' '),
+          timeZone: 'UTC',
+        );
   }
 }

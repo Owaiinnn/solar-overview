@@ -13,6 +13,7 @@ void main() {
       const preview = BrowserPreview();
       final controller = ConnectionController(preview, preview);
       await controller.initialize();
+      addTearDown(() => tester.pumpWidget(const SizedBox()));
       await tester.pumpWidget(SolarApp(controller: controller, preview: true));
       expect(find.text('Connect SolarEdge'), findsOneWidget);
       expect(controller.overview, isNull);
@@ -31,6 +32,7 @@ void main() {
     final store = MemoryStore();
     final controller = ConnectionController(store, FakeSource());
     await controller.initialize();
+    addTearDown(() => tester.pumpWidget(const SizedBox()));
     await tester.pumpWidget(SolarApp(controller: controller));
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
@@ -75,6 +77,7 @@ void main() {
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
       final controller = ConnectionController(MemoryStore(), FakeSource());
       await controller.initialize();
+      addTearDown(() => tester.pumpWidget(const SizedBox()));
       await tester.pumpWidget(SolarApp(controller: controller));
       await tester.tap(find.text('Settings'));
       await tester.pumpAndSettle();
