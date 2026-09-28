@@ -59,8 +59,11 @@ portable commands. Browser preview shows empty screens without live API testing.
 
 ## Data and credentials
 
-- SolarEdge has its own panels. PowerFlex 2000Eco is a battery system with its
-  own inverter and two panels. Its API and the smart-meter interface are unknown.
+- Solar production sources are SolarEdge and SolaX panels/inverter. The owner
+  clarified that PowerFlex 2000Eco battery access is separate, later work. Its API,
+  exact electrical topology and the smart-meter interface remain unverified.
+  SolaX API access was tested; see `docs/solax-check.md` and ticket #21. Do not infer
+  household consumption or battery flows from SolaX summary counters.
 - Keep battery discharge separate from solar production. Do not call SolarEdge
   alone combined production or calculate household surplus without all inputs.
   Missing readings must not become zero; distinguish stale data. The owner does

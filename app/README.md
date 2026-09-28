@@ -10,8 +10,11 @@ No real key is bundled, prefilled, or loaded from `.env` files. The app opens on
 Overview, which shows returned production and today's energy after connecting.
 Without a connection it offers a link to Settings. There is no sample mode.
 Appliances and History have navigation and clear coming-later screens; their
-features belong to tickets #8 and #5. The PowerFlex and household-meter sources
-are not connected yet.
+features belong to tickets #8 and #5. SolaX panels/inverter (#21), the separate
+PowerFlex battery (#6), and household-meter sources (#7) are not connected yet.
+SolaX API access has been verified outside the app; see
+the [API findings](../docs/solax-check.md). Overview and History will be extended
+through #4/#5; battery integration is deferred.
 
 ## Run locally
 
