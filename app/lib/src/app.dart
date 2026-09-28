@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'connection_controller.dart';
+import 'solaredge.dart';
 
 class SolarApp extends StatefulWidget {
   const SolarApp({super.key, required this.controller, this.preview = false});
@@ -13,7 +16,31 @@ class SolarApp extends StatefulWidget {
 
 enum _AppTab { overview, appliances, history, settings }
 
-class _SolarAppState extends State<SolarApp> {
+class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
+  Timer? _freshnessTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _freshnessTimer = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => widget.controller.updateFreshness(),
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) widget.controller.updateFreshness();
+  }
+
+  @override
+  void dispose() {
+    _freshnessTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
   _AppTab _tab = _AppTab.overview;
 
   @override
@@ -187,7 +214,7 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) => AlertDialog(
         title: const Text('Remove this connection?'),
         content: const Text(
-          'The saved SolarEdge key will be removed from this phone. You can connect again later.',
+          'The saved SolarEdge key and readings will be removed from this phone. The refresh wait will still apply.',
         ),
         actions: [
           TextButton(
@@ -258,7 +285,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ] else if (controller.storageUnavailable) ...[
                   const Text(
-                    'Your phone’s saved connection could not be opened.',
+                    'Your phone’s saved connection or readings need attention.',
                   ),
                   const SizedBox(height: 12),
                   Wrap(
@@ -283,6 +310,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   const SizedBox(height: 8),
                   Text('Site ${controller.siteId}'),
+                  if (controller.refreshNotice != null)
+                    Text(controller.refreshNotice!),
                   const Text('API key saved securely'),
                   const SizedBox(height: 16),
                   Wrap(
@@ -436,6 +465,7 @@ class OverviewPage extends StatelessWidget {
         const Text('SolarEdge panels'),
         const SizedBox(height: 24),
         if (!controller.connected) ...[
+          if (controller.refreshNotice != null) Text(controller.refreshNotice!),
           const Text('Connect your SolarEdge site to see production here.'),
           const SizedBox(height: 16),
           FilledButton(
@@ -443,6 +473,17 @@ class OverviewPage extends StatelessWidget {
             child: const Text('Connect SolarEdge'),
           ),
         ] else ...[
+          Text(switch (controller.freshness) {
+            ReadingFreshness.recent => 'Recent SolarEdge reading',
+            ReadingFreshness.stale =>
+              'Stale SolarEdge reading — 30 minutes or older',
+            ReadingFreshness.unknown => 'Reading freshness unavailable',
+          }, style: const TextStyle(fontWeight: FontWeight.w600)),
+          if (controller.usingSavedReading)
+            const Text(
+              'Showing saved readings from the last successful request.',
+            ),
+          const SizedBox(height: 12),
           _ReadingCard(
             label: 'Reported production',
             value: data?.powerWatts == null
@@ -453,19 +494,24 @@ class OverviewPage extends StatelessWidget {
           const SizedBox(height: 12),
           _ReadingCard(
             label: 'Today’s energy',
-            value: data?.energyWh == null
+            value: controller.todayEnergyWh == null
                 ? 'Unavailable'
-                : '${(data!.energyWh! / 1000).toStringAsFixed(2)} kWh',
+                : '${(controller.todayEnergyWh! / 1000).toStringAsFixed(2)} kWh',
             icon: Icons.bolt_outlined,
           ),
           const SizedBox(height: 16),
           Text(
-            'Last reported: ${data?.reportedAt ?? 'unavailable'}${data?.reportedAt == null ? '' : ' (site time)'}',
+            'Last reported: ${data?.reportedAt ?? 'unavailable'}${data?.reportedAt == null ? '' : ' (${data?.timeZone ?? 'site timezone unavailable'})'}',
           ),
           const SizedBox(height: 8),
           const Text(
-            'Cloud readings may lag behind your panels. Refresh is available every five minutes.',
+            'Cloud readings may lag behind your panels. Refresh is available every 15 minutes.',
           ),
+          if (controller.todayEnergyWh == null && data?.energyWh != null)
+            const Text(
+              'Today’s energy is unavailable until a reading dated today in the site timezone arrives.',
+            ),
+          if (controller.refreshNotice != null) Text(controller.refreshNotice!),
           if (controller.error != null)
             const Padding(
               padding: EdgeInsets.only(top: 8),
@@ -475,7 +521,12 @@ class OverviewPage extends StatelessWidget {
             ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: controller.busy ? null : controller.refresh,
+            onPressed:
+                controller.busy ||
+                    controller.storageUnavailable ||
+                    !controller.canRequest
+                ? null
+                : controller.refresh,
             icon: const Icon(Icons.refresh),
             label: const Text('Refresh readings'),
           ),

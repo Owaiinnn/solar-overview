@@ -7,6 +7,7 @@ import 'src/connection_controller.dart';
 import 'src/credential_store.dart';
 import 'src/browser_preview.dart';
 import 'src/solaredge.dart';
+import 'src/reading_store.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,7 @@ Future<void> main() async {
   final controller = ConnectionController(
     SecureCredentialStore(),
     SolarEdgeApi(http.Client()),
+    readingStore: SecureReadingStore(),
   );
   runApp(SolarApp(controller: controller));
   controller.initialize();

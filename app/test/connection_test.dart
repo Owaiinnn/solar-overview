@@ -8,11 +8,13 @@ void main() {
   late MemoryStore store;
   late FakeSource source;
   late ConnectionController controller;
+  late DateTime time;
 
   setUp(() {
     store = MemoryStore();
     source = FakeSource();
-    controller = ConnectionController(store, source);
+    time = DateTime.utc(2026, 9, 22, 10);
+    controller = ConnectionController(store, source, now: () => time);
   });
 
   test(
@@ -36,6 +38,7 @@ void main() {
     'rejected replacements preserve the previous saved connection',
     () async {
       await controller.connect('123', fakeKey);
+      time = time.add(ConnectionController.refreshInterval);
       source.reject = true;
       expect(await controller.connect('456', 'b' * 32), isFalse);
       expect(store.saved?.siteId, '123');
@@ -86,7 +89,7 @@ void main() {
     await controller.connect('123', fakeKey);
     await controller.refresh();
     expect(source.calls, 1);
-    time = time.add(const Duration(minutes: 5));
+    time = time.add(ConnectionController.refreshInterval);
     await controller.refresh();
     expect(source.calls, 2);
   });

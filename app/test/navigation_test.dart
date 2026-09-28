@@ -20,6 +20,7 @@ void main() {
     final source = FakeSource();
     final controller = ConnectionController(store, source);
     await controller.initialize();
+    addTearDown(() => tester.pumpWidget(const SizedBox()));
     await tester.pumpWidget(SolarApp(controller: controller));
 
     expect(find.text('Your solar, at a glance'), findsOneWidget);
@@ -62,6 +63,7 @@ void main() {
     final source = FakeSource();
     final controller = ConnectionController(store, source);
     await controller.initialize();
+    addTearDown(() => tester.pumpWidget(const SizedBox()));
     await tester.pumpWidget(SolarApp(controller: controller));
     expect(find.text('0.18 kW'), findsOneWidget);
 
