@@ -28,11 +28,15 @@ Real Android phone testing is still pending. Full Xcode is not installed; iOS
 build/storage checks remain pending. Android Studio, the Android SDK and CocoaPods
 are installed on the development Mac.
 
-Next: finish the remaining reliability work in ticket #3 (refresh/caching,
-timezone-aware timestamps, stale readings and failure handling), then ticket #4
-(overview). Ticket #2’s navigation is implemented and sample mode has been
-removed at the owner’s request; only deferred iOS verification remains. History,
-battery and smart-meter integrations follow in later work.
+Ticket #3 reliability work is implemented on the current feature branch:
+secure saved readings, a persistent 15-minute refresh wait, 24-hour rate-limit
+backoff, and site-timezone-aware stale readings and daily energy. Automated
+failure-path checks and Android native-storage tests are included. The new live
+cache/timezone flow still needs confirmation before closing #3; see its
+[progress notes](docs/tickets/03-solaredge-integration.md). Ticket #4 (overview)
+follows. Ticket #2's navigation is implemented and sample mode was removed at the
+owner's request; its iOS verification remains deferred. History, battery and
+smart-meter integrations follow in later work.
 
 ## Working one ticket per chat
 
