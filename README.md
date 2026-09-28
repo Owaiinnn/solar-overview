@@ -28,7 +28,8 @@ Real Android phone testing is still pending. Full Xcode is not installed; iOS
 build/storage checks remain pending. Android Studio, the Android SDK and CocoaPods
 are installed on the development Mac.
 
-Ticket #3 reliability work is implemented on the current feature branch:
+Ticket #3 reliability work is implemented in
+[PR #18](https://github.com/Owaiinnn/solar-overview/pull/18):
 secure saved readings, a persistent 15-minute refresh wait, 24-hour rate-limit
 backoff, and site-timezone-aware stale readings and daily energy. Automated
 failure-path checks and Android native-storage tests are included. The new live
