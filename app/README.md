@@ -1,6 +1,6 @@
 # Solar overview mobile app
 
-Android and iOS starter app with SolarEdge connection settings. Enter a site ID
+Android and iOS app with independent SolarEdge and SolaX connection settings. Enter a site ID
 and API key in **Settings → SolarEdge → Test & save connection**. The app validates
 them with SolarEdge before saving one credential record in protected device
 storage. On later launches it reads that record automatically. Replacement and
@@ -10,11 +10,11 @@ No real key is bundled, prefilled, or loaded from `.env` files. The app opens on
 Overview, which shows returned production and today's energy after connecting.
 Without a connection it offers a link to Settings. There is no sample mode.
 Appliances and History have navigation and clear coming-later screens; their
-features belong to tickets #8 and #5. SolaX panels/inverter (#21), the separate
-PowerFlex battery (#6), and household-meter sources (#7) are not connected yet.
-SolaX API access has been verified outside the app; see
-the [API findings](../docs/solax-check.md). Overview and History will be extended
-through #4/#5; battery integration is deferred.
+features belong to tickets #8 and #5. SolaX settings and source state (#21) are
+implemented for the EU residential X1-Micro 2 in 1 inverter. Connection readings
+are visible in Settings; the multi-source Overview and History remain #4/#5.
+PowerFlex battery (#6) and household-meter sources (#7) remain separate work.
+See the [SolaX API findings](../docs/solax-check.md).
 
 ## Run locally
 
@@ -26,7 +26,7 @@ Install the recommended Flutter extension, open **Run and Debug**, select
 button). The configuration opens Chrome at a local URL with an available port.
 
 The browser target shows the same navigation and empty states without readings.
-It has no API-key entry, credential persistence, or live SolarEdge requests. Use it
+It has no API-key entry, credential persistence, or live provider requests. Use it
 to develop the UI; test the real connection and protected storage on a mobile target.
 
 For a terminal development server that you open in any browser:
@@ -88,7 +88,11 @@ selected concept, platform exports and device-verification instructions.
 - `lib/src/credential_store.dart`: stores one credential record using `flutter_secure_storage`.
 - `lib/src/solaredge.dart`: requests overview/site details and normalizes W and Wh readings.
 - `lib/src/site_time.dart`: resolves site timestamps and handles daylight-saving ambiguity.
-- `lib/src/reading_store.dart`: securely persists the last successful snapshot and refresh deadline.
+- `lib/src/reading_store.dart`: securely persists the last successful SolarEdge snapshot and refresh deadline.
+- `lib/src/solax.dart`: EU monitoring client, paginated discovery, source timestamps and field mappings.
+- `lib/src/solax_store.dart`: one secure SolaX account/token/selection/reading/cooldown record.
+- `lib/src/solax_controller.dart`: independent SolaX source state and coordinated request lifecycle.
+- `lib/src/solax_settings.dart`: SolaX setup, selection, replacement, removal and connection readings.
 
 The controller exposes state to the widgets using `ChangeNotifier`, so the screen
 updates when a request finishes. Tests substitute an in-memory store and fake
@@ -103,13 +107,13 @@ preferences are excluded from cloud backup and device transfer. Each phone needs
 its own one-time setup. On iOS, Keychain entries may survive app reinstallation;
 use **Remove connection** to explicitly delete the app's saved record.
 
-Only `https://monitoringapi.solaredge.com` receives the key. The API requires it
+Only `https://monitoringapi.solaredge.com` receives the SolarEdge key. The API requires it
 in the query string, so redirects are disabled and raw HTTP errors/URLs/responses
 are never logged or displayed. Do not add HTTP request logging containing URLs.
 An invalid replacement key does not replace existing saved credentials. A storage
 failure is reported instead of claiming a successful save/removal.
 
-## Refresh, saved readings, and freshness
+## SolarEdge refresh, saved readings, and freshness
 
 One controller serves every screen. Startup fetches when the saved refresh wait
 has expired; otherwise it restores the last successful reading. Manual refresh,
@@ -151,6 +155,59 @@ times show **freshness unavailable**. A missing reading remains unavailable;
 zero remains a valid measurement. Today's energy is shown only when the reading
 belongs to today in the site's timezone, so yesterday's cached energy does not
 carry over at midnight.
+
+## Connect SolaX
+
+In **Settings → SolaX**, enter your EU developer client ID and secret. Use a
+**separate developer application/client ID for each phone**. A live token test
+confirmed that obtaining a new token invalidates the previous token for the same
+application. Do not share an application with another phone, Home Assistant, or
+an investigation script. The app asks you to confirm this setup before testing.
+Information Management and Monitoring Management are the required services; no
+control service, app code, device setting or permission-change endpoint is used.
+
+Choose **Test SolaX & find plants**, select a residential plant and supported
+inverter, then **Test & save SolaX connection**. EU is the fixed, verified region;
+other hosts and inverter models are not accepted. Plant and device suffixes help
+identify the selection without saving addresses or account names. Invalid or
+failed replacements leave the existing account and reading together.
+
+SolaX uses its own secure record and 15-minute request wait; its requests do not
+consume the SolarEdge budget. Discovery reserves that wait before authentication,
+then permits a bounded selection workflow for 15 minutes: up to 10 inventory pages
+and five plant selections of up to 10 device pages each. An incomplete inventory
+fails rather than silently omitting entries. Cancelled or failed setup keeps the
+wait. After setup a refresh normally makes only one telemetry request.
+
+Tokens persist and are reused until within five minutes of their returned expiry.
+Renewal uses the documented client-credentials endpoint and saves the new token
+before telemetry. Revocation stops automatic renewal and asks for explicit
+reconnection, avoiding two clients repeatedly invalidating one another. HTTP 429
+and provider quota codes 10405/10406 impose a persistent 24-hour pause. Timeouts
+abort the underlying native HTTP request. Storage failures block further network
+access until Retry SolaX storage succeeds. Removing an unreadable record imposes
+a conservative 24-hour pause; normal removal preserves the existing deadline.
+
+Only the EU HTTPS host receives SolaX credentials (form body) and bearer tokens
+(header). Redirects are disabled and provider/transport errors are redacted.
+The secure record contains credentials, token, selected IDs, allowlisted numeric
+readings with field provenance, source timestamps and the refresh deadline.
+No raw responses, addresses or credential-bearing URLs are cached or logged.
+
+The device UTC `dataTime` identifies measurement time; a valid plant-local time
+and known IANA zone are the fallback. The vendor's documented Amsterdam/Berlin
+label is resolved with DST rules. Unknown zones, missing/invalid timestamps and
+ambiguous local DST times remain unavailable, not phone-local. Freshness ages
+at 30 minutes, updates each minute/on resume, and never uses fetch time. Cached
+readings survive network failure and are explicitly labeled.
+
+For the supported single-phase microinverter, AC output is `acPower1` (W), each
+MPPT channel stays separate (W/V/A), and daily/lifetime AC energy uses
+`dailyACOutput`/`totalACOutput` (kWh converted to Wh). PV yield and plant energy
+are not substituted. Device daily counters can differ from plant totals or reset
+at idle; Settings says so. Daily energy is hidden after the plant's midnight.
+Missing values remain unavailable and valid zero stays zero. No battery discharge,
+household consumption, surplus or combined-source total is inferred.
 
 ## Verification
 
@@ -199,3 +256,22 @@ readings age to stale after 30 minutes. These new live checks are pending in
 [#19](https://github.com/Owaiinnn/solar-overview/issues/19); automated failure and
 native-storage checks use synthetic data. Ticket #3’s implementation is merged
 and its issue is closed. Keep keys in mobile Settings.
+
+SolaX verification (agent-run, 2026-09-29): 107 unit/widget tests across the app,
+formatting and analysis passed. `integration_test/solax_storage_test.dart` passed
+on the Android API 36 emulator using isolated synthetic records, covering setup,
+restoration across controllers/store instances, replacement/removal, persistent
+waits and SolarEdge isolation. The new Dart client also passed a live read-only
+EU check using an existing Keychain token; timezone/source-time and the expected
+power/energy/status fields were parsed successfully. That live check ran on the
+Mac, not through Android Settings.
+
+```sh
+flutter test integration_test/solax_storage_test.dart -d DEVICE_ID
+```
+
+Live Android UI setup and OS process restart, physical phones, separate-app
+multi-phone verification, iOS and end-of-day energy-counter investigation remain
+open in [#21](https://github.com/Owaiinnn/solar-overview/issues/21). No owner-run
+SolaX mobile checks have been reported. Do not close #21 based on implementation
+alone; complete or explicitly transfer the remaining checks first.
