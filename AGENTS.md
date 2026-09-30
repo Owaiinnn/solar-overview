@@ -52,6 +52,26 @@ alone do not verify native storage. Report unavailable checks rather than claimi
 they passed. Documentation-only changes need link/content and diff checks, not a
 device rebuild. CI remains required for merging.
 
+Actively use direct mobile UI control when it helps verify a change. The owner
+explicitly welcomes and authorizes ADB control of the Android emulator for app
+testing: inspect screenshots/UI hierarchy, tap, swipe, type, navigate screens,
+and background, force-stop or reopen Solar Overview. Do not default to asking
+the owner to click through flows that the agent can test itself. Check available
+devices with `adb devices`; on the owner's Mac, ADB is normally at
+`/Users/owain/Library/Android/sdk/platform-tools/adb`. Use the connected device ID,
+not a hardcoded assumption. Native desktop control is another option when its
+tools expose the emulator window. Follow the active tool and permission rules.
+
+For relevant mobile changes, supplement automated tests with a focused visual
+walkthrough of the affected flow. Check rendered results after interactions and
+report what was actually verified. Useful checks include navigation, live refresh,
+cached readings, persistent refresh waits and cold restart. Temporary emulator
+network changes for offline tests must be restored. Preserve existing live
+connections; test cancellation paths unless actual replacement/removal is part
+of the authorized task. Respect real provider cooldowns and keep screenshots,
+UI dumps and credentials out of version control. If no emulator is available,
+use the local launch helper when available or report the unavailable check.
+
 On the owner's Mac, `LOCAL_LAUNCH.md` and `.local/run-android.sh` provide the
 one-command emulator launch. They are ignored, machine-local helpers: keep them
 untracked and do not assume they exist in a fresh clone. See `app/README.md` for
