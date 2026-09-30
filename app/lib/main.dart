@@ -8,6 +8,9 @@ import 'src/credential_store.dart';
 import 'src/browser_preview.dart';
 import 'src/solaredge.dart';
 import 'src/reading_store.dart';
+import 'src/solax.dart';
+import 'src/solax_store.dart';
+import 'src/solax_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +26,8 @@ Future<void> main() async {
     SolarEdgeApi(http.Client()),
     readingStore: SecureReadingStore(),
   );
-  runApp(SolarApp(controller: controller));
+  final solax = SolaxController(SecureSolaxStore(), SolaxApi(http.Client()));
+  runApp(SolarApp(controller: controller, solax: solax));
   controller.initialize();
+  solax.initialize();
 }

@@ -4,9 +4,17 @@ import 'package:flutter/material.dart';
 
 import 'connection_controller.dart';
 import 'solaredge.dart';
+import 'solax_controller.dart';
+import 'solax_settings.dart';
 
 class SolarApp extends StatefulWidget {
-  const SolarApp({super.key, required this.controller, this.preview = false});
+  const SolarApp({
+    super.key,
+    required this.controller,
+    this.preview = false,
+    this.solax,
+  });
+  final SolaxController? solax;
   final ConnectionController controller;
   final bool preview;
 
@@ -23,15 +31,18 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _freshnessTimer = Timer.periodic(
-      const Duration(minutes: 1),
-      (_) => widget.controller.updateFreshness(),
-    );
+    _freshnessTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      widget.controller.updateFreshness();
+      widget.solax?.updateFreshness();
+    });
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) widget.controller.updateFreshness();
+    if (state == AppLifecycleState.resumed) {
+      widget.controller.updateFreshness();
+      widget.solax?.updateFreshness();
+    }
   }
 
   @override
@@ -128,6 +139,7 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
                             SettingsPage(
                               controller: controller,
                               preview: widget.preview,
+                              solax: widget.solax,
                             ),
                           ],
                         ),
@@ -173,7 +185,9 @@ class SettingsPage extends StatefulWidget {
     super.key,
     required this.controller,
     this.preview = false,
+    this.solax,
   });
+  final SolaxController? solax;
   final ConnectionController controller;
   final bool preview;
 
@@ -250,7 +264,9 @@ class _SettingsPageState extends State<SettingsPage> {
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         const SizedBox(height: 8),
-        const Text('Connect SolarEdge to see what your panels are producing.'),
+        const Text(
+          'Connect your solar sources to see what your panels are producing.',
+        ),
         const SizedBox(height: 24),
         Card(
           child: Padding(
@@ -432,11 +448,11 @@ class _SettingsPageState extends State<SettingsPage> {
           const Text('No API key is needed for this preview.'),
           const SizedBox(height: 24),
         ],
+        SolaxSettingsCard(controller: widget.solax, preview: widget.preview),
+        const SizedBox(height: 24),
         Text('Coming later', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
-        const Text(
-          'PowerFlex battery and its two panels · Household smart meter',
-        ),
+        const Text('PowerFlex battery · Household smart meter'),
       ],
     );
   }
