@@ -25,7 +25,9 @@ consumption or battery telemetry was established. Do not infer those capabilitie
 from zero counters or plant summary fields. The subsequent reference check
 confirmed field units, model/status enums and AC versus PV measurement boundaries.
 
-Implementation is on `feat/21-solax-connection`, pending PR review/merge. It adds
+Implementation is in draft PR #24:
+https://github.com/Owaiinnn/solar-overview/pull/24
+Branch: `feat/21-solax-connection`; review and merge are pending. It adds
 independent SolaX settings, paginated plant/device selection, source state and one
 secure account/token/selection/reading/cooldown record. The supported scope is EU
 residential X1-Micro 2 in 1 (model 28); unsupported models are identified rather
