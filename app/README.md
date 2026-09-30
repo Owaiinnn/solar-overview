@@ -272,6 +272,6 @@ flutter test integration_test/solax_storage_test.dart -d DEVICE_ID
 
 Live Android UI setup and OS process restart, physical phones, separate-app
 multi-phone verification, iOS and end-of-day energy-counter investigation remain
-open in [#21](https://github.com/Owaiinnn/solar-overview/issues/21). No owner-run
-SolaX mobile checks have been reported. Do not close #21 based on implementation
-alone; complete or explicitly transfer the remaining checks first.
+open in [#25](https://github.com/Owaiinnn/solar-overview/issues/25), transferred
+from #21 with the owner-approved implementation merge. No owner-run SolaX mobile
+checks have been reported; closing #21 does not claim these checks passed.

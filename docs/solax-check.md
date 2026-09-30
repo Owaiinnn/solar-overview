@@ -94,7 +94,7 @@ existing local Keychain record, and tried old/new tokens on read-only inventory.
 The previous token returned 10402 and the new token succeeded. **One application's
 tokens do not coexist in this tested flow.** The supported configuration is a
 separate developer application/client ID per phone, with token reuse until renewal.
-Testing two physical phones with separate applications remains pending in #21.
+Testing two physical phones with separate applications remains pending in #25.
 Do not use a phone's application credentials in another API client or probe.
 
 Verified mapping from the reference, “Query Device Real-time Data”, Appendices 4/6:
@@ -125,11 +125,11 @@ The implementation deliberately retains the reported device AC counter and its
 source date, with a visible qualification. It does not synthesize energy from
 power or silently fall back to a plant field. Before selecting #4/#5's headline
 energy series, observe sunset/idle and midnight behavior and establish the cause;
-this remains an unchecked item in #21.
+this remains an unchecked item in follow-up #25.
 
 Agent-run checks passed: live read-only Dart discovery/telemetry with an existing
 token; 107 app unit/widget tests; format/static analysis; Android API 36 native
 secure-storage lifecycle with isolated synthetic records. Native tests establish
 persistence across controller/store instances, not a live mobile connection or OS
 process-restart test. No raw responses, private IDs, credentials or screenshots
-were committed. Live Android UI, physical phones and iOS remain pending in #21.
+were committed. Live Android UI, physical phones and iOS remain pending in follow-up #25.
