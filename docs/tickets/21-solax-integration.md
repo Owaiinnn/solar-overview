@@ -25,9 +25,9 @@ consumption or battery telemetry was established. Do not infer those capabilitie
 from zero counters or plant summary fields. The subsequent reference check
 confirmed field units, model/status enums and AC versus PV measurement boundaries.
 
-Implementation is in draft PR #24:
+Implementation is delivered in PR #24:
 https://github.com/Owaiinnn/solar-overview/pull/24
-Branch: `feat/21-solax-connection`; review and merge are pending. It adds
+The owner approved merging and closing the implementation on 2026-09-30. It adds
 independent SolaX settings, paginated plant/device selection, source state and one
 secure account/token/selection/reading/cooldown record. The supported scope is EU
 residential X1-Micro 2 in 1 (model 28); unsupported models are identified rather
@@ -66,12 +66,12 @@ Keychain token; source time/timezone, AC/MPPT power, energy and status parsed.
 No owner-run SolaX mobile checks have been reported. No live mobile credentials,
 raw responses, private IDs/locations or screenshots were committed.
 
-Remaining work stays in this open ticket: live Android UI and OS process-restart
-checks, physical Android/two-phone validation, deferred iOS, and sunset/midnight
-energy-counter investigation. Synthetic persistence tests do not establish those
-results. Full Xcode remains unavailable. Keep this issue open until those checks
-are completed or explicitly transferred to a linked follow-up before closure.
-See `docs/solax-check.md` and `app/README.md` for mappings and setup instructions.
+Remaining live Android UI/process-restart, physical Android/two-phone, deferred
+iOS and sunset/midnight energy-counter checks have been transferred to #25:
+https://github.com/Owaiinnn/solar-overview/issues/25
+Those checks have not passed; their linked follow-up preserves the original
+scope while this implementation ticket closes with PR #24. Full Xcode remains
+unavailable. See `docs/solax-check.md` and `app/README.md` for mappings and setup.
 
 ## Todo
 
@@ -82,15 +82,10 @@ See `docs/solax-check.md` and `app/README.md` for mappings and setup instruction
 - [x] Store credentials, tokens and any persisted readings in device secure storage, separately from SolarEdge; handle storage failure and prevent data from a replaced account being reused.
 - [x] Implement plant/device discovery with pagination and supported-device/capability checks; handle no plants, no devices and denied access clearly.
 - [x] Normalize inverter AC power, two MPPT channels, daily/lifetime energy, electrical details, temperature, status and source timestamps; preserve missing values and record field provenance.
-- [ ] Investigate plant/device energy discrepancies and end-of-day behavior; choose explicit energy fields without silently swapping sources or converting unavailable values to zero.
 - [x] Reuse tokens until renewal is needed, avoid concurrent refresh races, and handle expiration/revocation safely without exposing credentials.
 - [x] Implement one coordinated, conservative refresh policy with caching, persistent cooldown/backoff, timeout/rate-limit handling and no per-widget polling; preserve SolarEdge's existing request budget.
 - [x] Determine freshness from device/source timestamps, resolve timezone/DST correctly, and retain visibly stale cached readings on failure without treating request time as measurement time.
 - [x] Block credential-bearing redirects and redact credentials, tokens, device IDs, locations and raw response/error details from logs and crash reports.
 - [x] Test parsing, nulls/zero, source isolation, storage lifecycle, token lifecycle, failures, rate limits and stale/timezone behavior with synthetic fixtures.
-- [ ] Verify connection, restart persistence, replacement/removal and source isolation on Android; record live checks separately from synthetic tests and track deferred physical-device/iOS checks explicitly.
 - [x] Verify Android native secure save/restore, replacement/removal, persistent cooldown and SolarEdge isolation with separate synthetic records.
-- [ ] In Android Settings, save a real SolaX connection; fully terminate/reopen the process, confirm retained credentials/token/readings/wait, then test refresh, offline/stale data, replacement/removal and SolarEdge isolation.
-- [ ] Confirm two physical phones using distinct developer applications remain connected through token renewal; never share a client ID.
-- [ ] Observe device AC energy versus plant statistics before sunset, during idle/offline, and after site midnight; record the reset cause and choose #4/#5's daily series explicitly.
-- [ ] Verify physical Android and iOS storage/lifecycle once available; enter real credentials only through mobile Settings and separate owner-run from agent-run results.
+- [x] Transfer all remaining live-device, two-phone, iOS and energy-counter checks to linked follow-up #25 before closing this implementation ticket; those checks remain unverified.
