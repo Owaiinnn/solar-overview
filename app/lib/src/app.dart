@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'connection_controller.dart';
-import 'solaredge.dart';
+import 'overview.dart';
 import 'solax_controller.dart';
 import 'solax_settings.dart';
 
@@ -91,8 +91,9 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
           body: SafeArea(
             child: Column(
               children: [
-                if (controller.busy) const LinearProgressIndicator(),
-                if (controller.error != null)
+                if (_tab == _AppTab.settings && controller.busy)
+                  const LinearProgressIndicator(),
+                if (_tab == _AppTab.settings && controller.error != null)
                   Semantics(
                     liveRegion: true,
                     child: Padding(
@@ -107,51 +108,47 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
                     ),
                   ),
                 Expanded(
-                  child: !controller.initialized
-                      ? const Center(
-                          child: Text('Opening your saved connection…'),
-                        )
-                      : IndexedStack(
-                          index: _tab.index,
-                          children: [
-                            OverviewPage(
-                              controller: controller,
-                              openSettings: () =>
-                                  setState(() => _tab = _AppTab.settings),
-                            ),
-                            const _ComingSoonPage(
-                              title: 'Plan your appliance use',
-                              icon: Icons.local_laundry_service_outlined,
-                              description:
-                                  'Appliance planning is coming later. '
-                                  'You’ll be able to compare estimated appliance '
-                                  'demand with available power once your energy '
-                                  'sources are connected.',
-                            ),
-                            const _ComingSoonPage(
-                              title: 'Your production history',
-                              icon: Icons.show_chart,
-                              description:
-                                  'Production history is coming later. '
-                                  'Your SolarEdge history will appear here once '
-                                  'history charts are available.',
-                            ),
-                            SettingsPage(
-                              controller: controller,
-                              preview: widget.preview,
-                              solax: widget.solax,
-                            ),
-                          ],
-                        ),
+                  child: IndexedStack(
+                    index: _tab.index,
+                    children: [
+                      OverviewPage(
+                        controller: controller,
+                        solax: widget.solax,
+                        openSettings: () =>
+                            setState(() => _tab = _AppTab.settings),
+                      ),
+                      const _ComingSoonPage(
+                        title: 'Plan your appliance use',
+                        icon: Icons.local_laundry_service_outlined,
+                        description:
+                            'Appliance planning is coming later. '
+                            'You’ll be able to compare estimated appliance '
+                            'demand with available power once your energy '
+                            'sources are connected.',
+                      ),
+                      const _ComingSoonPage(
+                        title: 'Your production history',
+                        icon: Icons.show_chart,
+                        description:
+                            'Production history is coming later. '
+                            'Your SolarEdge history will appear here once '
+                            'history charts are available.',
+                      ),
+                      SettingsPage(
+                        controller: controller,
+                        preview: widget.preview,
+                        solax: widget.solax,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _tab.index,
-            onDestinationSelected: controller.busy
-                ? null
-                : (index) => setState(() => _tab = _AppTab.values[index]),
+            onDestinationSelected: (index) =>
+                setState(() => _tab = _AppTab.values[index]),
             destinations: const [
               NavigationDestination(
                 icon: Icon(Icons.wb_sunny_outlined),
@@ -452,113 +449,9 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 24),
         Text('Coming later', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
-        const Text('PowerFlex battery · Household smart meter'),
-      ],
-    );
-  }
-}
-
-class OverviewPage extends StatelessWidget {
-  const OverviewPage({
-    super.key,
-    required this.controller,
-    required this.openSettings,
-  });
-  final ConnectionController controller;
-  final VoidCallback openSettings;
-
-  @override
-  Widget build(BuildContext context) {
-    final data = controller.overview;
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        Text(
-          'Your solar, at a glance',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        const SizedBox(height: 12),
-        const Text('SolarEdge panels'),
-        const SizedBox(height: 24),
-        if (!controller.connected) ...[
-          if (controller.refreshNotice != null) Text(controller.refreshNotice!),
-          const Text('Connect your SolarEdge site to see production here.'),
-          const SizedBox(height: 16),
-          FilledButton(
-            onPressed: openSettings,
-            child: const Text('Connect SolarEdge'),
-          ),
-        ] else ...[
-          Text(switch (controller.freshness) {
-            ReadingFreshness.recent => 'Recent SolarEdge reading',
-            ReadingFreshness.stale =>
-              'Stale SolarEdge reading — 30 minutes or older',
-            ReadingFreshness.unknown => 'Reading freshness unavailable',
-          }, style: const TextStyle(fontWeight: FontWeight.w600)),
-          if (controller.usingSavedReading)
-            const Text(
-              'Showing saved readings from the last successful request.',
-            ),
-          const SizedBox(height: 12),
-          _ReadingCard(
-            label: 'Reported production',
-            value: data?.powerWatts == null
-                ? 'Unavailable'
-                : '${(data!.powerWatts! / 1000).toStringAsFixed(2)} kW',
-            icon: Icons.wb_sunny_outlined,
-          ),
-          const SizedBox(height: 12),
-          _ReadingCard(
-            label: 'Today’s energy',
-            value: controller.todayEnergyWh == null
-                ? 'Unavailable'
-                : '${(controller.todayEnergyWh! / 1000).toStringAsFixed(2)} kWh',
-            icon: Icons.bolt_outlined,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Last reported: ${data?.reportedAt ?? 'unavailable'}${data?.reportedAt == null ? '' : ' (${data?.timeZone ?? 'site timezone unavailable'})'}',
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Cloud readings may lag behind your panels. Refresh is available every 15 minutes.',
-          ),
-          if (controller.todayEnergyWh == null && data?.energyWh != null)
-            const Text(
-              'Today’s energy is unavailable until a reading dated today in the site timezone arrives.',
-            ),
-          if (controller.refreshNotice != null) Text(controller.refreshNotice!),
-          if (controller.error != null)
-            const Padding(
-              padding: EdgeInsets.only(top: 8),
-              child: Text(
-                'Any readings shown are from the last successful request.',
-              ),
-            ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed:
-                controller.busy ||
-                    controller.storageUnavailable ||
-                    !controller.canRequest
-                ? null
-                : controller.refresh,
-            icon: const Icon(Icons.refresh),
-            label: const Text('Refresh readings'),
-          ),
-        ],
-        const SizedBox(height: 28),
         const Text(
-          'Your other energy sources',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        const Text(
-          'PowerFlex solar & battery: not connected\nHousehold consumption: not connected',
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          'Combined production and spare power for appliances will be available once those sources are connected.',
+          'PowerFlex battery: unavailable — integration coming later.\n'
+          'Household smart meter: unavailable — integration coming later.',
         ),
       ],
     );
@@ -605,33 +498,5 @@ class _ComingSoonPage extends StatelessWidget {
         ),
       ),
     ],
-  );
-}
-
-class _ReadingCard extends StatelessWidget {
-  const _ReadingCard({
-    required this.label,
-    required this.value,
-    required this.icon,
-  });
-  final String label;
-  final String value;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(height: 12),
-          Text(label),
-          const SizedBox(height: 8),
-          Text(value, style: Theme.of(context).textTheme.headlineMedium),
-        ],
-      ),
-    ),
   );
 }
