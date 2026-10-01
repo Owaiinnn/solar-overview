@@ -26,6 +26,10 @@ retain iOS layouts and record native iOS checks that remain deferred.
 
 Implementation progress — 2026-10-01:
 
+- Owner-requested layout adjustment: combined/partial power is the first card,
+  above SolarEdge and SolaX. Agent verified the new order on Android; all 116
+  tests, formatting and static analysis passed after updating existing scroll checks.
+
 - The owner confirmed that SolarEdge and SolaX each have their own panels and
   inverter, with separate solar-only outputs. The house battery is its own later
   integration. This establishes the installation boundary used for AC combination;

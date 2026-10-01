@@ -15,6 +15,7 @@ void main() {
       await controller.initialize();
       addTearDown(() => tester.pumpWidget(const SizedBox()));
       await tester.pumpWidget(SolarApp(controller: controller, preview: true));
+      await tester.scrollUntilVisible(find.text('Connect SolarEdge'), 200);
       expect(find.text('Connect SolarEdge'), findsOneWidget);
       expect(controller.overview, isNull);
       expect(find.textContaining('kW'), findsNothing);
