@@ -180,6 +180,7 @@ void main() {
       final solax = await solaxController();
       await tester.pumpWidget(SolarApp(controller: edge, solax: solax));
       expect(find.text('Opening SolarEdge connection…'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Recent SolaX reading'), 200);
       expect(find.text('Recent SolaX reading'), findsOneWidget);
       await tester.tap(find.text('History'));
       await tester.pump();
@@ -211,7 +212,7 @@ void main() {
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pump();
-      await tester.scrollUntilVisible(find.text('SolaX panels'), -300);
+      await tester.scrollUntilVisible(find.text('SolaX panels'), 300);
       expect(find.text('1.20 kWh'), findsNothing);
       expect(
         find.textContaining('Today’s counter is unavailable'),
@@ -252,7 +253,7 @@ void main() {
       expect(find.text('Showing the saved SolaX reading.'), findsOneWidget);
       await tester.scrollUntilVisible(
         find.text('Partial solar production'),
-        300,
+        -300,
       );
       expect(find.text('SolarEdge only · 1 of 2 sources'), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
@@ -273,6 +274,10 @@ void main() {
       final solax = await solaxController();
       edge.error = 'SolarEdge connection failed.';
       await tester.pumpWidget(SolarApp(controller: edge, solax: solax));
+      await tester.scrollUntilVisible(
+        find.text('SolarEdge connection failed.'),
+        200,
+      );
       expect(find.text('SolarEdge connection failed.'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('SolaX source details'), 300);
       await tester.pumpAndSettle();
@@ -296,7 +301,7 @@ void main() {
       }
       await tester.scrollUntilVisible(
         find.text('Partial solar production'),
-        200,
+        -200,
       );
       expect(find.text('SolaX only · 1 of 2 sources'), findsOneWidget);
       expect(find.text('Combined solar production'), findsNothing);

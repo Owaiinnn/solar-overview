@@ -28,11 +28,11 @@ class OverviewPage extends StatelessWidget {
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         const SizedBox(height: 16),
+        _productionTotal(),
+        const SizedBox(height: 16),
         _solarEdge(),
         const SizedBox(height: 16),
         _solax(),
-        const SizedBox(height: 16),
-        _productionTotal(),
         const SizedBox(height: 16),
         const _SourceCard(
           title: 'Your other energy sources',

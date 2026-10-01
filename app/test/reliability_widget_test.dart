@@ -71,6 +71,7 @@ void main() {
       );
       await controller.initialize();
       await tester.pumpWidget(SolarApp(controller: controller));
+      await tester.scrollUntilVisible(find.text('Connection rejected.'), 200);
       expect(find.text('Connection rejected.'), findsOneWidget);
       await tester.scrollUntilVisible(
         find.textContaining('Showing saved readings'),

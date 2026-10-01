@@ -25,7 +25,7 @@ void main() {
 
     expect(find.text('Your solar, at a glance'), findsOneWidget);
     expect(find.textContaining('kW'), findsNothing);
-    await tester.ensureVisible(find.text('Connect SolarEdge'));
+    await tester.scrollUntilVisible(find.text('Connect SolarEdge'), 200);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Connect SolarEdge'));
     await tester.pumpAndSettle();
@@ -65,14 +65,28 @@ void main() {
     await controller.initialize();
     addTearDown(() => tester.pumpWidget(const SizedBox()));
     await tester.pumpWidget(SolarApp(controller: controller));
-    expect(find.text('0.18 kW'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('SolarEdge panels'), 200);
+    expect(
+      find.descendant(
+        of: find.widgetWithText(Card, 'SolarEdge panels'),
+        matching: find.text('0.18 kW'),
+      ),
+      findsOneWidget,
+    );
 
     for (final tab in ['Appliances', 'History', 'Settings', 'Overview']) {
       await tester.tap(find.text(tab));
       await tester.pumpAndSettle();
     }
 
-    expect(find.text('0.18 kW'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('SolarEdge panels'), 200);
+    expect(
+      find.descendant(
+        of: find.widgetWithText(Card, 'SolarEdge panels'),
+        matching: find.text('0.18 kW'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('0.15 kWh'), findsOneWidget);
     expect(find.text('Connect SolarEdge'), findsNothing);
     expect(source.calls, 1);
