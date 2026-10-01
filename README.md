@@ -1,7 +1,9 @@
 # solar-overview
 
-A planned Flutter app for Android and iOS showing solar production, household
-consumption, battery state, and estimated appliance demand.
+A Flutter app for Android and iOS with independent SolarEdge and SolaX solar
+readings, source details, and combined production when fresh measurements align.
+Household consumption, battery state, history and appliance planning are later work.
+See [app/README.md](app/README.md) for behavior, verification and launch commands.
 
 The solar sources are SolarEdge and SolaX panels/inverter. The PowerFlex 2000Eco
 battery is a separate, later integration; its API and precise electrical topology
