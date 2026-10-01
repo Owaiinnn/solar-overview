@@ -12,7 +12,7 @@ Without a connection it offers a link to Settings. There is no sample mode.
 Appliances and History have navigation and clear coming-later screens; their
 features belong to tickets #8 and #5. SolaX settings and source state (#21) are
 implemented for the EU residential X1-Micro 2 in 1 inverter. Connection readings
-are visible in Settings; the multi-source Overview and History remain #4/#5.
+are visible in Settings and the multi-source Overview (#4); History remains #5.
 PowerFlex battery (#6) and household-meter sources (#7) remain separate work.
 See the [SolaX API findings](../docs/solax-check.md).
 
@@ -83,7 +83,9 @@ See [icon assets and regeneration](assets/icon/README.md) for the editable maste
 selected concept, platform exports and device-verification instructions.
 
 - `lib/main.dart`: starts Flutter and opens the saved connection.
-- `lib/src/app.dart`: the screens, composed from Flutter widgets (UI building blocks).
+- `lib/src/app.dart`: navigation and settings, composed from Flutter widgets (UI building blocks).
+- `lib/src/overview.dart`: independent solar cards, SolaX input details and source coverage.
+- `lib/src/production_total.dart`: combines eligible AC readings with freshness/time checks.
 - `lib/src/connection_controller.dart`: coordinates loading, testing, saving, refresh, and removal.
 - `lib/src/credential_store.dart`: stores one credential record using `flutter_secure_storage`.
 - `lib/src/solaredge.dart`: requests overview/site details and normalizes W and Wh readings.
@@ -97,6 +99,36 @@ selected concept, platform exports and device-verification instructions.
 The controller exposes state to the widgets using `ChangeNotifier`, so the screen
 updates when a request finishes. Tests substitute an in-memory store and fake
 SolarEdge service; they never use the owner's credentials.
+
+## Multi-source Overview
+
+SolarEdge and SolaX each have their own panels and inverter; the owner confirmed
+on 2026-10-01 that their readings represent separate solar-only outputs. The
+PowerFlex house battery is a separate system for later integration. This app is
+configured for that verified installation; reassess measurement coverage before
+using a different topology or adding other sources.
+
+Overview shows each source's power, energy provenance, measurement time,
+freshness, saved-reading status, errors and independent refresh wait. SolaX source
+details expose both MPPT channels (DC W/V/A), temperature and lifetime AC energy.
+Its today's-energy display deliberately remains the qualified device AC counter,
+not a verified plant daily total: the end-of-day discrepancy remains #25. Missing
+fields stay unavailable, valid zero remains zero, and each source's timezone
+controls its own daily counter. Energy counters are never added together.
+
+Combined power adds only SolarEdge production and SolaX AC output. Both source
+measurements must be under 30 minutes old, no more than five minutes apart, and
+free of connection/storage errors or revoked access. The five-minute rule is a
+conservative app policy, not a provider guarantee of simultaneous measurements.
+Recent saved readings can qualify; their cards say they are saved. When only one
+source qualifies, the app names it and shows **Partial solar production**, never
+a whole-home total. With no eligible source or excessive timestamp skew, the total
+is unavailable. Inputs are added before display rounding. DC input, battery
+output, daily/lifetime energy and SolaX load counters never enter this sum.
+
+Battery state, household consumption and appliance headroom remain unavailable
+pending their separate integrations. Source loading/failure does not block the
+other source or tab navigation. Screen updates do not add background API polling.
 
 ## Credential handling
 
@@ -275,3 +307,13 @@ multi-phone verification, iOS and end-of-day energy-counter investigation remain
 open in [#25](https://github.com/Owaiinnn/solar-overview/issues/25), transferred
 from #21 with the owner-approved implementation merge. No owner-run SolaX mobile
 checks have been reported; closing #21 does not claim these checks passed.
+
+Overview #4 verification (agent-run, 2026-10-01): 116 unit/widget tests, static
+analysis, formatting and Android debug build passed. Layout tests cover 360×640
+and 390×844 Flutter viewports with 1.5× text. On the Android API 36 emulator,
+existing live SolarEdge and SolaX connections populated their cards and the
+combined total; both MPPT inputs, temperature and lifetime AC energy rendered in
+expanded details. Force-stop/reopen restored both saved readings and remaining
+refresh waits. No connections were replaced or removed. Provider-app comparisons,
+physical phones and native iOS verification remain pending; no owner-run checks
+of the new Overview are claimed.
