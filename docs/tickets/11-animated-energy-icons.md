@@ -41,6 +41,15 @@ that cloud readings are updated continuously.
 Depends on the overview screen (#4). Development can use explicitly labelled
 sample data before all live energy sources are connected.
 
+Follow-up — 2026-10-01: this issue remains closed. The owner's newer, broader
+Home/Details design request is tracked in [#28](https://github.com/Owaiinnn/solar-overview/issues/28).
+It carries forward reusable animation, licensing, accessibility and lifecycle
+requirements, with a house, rooftop panels and continuously looping sun rays as
+the main scene. The original bolt concept is optional supporting artwork there;
+no separate implementation of this closed scope is required. The historical
+sample-mode wording below is not permission to add sample mode: #28 and current
+project guidance restrict synthetic readings to tests/isolated design previews.
+
 ## Todo
 
 - [ ] Evaluate free Lottie assets first, then `flutter_animate`; record the selected approach and use custom drawing only as a justified fallback.
