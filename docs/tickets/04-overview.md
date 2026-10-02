@@ -62,8 +62,11 @@ Implementation progress — 2026-10-01:
   Private screenshots and UI dumps stay outside git.
 - No owner-run checks of this new screen or side-by-side provider-app comparisons
   are claimed. Native iOS/physical phone checks remain deferred; #19/#25 retain
-  their existing device and energy-counter verification scope. This ticket stays
-  open pending its PR and remaining acceptance checks.
+  their existing device and energy-counter verification scope. PR #27 was merged
+  on 2026-10-02 at the owner’s request. Implementation ticket #4 is closed; the
+  remaining live provider comparisons are preserved in
+  [#30](https://github.com/Owaiinnn/solar-overview/issues/30). Closing this ticket
+  does not claim those deferred comparisons passed.
 
 ## Todo
 
@@ -77,5 +80,5 @@ Implementation progress — 2026-10-01:
 - [x] Do not label SolarEdge alone as combined production or calculate household surplus without all required flow measurements, including battery flows when relevant.
 - [x] Keep source-specific daily/lifetime energy provenance explicit; never silently substitute differing plant and device totals.
 - [x] Explain W/kW versus Wh/kWh with concise labels.
-- [ ] Verify independent connection/failure states, stale timestamps and partial-source totals with synthetic tests and live comparisons against each provider's app.
+- [x] Verify independent connection/failure states, stale timestamps and partial-source totals with synthetic tests; preserve the remaining live provider-app comparisons in #30.
 - [x] Verify the layout on Android and iOS screen sizes, including larger text.
