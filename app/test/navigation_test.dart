@@ -22,8 +22,11 @@ void main() {
     await controller.initialize();
     addTearDown(() => tester.pumpWidget(const SizedBox()));
     await tester.pumpWidget(SolarApp(controller: controller));
+    await tester.ensureVisible(find.text('View details'));
+    await tester.tap(find.text('View details'));
+    await tester.pump();
 
-    expect(find.text('Your solar, at a glance'), findsOneWidget);
+    expect(find.text('Your solar readings'), findsOneWidget);
     expect(find.textContaining('kW'), findsNothing);
     await tester.scrollUntilVisible(find.text('Connect SolarEdge'), 200);
     await tester.pumpAndSettle();
@@ -48,7 +51,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('123'), findsOneWidget);
     expect(find.text('Try sample data'), findsNothing);
-    await tester.tap(find.text('Overview'));
+    await tester.tap(find.text('Home'));
+    await tester.pump();
+    await tester.ensureVisible(find.text('View details'));
+    await tester.tap(find.text('View details'));
     await tester.pumpAndSettle();
     expect(find.text('Connect SolarEdge'), findsOneWidget);
     expect(source.calls, 0);
@@ -65,6 +71,9 @@ void main() {
     await controller.initialize();
     addTearDown(() => tester.pumpWidget(const SizedBox()));
     await tester.pumpWidget(SolarApp(controller: controller));
+    await tester.ensureVisible(find.text('View details'));
+    await tester.tap(find.text('View details'));
+    await tester.pump();
     await tester.scrollUntilVisible(find.text('SolarEdge panels'), 200);
     expect(
       find.descendant(
@@ -74,8 +83,13 @@ void main() {
       findsOneWidget,
     );
 
-    for (final tab in ['Appliances', 'History', 'Settings', 'Overview']) {
+    for (final tab in ['Appliances', 'History', 'Settings', 'Home']) {
       await tester.tap(find.text(tab));
+      await tester.pump();
+      if (tab == 'Home') {
+        await tester.ensureVisible(find.text('View details'));
+        await tester.tap(find.text('View details'));
+      }
       await tester.pumpAndSettle();
     }
 

@@ -28,6 +28,9 @@ void main() {
       await controller.connect('123', fakeKey);
       addTearDown(() => tester.pumpWidget(const SizedBox()));
       await tester.pumpWidget(SolarApp(controller: controller));
+      await tester.ensureVisible(find.text('View details'));
+      await tester.tap(find.text('View details'));
+      await tester.pump();
       expect(find.text('Recent SolarEdge reading'), findsOneWidget);
       expect(find.text('1.20 kWh'), findsOneWidget);
       now = now.add(const Duration(minutes: 1));
@@ -71,6 +74,9 @@ void main() {
       );
       await controller.initialize();
       await tester.pumpWidget(SolarApp(controller: controller));
+      await tester.ensureVisible(find.text('View details'));
+      await tester.tap(find.text('View details'));
+      await tester.pump();
       await tester.scrollUntilVisible(find.text('Connection rejected.'), 200);
       expect(find.text('Connection rejected.'), findsOneWidget);
       await tester.scrollUntilVisible(
@@ -116,6 +122,9 @@ void main() {
     await controller.connect('123', fakeKey);
     addTearDown(() => tester.pumpWidget(const SizedBox()));
     await tester.pumpWidget(SolarApp(controller: controller));
+    await tester.ensureVisible(find.text('View details'));
+    await tester.tap(find.text('View details'));
+    await tester.pump();
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
     now = now.add(const Duration(hours: 1));
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
