@@ -6,6 +6,10 @@ in the codebase. See the [project overview](../README.md) for the technology sta
 
 ## Built features
 
+- A compact Home screen with combined or partial solar power, source status and
+  an offline animated house scene. **View details** opens the full readings;
+  motion respects accessibility preferences and pauses away from Home.
+
 - Independent SolarEdge and SolaX connections, with setup, replacement and removal
   in Settings and credentials stored securely on the device.
 - Source cards showing power, energy, measurement time, connection status and
