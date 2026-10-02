@@ -179,6 +179,9 @@ void main() {
       final opening = edge.initialize();
       final solax = await solaxController();
       await tester.pumpWidget(SolarApp(controller: edge, solax: solax));
+      await tester.ensureVisible(find.text('View details'));
+      await tester.tap(find.text('View details'));
+      await tester.pump();
       expect(find.text('Opening SolarEdge connection…'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('Recent SolaX reading'), 200);
       expect(find.text('Recent SolaX reading'), findsOneWidget);
@@ -200,6 +203,9 @@ void main() {
       final source = FakeSolaxSource();
       final solax = await solaxController(now: () => now, source: source);
       await tester.pumpWidget(SolarApp(controller: edge, solax: solax));
+      await tester.ensureVisible(find.text('View details'));
+      await tester.tap(find.text('View details'));
+      await tester.pump();
       await tester.scrollUntilVisible(
         find.text('Combined solar production'),
         300,
@@ -233,6 +239,9 @@ void main() {
         ..failure = const SolaxFailure('SolaX network unavailable.');
       final solax = await solaxController(now: () => now, source: source);
       await tester.pumpWidget(SolarApp(controller: edge, solax: solax));
+      await tester.ensureVisible(find.text('View details'));
+      await tester.tap(find.text('View details'));
+      await tester.pump();
       now = now.add(const Duration(minutes: 15));
       solax.updateFreshness();
       await tester.pump();
@@ -274,6 +283,9 @@ void main() {
       final solax = await solaxController();
       edge.error = 'SolarEdge connection failed.';
       await tester.pumpWidget(SolarApp(controller: edge, solax: solax));
+      await tester.ensureVisible(find.text('View details'));
+      await tester.tap(find.text('View details'));
+      await tester.pump();
       await tester.scrollUntilVisible(
         find.text('SolarEdge connection failed.'),
         200,

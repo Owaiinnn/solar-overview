@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'connection_controller.dart';
 import 'overview.dart';
+import 'home.dart';
 import 'solax_controller.dart';
 import 'solax_settings.dart';
 
@@ -22,10 +23,11 @@ class SolarApp extends StatefulWidget {
   State<SolarApp> createState() => _SolarAppState();
 }
 
-enum _AppTab { overview, appliances, history, settings }
+enum _AppTab { home, appliances, history, settings }
 
 class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
   Timer? _freshnessTimer;
+  bool _showDetails = false;
 
   @override
   void initState() {
@@ -52,7 +54,7 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  _AppTab _tab = _AppTab.overview;
+  _AppTab _tab = _AppTab.home;
 
   @override
   Widget build(BuildContext context) {
@@ -83,93 +85,124 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
       ),
       home: ListenableBuilder(
         listenable: controller,
-        builder: (context, _) => Scaffold(
-          appBar: AppBar(
-            title: const Text('Solar overview'),
-            backgroundColor: const Color(0xFFF5F7F3),
-          ),
-          body: SafeArea(
-            child: Column(
-              children: [
-                if (_tab == _AppTab.settings && controller.busy)
-                  const LinearProgressIndicator(),
-                if (_tab == _AppTab.settings && controller.error != null)
-                  Semantics(
-                    liveRegion: true,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-                      child: Card(
-                        color: Theme.of(context).colorScheme.errorContainer,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Text(controller.error!),
+        builder: (context, _) => PopScope(
+          canPop: !(_tab == _AppTab.home && _showDetails),
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop) setState(() => _showDetails = false);
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(
+                _tab == _AppTab.home
+                    ? (_showDetails ? 'Details' : 'Your solar home')
+                    : 'Solar overview',
+              ),
+              leading: _tab == _AppTab.home && _showDetails
+                  ? IconButton(
+                      tooltip: 'Back to Home',
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () => setState(() => _showDetails = false),
+                    )
+                  : null,
+              backgroundColor: const Color(0xFFF5F7F3),
+            ),
+            body: SafeArea(
+              child: Column(
+                children: [
+                  if (_tab == _AppTab.settings && controller.busy)
+                    const LinearProgressIndicator(),
+                  if (_tab == _AppTab.settings && controller.error != null)
+                    Semantics(
+                      liveRegion: true,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                        child: Card(
+                          color: Theme.of(context).colorScheme.errorContainer,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Text(controller.error!),
+                          ),
                         ),
                       ),
                     ),
+                  Expanded(
+                    child: IndexedStack(
+                      index: _tab.index,
+                      children: [
+                        IndexedStack(
+                          index: _showDetails ? 1 : 0,
+                          children: [
+                            HomePage(
+                              controller: controller,
+                              solax: widget.solax,
+                              active: _tab == _AppTab.home && !_showDetails,
+                              openDetails: () =>
+                                  setState(() => _showDetails = true),
+                            ),
+                            OverviewPage(
+                              controller: controller,
+                              solax: widget.solax,
+                              openSettings: () =>
+                                  setState(() => _tab = _AppTab.settings),
+                            ),
+                          ],
+                        ),
+                        const _ComingSoonPage(
+                          title: 'Plan your appliance use',
+                          icon: Icons.local_laundry_service_outlined,
+                          description:
+                              'Appliance planning is coming later. '
+                              'You’ll be able to compare estimated appliance '
+                              'demand with available power once your energy '
+                              'sources are connected.',
+                        ),
+                        const _ComingSoonPage(
+                          title: 'Your production history',
+                          icon: Icons.show_chart,
+                          description:
+                              'Production history is coming later. '
+                              'Your SolarEdge history will appear here once '
+                              'history charts are available.',
+                        ),
+                        SettingsPage(
+                          controller: controller,
+                          preview: widget.preview,
+                          solax: widget.solax,
+                        ),
+                      ],
+                    ),
                   ),
-                Expanded(
-                  child: IndexedStack(
-                    index: _tab.index,
-                    children: [
-                      OverviewPage(
-                        controller: controller,
-                        solax: widget.solax,
-                        openSettings: () =>
-                            setState(() => _tab = _AppTab.settings),
-                      ),
-                      const _ComingSoonPage(
-                        title: 'Plan your appliance use',
-                        icon: Icons.local_laundry_service_outlined,
-                        description:
-                            'Appliance planning is coming later. '
-                            'You’ll be able to compare estimated appliance '
-                            'demand with available power once your energy '
-                            'sources are connected.',
-                      ),
-                      const _ComingSoonPage(
-                        title: 'Your production history',
-                        icon: Icons.show_chart,
-                        description:
-                            'Production history is coming later. '
-                            'Your SolarEdge history will appear here once '
-                            'history charts are available.',
-                      ),
-                      SettingsPage(
-                        controller: controller,
-                        preview: widget.preview,
-                        solax: widget.solax,
-                      ),
-                    ],
-                  ),
+                ],
+              ),
+            ),
+            bottomNavigationBar: NavigationBar(
+              selectedIndex: _tab.index,
+              onDestinationSelected: (index) => setState(() {
+                _tab = _AppTab.values[index];
+                if (_tab == _AppTab.home) _showDetails = false;
+              }),
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.wb_sunny_outlined),
+                  selectedIcon: Icon(Icons.wb_sunny),
+                  label: 'Home',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.local_laundry_service_outlined),
+                  selectedIcon: Icon(Icons.local_laundry_service),
+                  label: 'Appliances',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.show_chart),
+                  label: 'History',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.settings_outlined),
+                  selectedIcon: Icon(Icons.settings),
+                  label: 'Settings',
                 ),
               ],
             ),
-          ),
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: _tab.index,
-            onDestinationSelected: (index) =>
-                setState(() => _tab = _AppTab.values[index]),
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.wb_sunny_outlined),
-                selectedIcon: Icon(Icons.wb_sunny),
-                label: 'Overview',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.local_laundry_service_outlined),
-                selectedIcon: Icon(Icons.local_laundry_service),
-                label: 'Appliances',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.show_chart),
-                label: 'History',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.settings_outlined),
-                selectedIcon: Icon(Icons.settings),
-                label: 'Settings',
-              ),
-            ],
           ),
         ),
       ),

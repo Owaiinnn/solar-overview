@@ -24,7 +24,7 @@ class OverviewPage extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       children: [
         Text(
-          'Your solar, at a glance',
+          'Your solar readings',
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         const SizedBox(height: 16),
