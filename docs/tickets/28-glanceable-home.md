@@ -73,7 +73,7 @@ Implementation and agent verification (2026-10-02):
   repeating ray arrivals for positive eligible production. Quiet states retain a
   muted decorative halo; disabled animation/accessibility and offscreen/background
   states stop the controller. No provider requests or new dependencies were added.
-  See [scene design and asset/license evaluation](https://github.com/Owaiinnn/solar-overview/blob/fc598af/docs/home-scene.md).
+  See [scene design and asset/license evaluation](https://github.com/Owaiinnn/solar-overview/blob/3f06c4e/docs/home-scene.md).
 - Home reuses ProductionTotal and the same controllers, caches and refresh waits.
   Covers fresh/saved, partial, zero, loading, missing/stale, failed requests and
   timestamp mismatch. Missing data remains unavailable; source badges are textual.
@@ -91,7 +91,7 @@ Implementation and agent verification (2026-10-02):
   Native iOS was not run: only Command Line Tools are installed. Native iOS
   layout/motion/lifecycle and physical Android rendering remain explicitly in #19;
   provider comparisons remain #25/#30. No owner-run feature testing is claimed.
-- Isolated Android profile scene check passed: 715 frames over 12 seconds after
+- Initial scene Android profile check passed (before the logo/loading revision): 715 frames over 12 seconds after
   two seconds of warm-up. Build p50/p95: 0.401/0.797 ms; raster p50/p95:
   15.806/18.012 ms. 194 frames exceeded 16.67 ms in build or raster. These emulator
   numbers do not establish physical-device 60 fps; the physical check is in #19.
@@ -100,6 +100,25 @@ Implementation and agent verification (2026-10-02):
   snapshot was restored and the final app reinstalled with data preserved. Both
   connections and saved readings were verified afterward. The documented benchmark
   command now requires --keep-app-running to prevent cleanup removal.
+
+Owner-requested design/loading revision (2026-10-02, PR #33):
+
+- Rebuilt the front of the illustrated house using the app logo's exact geometry:
+  steep roof, narrow attic window, centered upper three-pane window, projecting
+  bay with aligned dividers, and the door to its right. Side roof/panels remain
+  illustrative. The launcher logo itself is unchanged.
+- Startup now says Loading… and Checking your solar sources while connections
+  open or connected providers refresh. The house gently bounces on a 1.5-second
+  cycle, with a changing contact shadow; it settles when loading finishes, even
+  on error. Existing eligible readings remain visible. Reduced motion stays static,
+  background/offscreen suspension remains in place, and no artificial wait or
+  provider call was added.
+- Agent checks: dependency resolution, formatting, clean analysis, 129 passing
+  unit/widget tests, Android debug build, and passing isolated Android loading
+  integration test with two visually inspected loading frames and completion.
+  Normal Android startup/updated artwork was inspected with the existing saved
+  sources intact. The loading test used only in-memory synthetic state and
+  --keep-app-running, preserving real device storage. Native iOS remains in #19.
 
 The implementation is ready for PR review. Leave this issue open until its PR is
 merged; native/physical follow-ups above remain open in #19.
