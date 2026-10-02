@@ -316,4 +316,7 @@ combined total; both MPPT inputs, temperature and lifetime AC energy rendered in
 expanded details. Force-stop/reopen restored both saved readings and remaining
 refresh waits. No connections were replaced or removed. Provider-app comparisons,
 physical phones and native iOS verification remain pending; no owner-run checks
-of the new Overview are claimed.
+of the new Overview are claimed. Implementation #4 merged in PR #27 on
+2026-10-02. Remaining provider comparisons are tracked in
+[#30](https://github.com/Owaiinnn/solar-overview/issues/30); existing device and
+energy-counter follow-ups remain #19/#25.

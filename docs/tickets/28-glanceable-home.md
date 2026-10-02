@@ -60,7 +60,7 @@ navigation. No sample mode: synthetic fixtures belong only in tests and isolated
 design previews, never in the shipped app or normal browser preview.
 
 Dependencies: #4 / PR #27 provides the readings and current Overview to reuse.
-Existing device/provider checks in #19/#25 and #4 remain tracked separately;
+Existing device/provider checks in #19/#25/#30 remain tracked separately;
 this redesign does not imply those checks have passed. Android first; retain
 responsive iOS layouts and record deferred native iOS verification explicitly.
 
