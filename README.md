@@ -1,45 +1,20 @@
-# solar-overview
+# Solar Overview
 
-A Flutter app for Android and iOS with independent SolarEdge and SolaX solar
-readings, source details, and combined production when fresh measurements align.
-Household consumption, battery state, history and appliance planning are later work.
-See [app/README.md](app/README.md) for behavior, verification and launch commands.
+A personal solar monitoring app for Android and iOS. It brings SolarEdge and
+SolaX readings into one dashboard, with production, energy readings, source
+details and combined solar power when fresh measurements align. Saved readings
+and connection status make it clear when data is unavailable or out of date.
 
-The solar sources are SolarEdge and SolaX panels/inverter. The PowerFlex 2000Eco
-battery is a separate, later integration; its API and precise electrical topology
-still need verification. Battery discharge stays separate from solar generation.
+## Technology
 
+- **App:** Flutter and Dart, with Material 3 widgets.
+- **State management:** Flutter's built-in `ChangeNotifier` controllers and
+  `ListenableBuilder`, with `setState` for local UI state.
+- **API access:** The Dart `http` package connects directly to SolarEdge and SolaX.
+- **Storage:** `flutter_secure_storage` keeps credentials and saved readings on
+  the device.
+- **Supporting tools:** Python scripts for API checks and icon generation;
+  Flutter's testing tools and GitHub Actions for automated checks.
 
-## Repeat the SolarEdge check
-
-Requires Python 3.9 or newer and network access. No Python packages are required.
-
-```sh
-python3 scripts/check_solaredge.py
-```
-
-Enter the site ID when prompted, then the API key at the hidden prompt. The check
-makes up to three read-only requests to SolarEdge: overview, power history for
-the overview reading's date, and current power flow. It stops on request errors,
-does not follow redirects, and does not save credentials or raw responses.
-Zero production is a valid reading; missing data stays unavailable.
-
-For automated use, credentials may be injected as `SOLAREDGE_SITE_ID` and
-`SOLAREDGE_API_KEY` environment variables, or as JSON through stdin using
-`--credentials-stdin`. Do not put actual credentials into shell commands, issue
-descriptions, source files, or mobile app build flags. This script does not
-automatically load `.env` files.
-
-This is a connectivity check, not a background collector. It does not verify
-update frequency, full meter coverage, or whether the readings are fresh enough
-for appliance advice.
-
-## Check the script
-
-```sh
-python3 -m unittest discover -s scripts -p 'test_*.py' -v
-```
-
-These offline checks cover error redaction, redirect blocking, and distinguishing
-missing readings from zero. Flutter setup and checks are documented in
-[app/README.md](app/README.md).
+See [app/README.md](app/README.md) for setup, development commands and code layout,
+and [docs/](docs/) for integration notes and tickets.
