@@ -12,7 +12,10 @@ or playing the scene never requests readings.
 - Positive eligible power: warm sun and three staggered rays that reach the panels.
 - Valid zero: `0.00 kW`, explicit no-production text, muted sun and no travelling rays.
   Zero does not establish nighttime; there is no inferred day/night or weather state.
-- Loading: connection-opening status; an already eligible other source remains usable.
+- Loading: `Loading…`, source-checking text and a gentle 1.5-second house bounce
+  with a responsive contact shadow. An already eligible source remains visible.
+  The bounce ends when opening/refresh finishes, including failures; no minimum
+  wait or extra provider request is introduced.
 - Stale/missing readings: unavailable or an eligible partial subtotal; per-source badges
   explain stale/unavailable status. Missing is never rendered as zero.
 - Failed requests/offline/storage or authentication problems: the affected source is
@@ -43,7 +46,10 @@ Asset licensing and library licensing are independent. None of these third-party
 assets or the Lottie library is included, so no new third-party notices are needed.
 
 The selected scene is original Flutter `CustomPainter` artwork, with the green/ivory
-palette and gable/window/door motifs of this repository's house icon. No downloaded
+palette and exact front-elevation coordinates of this repository's
+[`house.svg`](../app/assets/icon/house.svg): steep gable, narrow attic window,
+centered three-pane upper window, aligned projecting bay and right-hand door.
+Only the side wall, roof and panels extend that front view into the scene. No downloaded
 artwork, font, raster image, remote asset, paid tool or runtime dependency is added.
 The editable geometry ships as Dart source; it works offline and can be changed and
 redistributed with this app without a third-party asset license. Flutter's existing
@@ -51,7 +57,7 @@ SDK licensing remains unchanged.
 
 ## Rendering and accessibility
 
-One five-second `AnimationController` repaints a `RepaintBoundary`; it does not rebuild
+One `AnimationController` (five seconds normally, 1.5 seconds while loading) repaints a `RepaintBoundary`; it does not rebuild
 or lay out Home on each frame. The scene uses simple paths, lines and translucent
 circles without image decoding, blur filters or saveLayer effects. The static house
 is repainted with the small scene each frame rather than adding a separate cache or
@@ -81,3 +87,18 @@ storage. Afterwards rebuild the normal `lib/main.dart` app and install with
 
 Emulator numbers are a local comparison, not physical-device FPS
 claims. Actual execution results and deferred checks belong in the ticket.
+
+## Loading visual check
+
+The Android-only `integration_test/home_loading_test.dart` holds an in-memory
+connection open, captures two loading frames and completes to an empty state.
+It never reads or writes real credentials or calls either provider. Run:
+
+```sh
+cd app
+flutter drive --keep-app-running -d DEVICE_ID --driver integration_test/home_visual_driver.dart --target integration_test/home_loading_test.dart
+```
+
+Synthetic screenshots are saved locally under ignored `app/build/home-preview/`.
+As with the scene benchmark, keep the app installed, then rebuild the normal
+`lib/main.dart` target and install with `adb install -r`.

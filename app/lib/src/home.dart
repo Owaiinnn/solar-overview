@@ -47,21 +47,26 @@ class HomePage extends StatelessWidget {
       final watts = total.watts;
       final partial = total.sources.length == 1;
       final loading =
-          !controller.initialized || (solax != null && !solax!.initialized);
+          !controller.initialized ||
+          (controller.connected && controller.busy) ||
+          (solax != null &&
+              (!solax!.initialized || (solax!.connected && solax!.busy)));
       final title = partial
           ? 'Partial solar production'
           : 'Combined solar production';
-      final coverage = partial
+      final coverage = loading && watts == null
+          ? 'Checking your solar sources'
+          : partial
           ? '${total.sources.keys.single} only · 1 of 2 sources'
           : 'SolarEdge + SolaX · ${total.sources.length} of 2 sources';
-      final message = total.timeMismatch
+      final message = loading
+          ? 'Fetching your solar readings…'
+          : total.timeMismatch
           ? 'Source times are over 5 minutes apart. Total unavailable.'
           : watts != null
           ? watts == 0
                 ? 'No production reported${partial ? ' by this source' : ''}.'
                 : 'Recent cloud readings · not instantaneous'
-          : loading
-          ? 'Opening your saved connections…'
           : 'No compatible recent readings. See Details to connect or refresh.';
       final edgeStatus = _status(
         initialized: controller.initialized,
@@ -107,7 +112,9 @@ class HomePage extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text.rich(
                         watts == null
-                            ? const TextSpan(text: 'Unavailable')
+                            ? TextSpan(
+                                text: loading ? 'Loading…' : 'Unavailable',
+                              )
                             : TextSpan(
                                 children: [
                                   TextSpan(
@@ -149,6 +156,7 @@ class HomePage extends StatelessWidget {
                           child: SolarScene(
                             active: active,
                             producing: watts != null && watts > 0,
+                            loading: loading,
                           ),
                         ),
                       ),

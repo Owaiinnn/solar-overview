@@ -3,9 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:solar_overview/src/app.dart';
 import 'package:solar_overview/src/connection_controller.dart';
 
-import 'fakes.dart';
-
 import 'package:solar_overview/src/solar_scene.dart';
+import 'package:solar_overview/src/solaredge.dart';
+
+import 'fakes.dart';
+import 'reliability_test.dart' show PendingSource;
 
 import 'overview_test.dart' show edgeController, solaxController;
 import 'solax_fakes.dart';
@@ -43,7 +45,6 @@ void main() {
           final nav = tester.getRect(find.byType(NavigationBar));
           expect(button.bottom, lessThan(nav.top));
         }
-        await tester.ensureVisible(find.text('View details'));
         await tester.ensureVisible(find.text('View details'));
         await tester.tap(find.text('View details'));
         await tester.pumpAndSettle();
@@ -186,12 +187,16 @@ void main() {
     final source = FakeSource();
     final edge = ConnectionController(MemoryStore(), source);
     await tester.pumpWidget(SolarApp(controller: edge));
-    expect(find.text('Opening your saved connections…'), findsOneWidget);
-    expect(find.text('Unavailable'), findsOneWidget);
+    expect(find.text('Fetching your solar readings…'), findsOneWidget);
+    expect(find.text('Loading…'), findsOneWidget);
+    expect(find.text('Unavailable'), findsNothing);
+    expect(scene(tester).loading, isTrue);
     expect(scene(tester).producing, isFalse);
     await edge.initialize();
     await tester.pump();
     expect(find.text('SolarEdge · Not connected'), findsOneWidget);
+    expect(scene(tester).loading, isFalse);
+    expect(find.text('Unavailable'), findsOneWidget);
     expect(find.text('SolaX · Not connected'), findsOneWidget);
     expect(find.textContaining('0.00'), findsNothing);
     expect(source.calls, 0);
@@ -220,6 +225,109 @@ void main() {
     await show(true);
     await tester.pump(const Duration(milliseconds: 500));
     expect(animation.value, isNot(stopped));
+    await tester.pumpWidget(const SizedBox());
+  });
+  for (final fails in [false, true]) {
+    testWidgets(
+      'startup bounce ends when the request ${fails ? 'fails' : 'succeeds'}',
+      (tester) async {
+        final source = PendingSource();
+        final edge = ConnectionController(
+          MemoryStore()..saved = SolarEdgeCredentials('123', fakeKey),
+          source,
+          now: () => solaxNow,
+        );
+        final opening = edge.initialize();
+        await tester.pumpWidget(SolarApp(controller: edge));
+        expect(find.text('Loading…'), findsOneWidget);
+        expect(find.text('Checking your solar sources'), findsOneWidget);
+        expect(find.text('Unavailable'), findsNothing);
+        expect(scene(tester).loading, isTrue);
+        await tester.pump(const Duration(milliseconds: 750));
+        expect(scene(tester).houseLift, greaterThan(9));
+        await tester.pump(const Duration(milliseconds: 750));
+        expect(scene(tester).houseLift, closeTo(0, .01));
+        if (fails) {
+          source.result.completeError(
+            const SolarEdgeFailure('Network unavailable.'),
+          );
+        } else {
+          source.result.complete(
+            const SolarOverview(
+              powerWatts: 1000,
+              reportedAt: '2026-09-29 12:00:00',
+              timeZone: 'UTC',
+            ),
+          );
+        }
+        await opening;
+        await tester.pump();
+        expect(find.text('Loading…'), findsNothing);
+        expect(find.text(fails ? 'Unavailable' : '1.00 kW'), findsOneWidget);
+        expect(scene(tester).loading, isFalse);
+        expect(scene(tester).houseLift, 0);
+        expect(source.calls, 1);
+        await tester.pumpWidget(const SizedBox());
+        edge.dispose();
+      },
+    );
+  }
+
+  testWidgets('an eligible source stays visible while the other opens', (
+    tester,
+  ) async {
+    final pending = PendingSource();
+    final edge = ConnectionController(
+      MemoryStore()..saved = SolarEdgeCredentials('123', fakeKey),
+      pending,
+    );
+    final opening = edge.initialize();
+    final solax = await solaxController();
+    await tester.pumpWidget(SolarApp(controller: edge, solax: solax));
+    expect(find.text('0.12 kW'), findsOneWidget);
+    expect(find.text('SolaX only · 1 of 2 sources'), findsOneWidget);
+    expect(find.text('Fetching your solar readings…'), findsOneWidget);
+    expect(scene(tester).loading, isTrue);
+    pending.result.completeError(
+      const SolarEdgeFailure('Network unavailable.'),
+    );
+    await opening;
+    await tester.pump();
+    expect(find.text('0.12 kW'), findsOneWidget);
+    expect(scene(tester).loading, isFalse);
+    await tester.pumpWidget(const SizedBox());
+    edge.dispose();
+  });
+
+  testWidgets('loading bounce respects reduced motion and backgrounding', (
+    tester,
+  ) async {
+    Future<void> show(bool reduced) => tester.pumpWidget(
+      MaterialApp(
+        home: MediaQuery(
+          data: MediaQueryData(disableAnimations: reduced),
+          child: const SolarScene(
+            active: true,
+            producing: false,
+            loading: true,
+          ),
+        ),
+      ),
+    );
+    await show(true);
+    await tester.pumpAndSettle();
+    expect(scene(tester).houseLift, 0);
+    await show(false);
+    await tester.pump(const Duration(milliseconds: 750));
+    expect(scene(tester).houseLift, greaterThan(9));
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    final frozen = scene(tester).houseLift;
+    await tester.pump(const Duration(milliseconds: 750));
+    expect(scene(tester).houseLift, frozen);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(scene(tester).houseLift, isNot(frozen));
     await tester.pumpWidget(const SizedBox());
   });
 }
