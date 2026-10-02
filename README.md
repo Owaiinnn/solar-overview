@@ -16,5 +16,5 @@ and connection status make it clear when data is unavailable or out of date.
 - **Supporting tools:** Python scripts for API checks and icon generation;
   Flutter's testing tools and GitHub Actions for automated checks.
 
-See [app/README.md](app/README.md) for setup, development commands and code layout,
-and [docs/](docs/) for integration notes and tickets.
+See [app/README.md](app/README.md) for app features, setup and development commands,
+and [docs/](docs/) for integration notes.
