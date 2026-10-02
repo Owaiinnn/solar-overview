@@ -8,6 +8,11 @@ Follow-up to #2 and #3, whose implementation was merged in PRs #10, #14 and #18.
 
 Android remains the priority. Earlier live connection, persistence and removal checks were confirmed by the owner on the Android emulator. Automated failure-path and native secure-storage tests used synthetic records. Physical Android testing and full Xcode/iOS verification remain pending. Enter real credentials only in mobile Settings; do not post keys, site identifiers, private screenshots or raw responses.
 
+Home follow-up from #28: native iOS Home/Details layout, accessibility motion
+preferences and lifecycle behavior remain unverified. Also check the looping scene
+on a physical Android phone; the emulator profile run is not a physical-device
+performance result. Keep these separate from owner-reported provider comparisons.
+
 ## Todo
 
 - [ ] On Android with the updated app, confirm a real SolarEdge reading and the site timezone.
@@ -17,3 +22,4 @@ Android remains the priority. Earlier live connection, persistence and removal c
 - [ ] Install full Xcode and verify the iOS build and launch on an iPhone simulator or device.
 - [ ] Verify native iOS credential/cache persistence and removal, plus launcher appearance.
 - [ ] Record which checks were performed by the owner versus the agent, without exposing private data.
+- [ ] Verify Home/Details layout, reduced motion and background/resume behavior on native iOS, and scene smoothness/rendering cost on a physical Android phone (follow-up to #28).

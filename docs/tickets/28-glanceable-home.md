@@ -64,17 +64,57 @@ Existing device/provider checks in #19/#25/#30 remain tracked separately;
 this redesign does not imply those checks have passed. Android first; retain
 responsive iOS layouts and record deferred native iOS verification explicitly.
 
+Implementation and agent verification (2026-10-02):
+
+- Home is now the default landing page; View details opens the preserved Overview.
+  Toolbar and Android Back return Home. Settings, History and Appliances remain
+  available, and Details keeps its scroll/expansion state in the existing stack.
+- Added original offline green/ivory house artwork, rooftop panels, a sun and
+  repeating ray arrivals for positive eligible production. Quiet states retain a
+  muted decorative halo; disabled animation/accessibility and offscreen/background
+  states stop the controller. No provider requests or new dependencies were added.
+  See [scene design and asset/license evaluation](https://github.com/Owaiinnn/solar-overview/blob/fc598af/docs/home-scene.md).
+- Home reuses ProductionTotal and the same controllers, caches and refresh waits.
+  Covers fresh/saved, partial, zero, loading, missing/stale, failed requests and
+  timestamp mismatch. Missing data remains unavailable; source badges are textual.
+- Agent ran Flutter 3.47.5 dependency resolution, formatting checks, static analysis
+  (no issues), all 125 unit/widget tests, Android debug build and browser release
+  build. Synthetic tests cover Home/Details transitions, Android Back, guarded states,
+  aging, no added SolaX calls, reduced motion, ancestor TickerMode and app lifecycle.
+  Layout tests passed at 360×640 and 390×844 with normal and doubled text size.
+- Agent visually checked Android API 36: both live source connections, combined
+  headline, looping ray scene, Details, expanded SolaX MPPT/temperature/counters,
+  persistent refresh waits, Android Back and cold restart. Both recent saved sources
+  reappeared after force-stop/reopen. No live connection replacement/removal was
+  tested, and no provider-app comparison is claimed.
+- Agent checked Chrome's empty Home/Details preview at 360×640 and 390×844 viewports.
+  Native iOS was not run: only Command Line Tools are installed. Native iOS
+  layout/motion/lifecycle and physical Android rendering remain explicitly in #19;
+  provider comparisons remain #25/#30. No owner-run feature testing is claimed.
+- Isolated Android profile scene check passed: 715 frames over 12 seconds after
+  two seconds of warm-up. Build p50/p95: 0.401/0.797 ms; raster p50/p95:
+  15.806/18.012 ms. 194 frames exceeded 16.67 ms in build or raster. These emulator
+  numbers do not establish physical-device 60 fps; the physical check is in #19.
+- Verification incident: Flutter drive's default cleanup uninstalled the app and
+  cleared emulator connections. With the owner's approval, the pre-existing startup
+  snapshot was restored and the final app reinstalled with data preserved. Both
+  connections and saved readings were verified afterward. The documented benchmark
+  command now requires --keep-app-running to prevent cleanup removal.
+
+The implementation is ready for PR review. Leave this issue open until its PR is
+merged; native/physical follow-ups above remain open in #19.
+
 ## Todo
 
-- [ ] Produce a reviewable Home design with a prominent combined-power headline, compact source coverage/freshness, house-and-solar scene and obvious Details action.
-- [ ] Make Home the default landing screen; move the existing Overview content into a clearly named Details page and provide obvious navigation back without losing readings or state.
-- [ ] Keep Home readable at a glance without scrolling at normal phone text size; support narrow screens and larger text without overflow or hiding essential status.
-- [ ] Keep the full per-source readings, timestamps, errors, refresh actions, energy qualifications and MPPT/temperature details available on Details.
-- [ ] Select and document a free animation approach and any asset sources, licenses, redistribution/modification rights, attribution and rendering/dependency tradeoffs; bundle assets for offline use.
-- [ ] Build a polished house, rooftop panels and sun scene with a smooth automatic repeating ray-to-panel animation while Home is visible and active.
-- [ ] Define fresh production, partial coverage, zero production, loading, stale, offline and unavailable presentation; keep decorative motion distinct from confirmed generation and do not invent weather, battery or household flows.
-- [ ] Share the existing source controllers and guarded AC total between Home and Details; navigation/animation must not introduce API polling, reset cooldowns or alter credentials.
-- [ ] Support a static reduced-motion fallback, accessible status labels and offscreen/background animation suspension/resumption.
-- [ ] Preserve Settings, History and Appliances navigation and keep the separate future battery/meter scope out of this implementation.
-- [ ] Verify screen transitions, no duplicate requests, source/freshness/partial states, reduced motion and lifecycle behavior with synthetic unit/widget tests.
-- [ ] Visually verify the continuously looping scene, readability and Details flow on Android, plus iOS-sized layouts and browser preview; record frame/rendering performance and any deferred native iOS checks. Keep private screenshots out of git.
+- [x] Produce a reviewable Home design with a prominent combined-power headline, compact source coverage/freshness, house-and-solar scene and obvious Details action.
+- [x] Make Home the default landing screen; move the existing Overview content into a clearly named Details page and provide obvious navigation back without losing readings or state.
+- [x] Keep Home readable at a glance without scrolling at normal phone text size; support narrow screens and larger text without overflow or hiding essential status.
+- [x] Keep the full per-source readings, timestamps, errors, refresh actions, energy qualifications and MPPT/temperature details available on Details.
+- [x] Select and document a free animation approach and any asset sources, licenses, redistribution/modification rights, attribution and rendering/dependency tradeoffs; bundle assets for offline use.
+- [x] Build a polished house, rooftop panels and sun scene with a smooth automatic repeating ray-to-panel animation while Home is visible and active.
+- [x] Define fresh production, partial coverage, zero production, loading, stale, offline and unavailable presentation; keep decorative motion distinct from confirmed generation and do not invent weather, battery or household flows.
+- [x] Share the existing source controllers and guarded AC total between Home and Details; navigation/animation must not introduce API polling, reset cooldowns or alter credentials.
+- [x] Support a static reduced-motion fallback, accessible status labels and offscreen/background animation suspension/resumption.
+- [x] Preserve Settings, History and Appliances navigation and keep the separate future battery/meter scope out of this implementation.
+- [x] Verify screen transitions, no duplicate requests, source/freshness/partial states, reduced motion and lifecycle behavior with synthetic unit/widget tests.
+- [x] Visually verify the continuously looping scene, readability and Details flow on Android, plus iOS-sized layouts and browser preview; record frame/rendering performance and any deferred native iOS checks. Keep private screenshots out of git.
