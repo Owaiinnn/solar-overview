@@ -1,4 +1,4 @@
-# Solar Overview
+# <img src="docs/assets/readme-banner.svg" alt="Solar Overview — Your solar, at a glance." width="1200">
 
 A personal solar monitoring app for Android and iOS. It brings SolarEdge and
 SolaX readings into one dashboard, with production, energy readings, source
