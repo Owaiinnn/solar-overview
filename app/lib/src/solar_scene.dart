@@ -4,9 +4,15 @@ import 'package:flutter/material.dart';
 
 /// Original, offline vector artwork. Motion is decorative, never a flow meter.
 class SolarScene extends StatefulWidget {
-  const SolarScene({super.key, required this.active, required this.producing});
+  const SolarScene({
+    super.key,
+    required this.active,
+    required this.producing,
+    this.loading = false,
+  });
   final bool active;
   final bool producing;
+  final bool loading;
 
   @override
   State<SolarScene> createState() => _SolarSceneState();
@@ -16,7 +22,9 @@ class _SolarSceneState extends State<SolarScene>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _motion = AnimationController(
     vsync: this,
-    duration: const Duration(seconds: 5),
+    duration: widget.loading
+        ? const Duration(milliseconds: 1500)
+        : const Duration(seconds: 5),
   );
   bool _foreground = true;
 
@@ -37,6 +45,13 @@ class _SolarSceneState extends State<SolarScene>
   @override
   void didUpdateWidget(SolarScene oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.loading != widget.loading) {
+      _motion.stop();
+      _motion.duration = widget.loading
+          ? const Duration(milliseconds: 1500)
+          : const Duration(seconds: 5);
+      _motion.value = 0;
+    }
     _syncMotion();
   }
 
@@ -72,7 +87,11 @@ class _SolarSceneState extends State<SolarScene>
   Widget build(BuildContext context) => ExcludeSemantics(
     child: RepaintBoundary(
       child: CustomPaint(
-        painter: SolarScenePainter(_motion, producing: widget.producing),
+        painter: SolarScenePainter(
+          _motion,
+          producing: widget.producing,
+          loading: widget.loading,
+        ),
         size: Size.infinite,
       ),
     ),
@@ -80,10 +99,16 @@ class _SolarSceneState extends State<SolarScene>
 }
 
 class SolarScenePainter extends CustomPainter {
-  SolarScenePainter(this.phase, {required this.producing})
+  SolarScenePainter(this.phase, {required this.producing, this.loading = false})
     : super(repaint: phase);
   final Animation<double> phase;
   final bool producing;
+  final bool loading;
+
+  // At phase zero the house rests on the ground, including reduced motion.
+  double get houseLift => loading
+      ? 10 * math.pow(math.sin(phase.value * math.pi), 2).toDouble()
+      : 0;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -143,84 +168,103 @@ class SolarScenePainter extends CustomPainter {
         2,
       );
     }
-    // Front gable, side wall and pitched roof echo the launcher house.
+    // Soft contact shadow changes as the house rises during loading.
+    fill(green.withValues(alpha: .10 - houseLift * .003));
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: const Offset(167, 225),
+        width: 160 - houseLift * 3,
+        height: 12 - houseLift * .3,
+      ),
+      paint,
+    );
+    canvas.save();
+    canvas.translate(145, 56 - houseLift);
+    canvas.scale(3);
+    canvas.translate(-54, -23);
+    // Front elevation uses the exact coordinates of assets/icon/house.svg.
+    // Only the side roof/wall and panels extend that front-view logo into a scene.
     polygon([
-      const Offset(89, 145),
-      const Offset(148, 85),
-      const Offset(207, 145),
-      const Offset(207, 222),
-      const Offset(89, 222),
-    ], cream);
-    polygon([
-      const Offset(207, 145),
-      const Offset(281, 121),
-      const Offset(281, 204),
-      const Offset(207, 222),
+      const Offset(74, 59),
+      const Offset(98, 52),
+      const Offset(98, 71),
+      const Offset(74, 78),
     ], const Color(0xFFD7E2CB));
     polygon([
-      const Offset(148, 85),
-      const Offset(222, 62),
-      const Offset(289, 122),
-      const Offset(207, 150),
+      const Offset(54, 23),
+      const Offset(78, 16),
+      const Offset(101, 52),
+      const Offset(77, 59),
     ], green);
-    line(const Offset(81, 149), const Offset(148, 82), dark, 7);
-    line(const Offset(148, 82), const Offset(208, 148), dark, 7);
-    // Two panel banks on the roof; no claim about the installation topology.
     for (var bank = 0; bank < 2; bank++) {
-      final origin = Offset(171 + bank * 34.0, 94 - bank * 10.0);
-      const across = Offset(29, -9);
-      const down = Offset(35, 34);
+      final origin = Offset(65 + bank * 11.0, 32 - bank * 3.2);
+      const across = Offset(9, -2.6);
+      const down = Offset(12, 18.8);
       polygon([
         origin,
         origin + across,
         origin + across + down,
         origin + down,
       ], const Color(0xFF163F3C));
-      for (var i = 0; i <= 3; i++) {
-        final a = origin + down * (i / 3);
-        line(a, a + across, const Color(0xFF82B7A5), .9);
+      for (var i = 0; i <= 4; i++) {
+        final a = origin + down * (i / 4);
+        line(a, a + across, const Color(0xFF82B7A5), .3);
       }
       line(
         origin + across * .5,
         origin + across * .5 + down,
         const Color(0xFF82B7A5),
-        .9,
+        .3,
       );
     }
+    polygon([
+      const Offset(31, 59),
+      const Offset(54, 23),
+      const Offset(77, 59),
+      const Offset(74, 59),
+      const Offset(74, 78),
+      const Offset(34, 78),
+      const Offset(34, 59),
+    ], cream);
+    line(const Offset(31, 59), const Offset(54, 23), dark, 1.8);
+    line(const Offset(54, 23), const Offset(77, 59), dark, 1.8);
+    line(const Offset(30, 59), const Offset(35, 59), dark, 1.8);
+    line(const Offset(73, 59), const Offset(78, 59), dark, 1.8);
+    // Narrow attic and wide upper window, centered at the logo's x=54.
+    fill(green);
+    canvas.drawRect(const Rect.fromLTRB(52.7, 31, 55.3, 38.5), paint);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        const Rect.fromLTRB(44, 44.5, 64, 54),
+        const Radius.circular(.5),
+      ),
+      paint,
+    );
+    for (final x in [48.0, 60.0]) {
+      line(Offset(x, 44.5), Offset(x, 54), cream, .8);
+    }
+    // Projecting bay: shallow canopy, matching aligned three-pane dividers,
+    // and a raised base. No horizontal crossbar absent from the app logo.
+    fill(const Color(0xFFB7C9AD));
+    canvas.drawRect(const Rect.fromLTRB(41, 62, 67, 64.5), paint);
+    fill(const Color(0xFFD7E2CB));
+    canvas.drawRect(const Rect.fromLTRB(43.5, 64.5, 64.5, 78), paint);
+    fill(green);
+    canvas.drawRect(const Rect.fromLTRB(43.5, 64.5, 64.5, 75.5), paint);
+    for (final x in [48.0, 60.0]) {
+      line(Offset(x, 64.5), Offset(x, 75.5), cream, .8);
+    }
+    line(const Offset(43.25, 75.5), const Offset(64.75, 75.5), green, .8);
     fill(green);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        const Rect.fromLTWH(133, 124, 25, 23),
-        const Radius.circular(4),
+        const Rect.fromLTRB(66.25, 66, 72, 78),
+        const Radius.circular(.5),
       ),
       paint,
     );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        const Rect.fromLTWH(109, 162, 53, 43),
-        const Radius.circular(3),
-      ),
-      paint,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        const Rect.fromLTWH(175, 176, 20, 46),
-        const Radius.circular(3),
-      ),
-      paint,
-    );
-    line(const Offset(126, 165), const Offset(126, 202), cream, 2);
-    line(const Offset(145, 165), const Offset(145, 202), cream, 2);
-    line(const Offset(111, 182), const Offset(160, 182), cream, 2);
-    line(const Offset(145, 127), const Offset(145, 144), cream, 2);
-    fill(cream);
-    canvas.drawCircle(const Offset(189, 201), 1.6, paint);
-    line(
-      const Offset(104, 207),
-      const Offset(165, 207),
-      const Color(0xFFB7C9AD),
-      5,
-    );
+    line(const Offset(70.25, 72.5), const Offset(70.75, 72.5), cream, .6);
+    canvas.restore();
     // Small garden plants frame the house.
     for (final x in [65.0, 300.0]) {
       line(Offset(x, 218), Offset(x, 182), green, 3);
@@ -228,12 +272,12 @@ class SolarScenePainter extends CustomPainter {
       canvas.drawOval(Rect.fromLTWH(x - 17, 178, 18, 28), paint);
       canvas.drawOval(Rect.fromLTWH(x, 187, 16, 24), paint);
     }
-    if (producing) {
+    if (producing && !loading) {
       // Staggered, soft rays visibly arrive at the panel surface every loop.
       for (var i = 0; i < 3; i++) {
         final t = (phase.value + i / 3) % 1;
         final start = Offset(267 + i * 6.0, 68);
-        final end = Offset(199 + i * 17.0, 116 - i * 5.0);
+        final end = Offset(207 + i * 16.0, 113 - i * 5.0);
         final opacity = math.sin(t * math.pi).clamp(0.0, 1.0);
         final tip = Offset.lerp(start, end, t)!;
         final tail = Offset.lerp(start, end, math.max(0, t - .22))!;
@@ -250,5 +294,7 @@ class SolarScenePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(SolarScenePainter oldDelegate) =>
-      oldDelegate.producing != producing || oldDelegate.phase != phase;
+      oldDelegate.producing != producing ||
+      oldDelegate.loading != loading ||
+      oldDelegate.phase != phase;
 }
