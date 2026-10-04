@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'battery_controller.dart';
+import 'battery_widgets.dart';
 import 'connection_controller.dart';
 import 'p1_controller.dart';
 import 'p1_widgets.dart';
@@ -15,8 +17,10 @@ class SettingsPage extends StatelessWidget {
     this.active = true,
     this.solax,
     this.p1,
+    this.battery,
   });
   final P1Controller? p1;
+  final BatteryController? battery;
   final SolaxController? solax;
   final ConnectionController controller;
   final bool preview;
@@ -51,11 +55,7 @@ class SettingsPage extends StatelessWidget {
         const SizedBox(height: 24),
         P1SettingsCard(controller: p1, preview: preview, active: active),
         const SizedBox(height: 24),
-        Text('Coming later', style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
-        const Text(
-          'PowerFlex battery: unavailable — integration coming later.',
-        ),
+        BatterySettingsCard(controller: battery, preview: preview),
       ],
     );
   }

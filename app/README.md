@@ -16,6 +16,8 @@ in the codebase. See the [project overview](../README.md) for the technology sta
 - Source cards showing power, energy, measurement time, connection status and
   saved or stale readings. SolaX details include both solar inputs, inverter
   temperature and lifetime energy.
+- Battery Details with reported percentage/state, pack DC power and qualified
+  AC/energy counters, with receipt age and separate saved/offline status.
 - Combined solar power when both readings are fresh and closely aligned in time;
   partial production when only one source qualifies. Energy counters stay separate.
 - Local P1 grid-meter connection with timestamped import/export, cumulative
@@ -49,6 +51,12 @@ from home. Grid exchange is separate from household consumption, which remains
 unavailable pending compatible measurements and verified installation coverage.
 See the [P1 integration notes](../docs/p1-check.md).
 
+In **Settings → INDEVOLT PowerFlex battery**, enter its private IPv4 address,
+then choose **Test & save battery**. Enable HTTP in INDEVOLT first. This permits
+unencrypted local-network access without authentication; use your home network.
+Port 8080 is automatic. Digest authentication, hostnames and remote access are
+not supported. Replacement is tested before the saved address changes.
+
 ## Refresh, saved readings and freshness
 
 Each solar source has its own 15-minute request wait and restores saved readings when
@@ -60,6 +68,14 @@ P1 refreshes every 30 seconds while the app is in the foreground, backing off up
 to five minutes after failures. Its meter timestamp and receipt must both be
 recent; readings become stale after 90 seconds. Saved/offline readings stay
 labeled, and P1 requests never reset solar refresh waits.
+
+The battery refreshes every 30 seconds in the foreground, with failure waits of
+1, 2, 4 then 5 minutes. Waits survive restarts and are independent of solar waits.
+Automatic refresh pauses while editing a replacement. Cached readings are marked
+saved after restart, a failed refresh, backgrounding, or 90 seconds without a
+successful response. Receipt time is not measurement time: live household flows
+and available battery energy remain unavailable. Daily counters are not verified
+totals for today. See [battery notes](../docs/battery-check.md).
 
 ## Run locally
 

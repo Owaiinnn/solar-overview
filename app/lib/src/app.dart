@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'battery_controller.dart';
 import 'connection_controller.dart';
 import 'home.dart';
 import 'overview.dart';
@@ -16,8 +17,10 @@ class SolarApp extends StatefulWidget {
     this.preview = false,
     this.solax,
     this.p1,
+    this.battery,
   });
   final P1Controller? p1;
+  final BatteryController? battery;
   final SolaxController? solax;
   final ConnectionController controller;
   final bool preview;
@@ -31,6 +34,7 @@ enum _AppTab { home, appliances, history, settings }
 class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
   Timer? _freshnessTimer;
   Timer? _p1Timer;
+  Timer? _batteryTimer;
   bool _showDetails = false;
 
   @override
@@ -39,6 +43,7 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     final state = WidgetsBinding.instance.lifecycleState;
     _syncP1(state == null || state == AppLifecycleState.resumed);
+    _syncBattery(state == null || state == AppLifecycleState.resumed);
     _freshnessTimer = Timer.periodic(const Duration(minutes: 1), (_) {
       widget.controller.updateFreshness();
       widget.solax?.updateFreshness();
@@ -56,9 +61,21 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
     }
   }
 
+  void _syncBattery(bool foreground) {
+    _batteryTimer?.cancel();
+    widget.battery?.setForeground(foreground);
+    if (foreground && widget.battery != null) {
+      _batteryTimer = Timer.periodic(
+        const Duration(seconds: 5),
+        (_) => widget.battery?.tick(),
+      );
+    }
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _syncP1(state == AppLifecycleState.resumed);
+    _syncBattery(state == AppLifecycleState.resumed);
     if (state == AppLifecycleState.resumed) {
       widget.controller.updateFreshness();
       widget.solax?.updateFreshness();
@@ -70,6 +87,8 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
     _freshnessTimer?.cancel();
     _p1Timer?.cancel();
     widget.p1?.setForeground(false);
+    _batteryTimer?.cancel();
+    widget.battery?.setForeground(false);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -161,6 +180,7 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
                             ),
                             OverviewPage(
                               p1: widget.p1,
+                              battery: widget.battery,
                               controller: controller,
                               solax: widget.solax,
                               openSettings: () =>
@@ -187,6 +207,7 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
                         ),
                         SettingsPage(
                           p1: widget.p1,
+                          battery: widget.battery,
                           active: _tab == _AppTab.settings,
                           controller: controller,
                           preview: widget.preview,

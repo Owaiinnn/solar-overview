@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'battery_controller.dart';
+import 'battery_widgets.dart';
 import 'connection_controller.dart';
 import 'p1_controller.dart';
 import 'p1_widgets.dart';
@@ -14,9 +16,11 @@ class OverviewPage extends StatelessWidget {
     required this.openSettings,
     this.solax,
     this.p1,
+    this.battery,
   });
 
   final P1Controller? p1;
+  final BatteryController? battery;
   final ConnectionController controller;
   final SolaxController? solax;
   final VoidCallback openSettings;
@@ -40,11 +44,11 @@ class OverviewPage extends StatelessWidget {
         const SizedBox(height: 16),
         P1DetailsCard(controller: p1, openSettings: openSettings),
         const SizedBox(height: 16),
+        BatteryDetailsCard(controller: battery, openSettings: openSettings),
+        const SizedBox(height: 16),
         const _SourceCard(
           title: 'Your other energy sources',
           children: [
-            Text('PowerFlex battery: unavailable — integration coming later.'),
-            SizedBox(height: 8),
             Text(
               'Household consumption: unavailable — compatible measurements and meter coverage need verification.',
             ),
