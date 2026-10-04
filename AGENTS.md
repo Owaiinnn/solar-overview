@@ -84,11 +84,18 @@ portable commands. Browser preview shows empty screens without live API testing.
 
 ## Data and credentials
 
-- Solar production sources are SolarEdge and SolaX panels/inverter. The owner
-  clarified that PowerFlex 2000Eco battery access is separate, later work. Its API,
-  exact electrical topology and the smart-meter interface remain unverified.
-  SolaX API access was tested; see `docs/solax-check.md` and ticket #21. Do not infer
-  household consumption or battery flows from SolaX summary counters.
+- Solar production sources are only SolarEdge and SolaX panels/inverter. The
+  INDEVOLT inverter card repeats the existing SolarEdge system, not a third source.
+  Read-only Mac checks on 2026-10-04 verified separate local HTTP access to the
+  INDEVOLT battery and P1-2WR reader; Flutter integration remains open in #6/#7.
+  See their ticket copies for field mappings and remaining validation. The owner
+  chose home-network-only access: no cloud/MQTT service or gateway for this scope.
+  Battery usable capacity, exact AC/bypass topology and full meter coverage still
+  need verification. Do not infer household use from SolaX summary counters or
+  the battery's zero load field, or mix pack DC power with AC grid/solar readings.
+  Preserve source timing: receipt time is not a measurement timestamp, and the
+  combined-solar freshness rules do not establish a valid live household balance.
+  See `docs/solax-check.md` and #21 for existing SolaX access/mapping.
 - Keep battery discharge separate from solar production. Do not call SolarEdge
   alone combined production or calculate household surplus without all inputs.
   Missing readings must not become zero; distinguish stale data. The owner does

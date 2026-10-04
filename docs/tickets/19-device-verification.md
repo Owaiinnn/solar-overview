@@ -13,10 +13,19 @@ preferences and lifecycle behavior remain unverified. Also check the looping sce
 on a physical Android phone; the emulator profile run is not a physical-device
 performance result. Keep these separate from owner-reported provider comparisons.
 
+Backlog reconciliation (2026-10-04): #28 / merged PR #33 records agent-run Android
+emulator checks on 2026-10-02 with both live sources, force-stop/reopen, saved
+readings and persistent refresh waits. Credit that evidence below; it does not
+establish physical-device behavior, provider-app agreement or the site timezone.
+The 2026-10-04 battery/P1 checks were Mac API probes only. New local-source Android
+and off-network checks are acceptance work in #6/#7, with new scene checks in #35;
+they have not passed merely because those devices respond from the Mac.
+
 ## Todo
 
-- [ ] On Android with the updated app, confirm a real SolarEdge reading and the site timezone.
-- [ ] Fully close/reopen within 15 minutes; confirm saved readings and the remaining refresh wait.
+- [x] Confirm a real SolarEdge reading on the Android emulator with the updated Home/Details app (agent-run #28 / PR #33, 2026-10-02).
+- [ ] Confirm the configured SolarEdge site timezone against the provider/site information.
+- [x] Fully close/reopen the Android emulator app before the refresh wait expires; confirm saved readings and the remaining wait (agent-run #28 / PR #33, 2026-10-02).
 - [ ] After the wait, verify a successful live refresh; then verify offline retention after a later wait and stale labeling after 30 minutes.
 - [ ] Verify connection, persistence after close/reopen, and removal on a physical Android phone.
 - [ ] Install full Xcode and verify the iOS build and launch on an iPhone simulator or device.
