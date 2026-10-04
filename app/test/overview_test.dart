@@ -362,7 +362,7 @@ void main() {
       expect(find.text('SolaX only · 1 of 2 sources'), findsOneWidget);
       expect(find.text('Combined solar production'), findsNothing);
       await tester.scrollUntilVisible(
-        find.textContaining('PowerFlex battery: unavailable'),
+        find.textContaining('Household consumption: unavailable'),
         200,
       );
       expect(

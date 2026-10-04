@@ -40,7 +40,7 @@ void main() {
           )
           .first;
       await tester.scrollUntilVisible(
-        find.text('Coming later'),
+        find.text('INDEVOLT PowerFlex battery'),
         300,
         scrollable: scrollable,
       );
