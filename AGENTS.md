@@ -72,6 +72,10 @@ For script changes, run from the repo root:
 python3 -m unittest discover -s scripts -p 'test_*.py'
 ```
 
+Use `--no-uninstall` with `flutter test integration_test` to preserve the app
+and its saved connections; the Flutter default uninstalls the app after tests.
+Use `--keep-app-running` with `flutter drive` for the same reason.
+
 Verify native/plugin changes on Android when a device is available; unit tests
 alone do not verify native storage. Report unavailable checks rather than claiming
 they passed. Documentation-only changes need link/content and diff checks, not a
@@ -108,8 +112,8 @@ portable commands. Browser preview shows empty screens without live API testing.
   INDEVOLT inverter card repeats the existing SolarEdge system, not a third source.
   Read-only Mac checks on 2026-10-04 verified separate local HTTP access to the
   INDEVOLT battery and P1-2WR reader. P1 Flutter integration and live emulator
-  checks are implemented in #7; battery integration remains open in #6. See their
-  ticket copies and P1 follow-up #42 for field mappings and remaining validation. The owner
+  checks are implemented in #7; battery integration is implemented in #6. See their
+  ticket copies and follow-ups #42 (P1) and #53 (battery) for remaining validation. The owner
   chose home-network-only access: no cloud/MQTT service or gateway for this scope.
   The owner confirmed both solar systems and the battery share the P1 meter.
   Battery usable capacity and exact AC/bypass topology still need verification;
