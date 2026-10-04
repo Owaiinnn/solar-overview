@@ -18,7 +18,12 @@ AC output, two MPPT inputs, timestamps and energy. This verifies query access,
 not full retention or complete time-series coverage. `inverterACOutputEnergy` was
 populated while monthly `pvGeneration` was zero; plant/device energy totals also
 differed. Verify field semantics, units and date boundaries before charting.
-See `docs/solax-check.md`. Battery history is deferred with #6.
+See `docs/solax-check.md`. Local battery/grid history and its collection policy
+are tracked separately in #36, using the same History screen. #6/#7 establish
+live device access; they do not imply that historical backfill is available.
+
+Backlog review (2026-10-04): solar History is still a navigation placeholder.
+Keep this ticket open; the merged Home/Details screen does not implement graphs.
 
 ## Todo
 

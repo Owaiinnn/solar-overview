@@ -120,8 +120,11 @@ Owner-requested design/loading revision (2026-10-02, PR #33):
   sources intact. The loading test used only in-memory synthetic state and
   --keep-app-running, preserving real device storage. Native iOS remains in #19.
 
-The implementation is ready for PR review. Leave this issue open until its PR is
-merged; native/physical follow-ups above remain open in #19.
+PR #33 merged on 2026-10-02 and this implementation issue is closed. The native
+and physical-device follow-ups remain in #19; provider comparisons remain #25/#30.
+Backlog review on 2026-10-04 confirmed the existing Home scene is solar-only.
+The owner's new battery/grid presentation request is tracked in #35, dependent
+on the local integrations #6/#7. Do not reopen this completed implementation.
 
 ## Todo
 

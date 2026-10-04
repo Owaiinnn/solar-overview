@@ -7,8 +7,8 @@ implementation in #4 / PR #27 without losing them when the implementation closes
 
 The owner authorized merging the Overview and redesign-planning PRs on 2026-10-01.
 This follow-up preserves the remaining Overview acceptance work; it does not
-claim that the comparisons have passed. The future Home/Details redesign in #28
-must retain these source and calculation semantics.
+claim that the comparisons have passed. The Home/Details redesign in #28 is now merged and retains these source and
+calculation semantics. Battery/grid visualization in #35 must retain them too.
 
 Agent-run verification for #4 passed 116 unit/widget tests, formatting, static
 analysis, Android debug build, and live Android emulator checks of both existing
@@ -32,6 +32,11 @@ iOS storage checks remain in #19/#25; record any Overview-specific layout findin
 there or here as appropriate. Enter credentials only in mobile Settings and keep
 private screenshots, account identifiers, credentials and raw responses out of
 issues and git.
+
+Backlog review (2026-10-04): no matching-time SolarEdge/SolaX provider comparison
+was completed during the battery/P1 discovery. The INDEVOLT inverter card is a
+view of the same SolarEdge source, not independent third-source production.
+This ticket remains open; local-source validation belongs to #6/#7.
 
 ## Todo
 

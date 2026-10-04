@@ -30,8 +30,18 @@ The earlier probe found a zero daily device counter at sunset despite nonzero
 plant statistics. Its cause and the appropriate headline series for #4/#5 remain
 unverified. See `docs/solax-check.md` for the established mapping and observations.
 
+Backlog reconciliation (2026-10-04): later agent-run Android emulator checks in
+#28 / merged PR #33 verified live SolaX presentation and restoration of saved
+readings/refresh waits after force-stop/reopen. These supplement the earlier
+verification history above. They did not exercise replacement/removal, a fresh
+Settings authorization, token issuance/renewal tracing, two physical phones or
+the daily-counter discrepancy. Keep those original acceptance requirements open.
+The battery and P1 Mac probes on 2026-10-04 do not validate SolaX counters.
+
 ## Todo
 
+- [x] Verify live SolaX readings render in Android emulator Home/Details, including both MPPT channels, temperature and energy counters (agent-run #28 / PR #33, 2026-10-02).
+- [x] Verify saved SolaX readings and remaining refresh wait reappear after Android emulator force-stop/reopen (agent-run #28 / PR #33, 2026-10-02); token renewal behavior remains unverified below.
 - [ ] In Android Settings, test/save a live EU SolaX connection, select the correct plant and X1-Micro 2 in 1, and verify power, status and source time.
 - [ ] Fully terminate/reopen the Android process; confirm credentials/token/readings persist and the 15-minute wait remains without obtaining another token.
 - [ ] After the wait, verify successful refresh, then offline cached readings and stale labeling after 30 minutes.
