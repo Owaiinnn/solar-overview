@@ -126,6 +126,11 @@ Backlog review on 2026-10-04 confirmed the existing Home scene is solar-only.
 The owner's new battery/grid presentation request is tracked in #35, dependent
 on the local integrations #6/#7. Do not reopen this completed implementation.
 
+Artwork follow-up (2026-10-04): #38 owns the revised house logo/shared scene
+geometry from the clearer normal/ultrawide photos, with corrected perspective and
+only the tall hedge beside the door. #35 uses that artwork for battery/grid status.
+This completed Home implementation remains closed.
+
 ## Todo
 
 - [x] Produce a reviewable Home design with a prominent combined-power headline, compact source coverage/freshness, house-and-solar scene and obvious Details action.

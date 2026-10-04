@@ -18,6 +18,12 @@ The final aligned-window APK was installed with `adb install -r` on the existing
 
 Deferred: iOS launcher appearance requires full Xcode plus an iOS simulator or signed device; only Command Line Tools are installed on this Mac. Physical Android and launcher-specific themed appearance checks remain follow-up validation. No source photo, device screenshots, credentials or raw API data are committed.
 
+Design follow-up (2026-10-04): this completed issue stays closed. #38 refines the
+logo and shared animated house from two clearer owner-supplied photos. The new
+scope corrects photographic perspective and includes the single tall hedge beside
+the door in both outputs, superseding the old blanket landscaping exclusion for
+that revision only. All other vegetation is excluded; source photos remain private.
+
 ## Todo
 
 - [x] Review and choose the final house-outline logo with the owner.
