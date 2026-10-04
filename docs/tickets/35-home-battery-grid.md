@@ -6,10 +6,18 @@ grid import/export at a glance alongside the two solar sources.
 ## Description
 
 Owner-requested follow-up on 2026-10-04 to the merged Home scene in #28 / PR #33.
-Reuse the original green/ivory house, roof panels, sun rays, loading bounce and
-Home-to-Details navigation. Do not reopen #28 or the superseded bolt ticket #11.
+Reuse the green/ivory visual identity, roof panels, sun rays, loading bounce and
+Home-to-Details navigation. The updated shared house artwork is tracked in #38. Do not reopen #28 or the superseded bolt ticket #11.
 The current scene only accepts solar production/loading state; battery and meter
 support are not implemented. Mac API checks in #6/#7 establish access, not app UI.
+
+House-reference update (2026-10-04): use #38's corrected front elevation from the
+new normal/ultrawide photographs. Account for camera offset, tilt and lens distortion;
+do not reproduce skewed walls or windows. Keep the tall hedge immediately beside
+the door in the animated scene, matching the revised logo, and exclude all other
+plants/garden details. Keep real bay-left/door-right asymmetry. Source photos stay
+private; the geometry is recreated as editable artwork. Energy indicators must
+remain readable without obscuring the door, hedge or key windows.
 
 There are only two solar sources: SolarEdge and SolaX. The inverter card in the
 INDEVOLT app repeats the existing SolarEdge system. Add the separate battery and
@@ -50,7 +58,7 @@ background/offscreen ticker suspension. Use the existing code-native artwork;
 record licensing/performance implications if adding assets or dependencies.
 Animation speed is decorative, not a calibrated wattage indicator.
 
-Dependencies: #6 battery and #7 meter normalized readings; any displayed household
+Dependencies: #38 shared house artwork, #6 battery and #7 meter normalized readings; any displayed household
 balance additionally requires #7's calculation verification. Implement battery
 presentation after #6 if #7 is still pending. #19 retains existing physical/native
 verification; new visual checks belong here or in an explicit follow-up at closure.
@@ -58,6 +66,7 @@ Appliance recommendations and history remain separate.
 
 ## Todo
 
+- [ ] Reuse #38's corrected house geometry and retain only the tall hedge beside the door; check consistency with the revised logo and avoid photographic perspective distortion.
 - [ ] Produce a reviewable extension of the existing Home scene with battery percentage/state/power and grid direction/power while preserving the solar headline and Details action.
 - [ ] Bind battery fill and state to #6; implement charging, discharging, idle, zero SOC, full SOC, unknown, loading, stale and off-network presentation.
 - [ ] Bind grid direction and power to #7; distinguish import, export, zero net exchange and unavailable readings.
