@@ -66,10 +66,11 @@ Dependencies: the existing Flutter source structure; derived household flow also
 depends on #6. #35 owns Home visualization, #36 owns local history, and #8
 owns appliance headroom. No controls, cloud service, sample mode or gas feature.
 
-Implementation handoff (2026-10-05): the owner remains away from home. The app
+Initial implementation handoff (2026-10-05): the owner was away from home. The app
 implementation is on `feat/7-local-p1`, based on current main independently of
 the open battery PR #39. Keep this issue open for the live/device and household
-balance work below; no real P1 connection was attempted during this implementation.
+balance work below; no real P1 connection was attempted during the initial
+implementation.
 
 - Added a read-only raw `P1.GetData` client with explicit OBIS units, precise
   integer-Wh tariff counters, meter identity and Dutch DSMR S/W timestamps.
@@ -106,26 +107,68 @@ balance work below; no real P1 connection was attempted during this implementati
   and its connection navigation while existing solar connections remained intact.
   No source screenshots, raw responses, private addresses or credentials are committed.
 
-No owner-run verification is claimed. Remaining work: actual model/firmware,
-measurement cadence/timezone and installation coverage; matching-time import and
-export comparisons against the meter/app; battery topology and defensible household
-calculation; live Android setup, process restart and leaving/returning home;
-physical Android and native iOS. Preserve those in a linked follow-up before any
-future closure if the implementation is merged separately. Implementation details,
-source references and test commands are in [P1 notes](../p1-check.md).
+Home-network verification (2026-10-05, after the owner returned):
+
+- Owner confirmed that SolarEdge, SolaX and the battery are all behind this
+  electricity meter. This establishes owner-reported coverage, not the battery's
+  AC/bypass wiring or the timing needed for household calculations.
+- Agent read the real P1 reader from the Mac and connected the Android API 36
+  emulator through normal Settings. No reader settings or battery controls were
+  changed. The real brace-wrapped, CRLF-framed telegram passed the production
+  parser's checksum, units, identity and timestamp validation.
+- Device reports P1-2WR, firmware `V1.4.0C_R021.102_MP12WR_D0000078`, DSMR
+  version `50`, and meter header/model `ISK5\2M550T-1011`. All three phase voltage
+  and current fields are present. These are device-reported values, not a physical
+  inspection of the meter label or wiring.
+- Paired raw/JSON readings agreed on 34 W import and, later, 1,770 W export
+  (JSON signed net -1,770 W). The owner reported “from grid” 47 W; an agent sample
+  during that exchange also read 47 W import. This supports direction and scale,
+  but is not a clock-synchronized app comparison across battery operating modes.
+- Four samples spaced ten seconds apart had advancing timestamps with subsecond
+  receipt age and imports of 33, 47, 46 and 48 W. The S suffix correctly converted
+  current Amsterdam summer time to UTC. Sampling demonstrated updates within
+  ten seconds; the exact device cadence and a real DST transition remain untested.
+- Normal Android UI showed live import and export, original local/UTC meter times,
+  separate receipt time, cumulative tariff counters and all three phase readings.
+  Automatic foreground updates were observed. A full app force-stop/relaunch
+  restored the connection and resumed live readings without re-entry.
+- With emulator Wi-Fi and mobile data disabled, the original export reading and
+  timestamp remained saved. A second full app restart retained the saved reading
+  and retry wait (87 seconds remaining), without claiming current exchange.
+  Restored both network settings to their original enabled state. After the
+  persisted retry gate expired, P1 recovered automatically to a new timestamp and
+  recent export reading without reconnecting or bypassing the wait. This checks
+  loss/return of connectivity on the emulator, not roaming on a physical phone.
+- Existing solar connections remained usable, with separate refresh waits. A
+  private preference comparison found all prior keys retained and the SolarEdge
+  connection entry unchanged; the SolaX record refreshed normally. No solar
+  replacement/removal was performed. Android debug build passed again; only
+  documentation changed after these live checks. Earlier 166 unit/widget tests,
+  native synthetic tests and PR CI remain passing. Private responses, screenshots,
+  UI dumps and preference comparisons remain ignored and uncommitted.
+
+Remaining work: exact measurement cadence and real DST behavior; independent
+physical-meter/app comparisons through battery charge/discharge; battery AC/bypass
+boundaries and defensible cross-source household calculation; physical Android and
+native iOS. Preserve remaining scope in a linked follow-up before any future closure
+if the implementation is merged separately. Implementation details, source references
+and test commands are in [P1 notes](../p1-check.md).
 
 ## Todo
 
 - [x] Identify the P1-2WR reader and its link to the INDEVOLT Home Energy Hub from owner-provided screens.
 - [x] Obtain timestamped raw meter data and JSON readings through the enabled local HTTP API on the Mac.
 - [x] Verify export sign and JSON power scaling against the raw telegram; identify tariff energy counters as cumulative kWh.
-- [ ] Verify exact reader firmware/electricity-meter model, whole-installation coverage, phase configuration, update cadence and timestamp timezone/DST behavior.
+- [x] Record device-reported reader firmware, meter model/header and three-phase fields; obtain owner confirmation that both solar systems and the battery are behind this meter.
+- [ ] Verify physical meter/phase configuration, exact update cadence and real timestamp DST behavior; current summer-time conversion has been checked.
 - [x] Implement the P1 client/parser with explicit firmware/schema mapping, raw units, timestamp validation, counter precision/provenance and malformed/missing-data handling.
 - [x] Add independent mobile Settings test/save/replace/remove, secure persistence, cached readings, bounded foreground refresh/backoff and changed-address/off-network recovery without affecting existing connections.
 - [x] Show net grid import/export, measurement time, cumulative tariff counters and optional phase detail in Details; distinguish grid exchange from household use and daily energy.
 - [ ] Compare live import and export with the meter/app, including battery charge/discharge; resolve aggregate-versus-tariff differences and guard meter resets/replacement.
-- [ ] Confirm coverage of both solar systems and the battery, then document AC/bypass boundaries and a timestamp-aligned household calculation with explicit availability/loss assumptions.
+- [ ] Document battery AC/bypass boundaries and a timestamp-aligned household calculation with explicit availability/loss assumptions, using the owner-confirmed shared meter coverage.
 - [ ] Show household consumption only when required inputs are compatible and recent; keep missing/stale inputs unavailable and suppress unsupported surplus advice.
 - [x] Test signs/scaling, raw timestamps/DST, missing versus zero, stale/repeated data, counter resets, inconsistent balances, cache and source isolation using synthetic fixtures.
-- [ ] Verify live Android connection, saved readings after restart, loss/return of home-network access and provider isolation; record agent-run versus owner-run checks.
+- [x] Verify real-meter setup and saved readings after full process restart on the Android emulator; distinguish agent checks from owner-reported comparison/coverage.
+- [x] Verify automatic recovery after emulator connectivity loss, persisted retry waits and preservation of existing solar connections.
+- [ ] Verify live setup, process restart and leaving/returning home on a physical Android phone.
 - [ ] Run required Flutter checks and visual verification; preserve uncompleted physical Android/native iOS checks in an explicit follow-up before closing.

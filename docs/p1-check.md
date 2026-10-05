@@ -2,7 +2,8 @@
 
 The independent P1 source reads the home-network reader on port 8080 using
 `GET /rpc/P1.GetData`. The owner enabled local HTTP mode and verified access from
-the Mac. Flutter live-device behavior is still awaiting home-network validation.
+the Mac. Android emulator setup and reading from the real home-network meter
+have been verified; physical-phone and native iOS checks remain pending.
 The app uses private literal IPv4 addresses, an eight-second request timeout,
 a 64 KiB response limit and no redirects. Authentication failures explain that
 Digest mode is unsupported; they never expose the response or address in errors.
@@ -40,8 +41,9 @@ The raw endpoint avoids associating the timestamp with a separate JSON request.
 During earlier discovery, the reader's snake_case JSON used W while the vendor's
 descriptive JSON example uses kW, and aggregate counters differed slightly from
 raw tariff sums. The app therefore does not use JSON as a fallback or silently
-combine its fields with a raw telegram. Firmware/schema and import-side device
-comparisons remain live-verification work in #7.
+combine its fields with a raw telegram. Current firmware identification and
+paired import/export API checks are recorded in #7. Independent physical-meter comparisons through battery operating modes
+remain pending.
 
 ## Time, cache and foreground refresh
 
