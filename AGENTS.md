@@ -4,6 +4,15 @@ Personal Flutter solar overview app. Develop Android first; retain iOS support,
 but deferred Xcode/iOS verification must not block Android work. The owner is new
 to Flutter: explain handoffs plainly and prefer one copy-paste launch command.
 
+## Coding guidelines
+
+- Before writing or reviewing code, read and follow
+  [the project coding guidelines](docs/coding-guidelines/general.md).
+- Do not add explanatory code comments, documentation comments or TODO notes
+  without first explaining why one is necessary and receiving the owner's
+  explicit approval. Prefer clear code and Markdown documentation. Preserve
+  required license notices and functional tooling directives.
+
 ## Starting and finishing a ticket
 
 - Read the selected GitHub issue (including relevant comments) and its copy in
