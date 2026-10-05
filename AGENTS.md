@@ -87,11 +87,13 @@ portable commands. Browser preview shows empty screens without live API testing.
 - Solar production sources are only SolarEdge and SolaX panels/inverter. The
   INDEVOLT inverter card repeats the existing SolarEdge system, not a third source.
   Read-only Mac checks on 2026-10-04 verified separate local HTTP access to the
-  INDEVOLT battery and P1-2WR reader; Flutter integration remains open in #6/#7.
-  See their ticket copies for field mappings and remaining validation. The owner
+  INDEVOLT battery and P1-2WR reader. P1 Flutter integration and live emulator
+  checks are implemented in #7; battery integration remains open in #6. See their
+  ticket copies and P1 follow-up #42 for field mappings and remaining validation. The owner
   chose home-network-only access: no cloud/MQTT service or gateway for this scope.
-  Battery usable capacity, exact AC/bypass topology and full meter coverage still
-  need verification. Do not infer household use from SolaX summary counters or
+  The owner confirmed both solar systems and the battery share the P1 meter.
+  Battery usable capacity and exact AC/bypass topology still need verification;
+  #43 owns timestamp-aligned household calculation. Do not infer household use from SolaX summary counters or
   the battery's zero load field, or mix pack DC power with AC grid/solar readings.
   Preserve source timing: receipt time is not a measurement timestamp, and the
   combined-solar freshness rules do not establish a valid live household balance.
