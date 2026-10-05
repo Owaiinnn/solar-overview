@@ -9,7 +9,9 @@ Owner-requested follow-up on 2026-10-04 to the merged Home scene in #28 / PR #33
 Reuse the green/ivory visual identity, roof panels, sun rays, loading bounce and
 Home-to-Details navigation. The updated shared house artwork is tracked in #38. Do not reopen #28 or the superseded bolt ticket #11.
 The current scene only accepts solar production/loading state; battery and meter
-support are not implemented. Mac API checks in #6/#7 establish access, not app UI.
+support in Home are not implemented. P1 Settings/Details and emulator verification
+are implemented in #7; physical/native follow-ups remain in #42. Battery
+integration remains open in #6, and household calculation is tracked in #43.
 
 House-reference update (2026-10-04): use #38's corrected front elevation from the
 new normal/ultrawide photographs. Account for camera offset, tilt and lens distortion;
@@ -36,7 +38,7 @@ and stop directional movement on stale, offline, unknown or inconsistent data.
 Add a compact grid indicator with Importing / Exporting / No net exchange and
 verified W/kW. Animate grid-to-house or house-to-grid direction only when the
 meter source is eligible; zero is distinct from unavailable. Show household use
-only when #7's measurement coverage, AC boundaries and timestamp alignment are
+only when #43's measurement coverage, AC boundaries and timestamp alignment are
 satisfied. Otherwise omit the number or explain unavailable consumption without
 blocking independent battery/grid readings. Do not imply the battery is charging
 from solar specifically: grid charging is possible and source attribution is not
@@ -59,10 +61,35 @@ record licensing/performance implications if adding assets or dependencies.
 Animation speed is decorative, not a calibrated wattage indicator.
 
 Dependencies: #38 shared house artwork, #6 battery and #7 meter normalized readings; any displayed household
-balance additionally requires #7's calculation verification. Implement battery
-presentation after #6 if #7 is still pending. #19 retains existing physical/native
+balance additionally requires #43's calculation verification. Independent grid
+presentation can use the merged #7; battery presentation requires #6. #19 retains existing physical/native
 verification; new visual checks belong here or in an explicit follow-up at closure.
 Appliance recommendations and history remain separate.
+
+Scope refinement (2026-10-05): compose independent states on one shared house,
+rather than building a different house asset for every combination. #46 owns the
+dark zero-production theme, stars and warm windows; this issue owns battery/grid
+layers and their combinations. Keep scene state resolution outside the painter,
+with typed inputs that distinguish valid zero, unknown, stale and loading. A dark
+house does not mean all energy activity has stopped.
+
+Minimum review/test combinations (synthetic fixtures only):
+
+| Solar presentation | Battery status | P1 grid status | Expected scene |
+| --- | --- | --- | --- |
+| Eligible positive | Charging | Exporting | Day house, charging battery and export direction |
+| Complete eligible zero | Charging | Importing | Dark house from #46 with both activity indicators |
+| Complete eligible zero | Discharging | Exporting | Dark house with discharge and export indicators |
+| Complete eligible zero | Idle | No net exchange | Dark house with ambient motion only |
+| Eligible positive | Unavailable | Importing | Solar and grid remain visible; battery unavailable |
+| Unavailable or partial zero | Charging | Importing | No false whole-system zero theme; valid local activity remains |
+
+These are independently observed statuses, not proof of a specific source-to-load
+path. Grid import plus battery charging does not, by itself, quantify how much grid
+power reaches the battery; grid export can occur with zero solar because a battery
+may discharge. Preserve all existing unavailable-data and source-attribution guards.
+Compose reduced motion and loading consistently with #46. Do not require every
+cross-product state to have a separate painter or image.
 
 ## Todo
 
@@ -78,3 +105,4 @@ Appliance recommendations and history remain separate.
 - [ ] Add meaningful synthetic widget/state tests for direction changes, stale/error states, independent sources, reduced motion and lifecycle behavior; no shipped sample mode.
 - [ ] Run required Flutter checks and focused Android visual walkthroughs with live readings, Home/Details navigation, restart and off-network recovery; record rendering cost and distinguish emulator from physical-device evidence.
 - [ ] Carry uncompleted physical Android/native iOS verification into an explicit follow-up before closing; retain the existing #19/#25/#30 checks.
+- [ ] Compose independent solar/theme, battery and grid state on one shared house; review the scenario matrix with #46 and test valid simultaneous activity, partial data and independent failures.
