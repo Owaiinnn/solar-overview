@@ -21,6 +21,12 @@ The 2026-10-04 battery/P1 checks were Mac API probes only. New local-source Andr
 and off-network checks are acceptance work in #6/#7, with new scene checks in #35;
 they have not passed merely because those devices respond from the Mac.
 
+House artwork follow-up from #38 (2026-10-05): the corrected facade, entrance
+hedge and regenerated launcher assets were checked on the API 36 emulator.
+Physical Android launcher/theme masks and native iOS icon/Home appearance still
+need verification. Inspect the revised artwork rather than the superseded #15
+geometry; emulator and generated-export checks do not establish physical results.
+
 ## Todo
 
 - [x] Confirm a real SolarEdge reading on the Android emulator with the updated Home/Details app (agent-run #28 / PR #33, 2026-10-02).
@@ -32,3 +38,6 @@ they have not passed merely because those devices respond from the Mac.
 - [ ] Verify native iOS credential/cache persistence and removal, plus launcher appearance.
 - [ ] Record which checks were performed by the owner versus the agent, without exposing private data.
 - [ ] Verify Home/Details layout, reduced motion and background/resume behavior on native iOS, and scene smoothness/rendering cost on a physical Android phone (follow-up to #28).
+
+- [ ] Verify the #38 revised house/hedge icon on a physical Android launcher, including a supported themed-icon mask, and inspect its Home scene.
+- [ ] Verify the #38 revised icon and Home scene on native iOS once full Xcode and an iOS simulator or device are available.
