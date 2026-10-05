@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'src/app.dart';
+import 'src/p1.dart';
+import 'src/p1_controller.dart';
+import 'src/p1_store.dart';
 import 'src/connection_controller.dart';
 import 'src/credential_store.dart';
 import 'src/browser_preview.dart';
@@ -27,7 +30,9 @@ Future<void> main() async {
     readingStore: SecureReadingStore(),
   );
   final solax = SolaxController(SecureSolaxStore(), SolaxApi(http.Client()));
-  runApp(SolarApp(controller: controller, solax: solax));
+  final p1 = P1Controller(SecureP1Store(), P1Api(http.Client()));
+  runApp(SolarApp(controller: controller, solax: solax, p1: p1));
+  p1.initialize();
   controller.initialize();
   solax.initialize();
 }

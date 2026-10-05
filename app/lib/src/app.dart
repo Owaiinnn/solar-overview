@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'connection_controller.dart';
 import 'overview.dart';
+import 'p1_controller.dart';
+import 'p1_widgets.dart';
 import 'home.dart';
 import 'solax_controller.dart';
 import 'solax_settings.dart';
@@ -14,7 +16,9 @@ class SolarApp extends StatefulWidget {
     required this.controller,
     this.preview = false,
     this.solax,
+    this.p1,
   });
+  final P1Controller? p1;
   final SolaxController? solax;
   final ConnectionController controller;
   final bool preview;
@@ -27,20 +31,35 @@ enum _AppTab { home, appliances, history, settings }
 
 class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
   Timer? _freshnessTimer;
+  Timer? _p1Timer;
   bool _showDetails = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    final state = WidgetsBinding.instance.lifecycleState;
+    _syncP1(state == null || state == AppLifecycleState.resumed);
     _freshnessTimer = Timer.periodic(const Duration(minutes: 1), (_) {
       widget.controller.updateFreshness();
       widget.solax?.updateFreshness();
     });
   }
 
+  void _syncP1(bool foreground) {
+    _p1Timer?.cancel();
+    widget.p1?.setForeground(foreground);
+    if (foreground && widget.p1 != null) {
+      _p1Timer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) => widget.p1?.tick(),
+      );
+    }
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    _syncP1(state == AppLifecycleState.resumed);
     if (state == AppLifecycleState.resumed) {
       widget.controller.updateFreshness();
       widget.solax?.updateFreshness();
@@ -50,6 +69,8 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     _freshnessTimer?.cancel();
+    _p1Timer?.cancel();
+    widget.p1?.setForeground(false);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -140,6 +161,7 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
                                   setState(() => _showDetails = true),
                             ),
                             OverviewPage(
+                              p1: widget.p1,
                               controller: controller,
                               solax: widget.solax,
                               openSettings: () =>
@@ -165,6 +187,8 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
                               'history charts are available.',
                         ),
                         SettingsPage(
+                          p1: widget.p1,
+                          active: _tab == _AppTab.settings,
                           controller: controller,
                           preview: widget.preview,
                           solax: widget.solax,
@@ -215,11 +239,15 @@ class SettingsPage extends StatefulWidget {
     super.key,
     required this.controller,
     this.preview = false,
+    this.active = true,
     this.solax,
+    this.p1,
   });
+  final P1Controller? p1;
   final SolaxController? solax;
   final ConnectionController controller;
   final bool preview;
+  final bool active;
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -480,11 +508,16 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
         SolaxSettingsCard(controller: widget.solax, preview: widget.preview),
         const SizedBox(height: 24),
+        P1SettingsCard(
+          controller: widget.p1,
+          preview: widget.preview,
+          active: widget.active,
+        ),
+        const SizedBox(height: 24),
         Text('Coming later', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
         const Text(
-          'PowerFlex battery: unavailable — integration coming later.\n'
-          'Household smart meter: unavailable — integration coming later.',
+          'PowerFlex battery: unavailable — integration coming later.',
         ),
       ],
     );

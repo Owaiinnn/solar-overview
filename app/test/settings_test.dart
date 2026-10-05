@@ -56,6 +56,8 @@ void main() {
     expect(find.text('Connection saved on this phone'), findsOneWidget);
     expect(find.text(fakeKey), findsNothing);
     expect(store.saved?.apiKey, fakeKey);
+    await tester.ensureVisible(find.text('Replace connection'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Replace connection'));
     await tester.pumpAndSettle();
     expect(tester.widget<EditableText>(editable).controller.text, isEmpty);
@@ -63,11 +65,32 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Cancel replacement'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Remove connection'),
+      -200,
+      scrollable: find
+          .descendant(
+            of: find.byType(SettingsPage),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Remove connection'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Remove'));
     await tester.pumpAndSettle();
     expect(store.saved, isNull);
+    await tester.scrollUntilVisible(
+      keyField,
+      -200,
+      scrollable: find
+          .descendant(
+            of: find.byType(SettingsPage),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     expect(find.byKey(const Key('api-key')), findsOneWidget);
   });
 
