@@ -114,5 +114,5 @@ states under ignored `app/build/p1-preview/`. Keep `--keep-app-running`, or use
 Always restore the normal app target afterward with `install -r`.
 
 Actual test results, remaining device comparisons and unavailable checks belong
-in [the ticket](tickets/07-house-meter.md). Source fixtures belong only in tests;
+in [the ticket](tickets/done/07-house-meter.md). Source fixtures belong only in tests;
 there is no shipped sample-data mode.

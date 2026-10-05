@@ -7,8 +7,9 @@ to Flutter: explain handoffs plainly and prefer one copy-paste launch command.
 ## Starting and finishing a ticket
 
 - Read the selected GitHub issue (including relevant comments) and its copy in
-  `docs/tickets/`. Inspect existing code before deciding what remains; unchecked
-  boxes are not proof that nothing has been implemented.
+  `docs/tickets/` (or `docs/tickets/done/` for completed tickets). Inspect existing
+  code before deciding what remains; unchecked boxes are not proof that nothing
+  has been implemented.
 - Keep both READMEs concise: `README.md` covers purpose and technology;
   `app/README.md` covers built features, setup and development commands. Future
   plans may be described generally. Treat READMEs as stable reference documents,
@@ -30,6 +31,16 @@ to Flutter: explain handoffs plainly and prefer one copy-paste launch command.
   Use `Closes #N` in the PR when it completes the ticket. If verification or scope
   is explicitly deferred, preserve it in a linked follow-up issue before closing
   the merged implementation ticket. Keep local ticket copies synchronized.
+- Once the implementation is merged and the GitHub issue is verified closed,
+  move its local Markdown file with `git mv` from `docs/tickets/` to
+  `docs/tickets/done/`, preserving its filename, scope and verification history.
+  Keep open tickets and open follow-ups directly in `docs/tickets/`. A merged PR
+  or checked-off checklist alone is not enough to archive a ticket; deferred work
+  must have linked open follow-ups before the implementation issue is closed.
+  Update links and path references affected by the move and commit the archive
+  change through the normal PR workflow (a follow-up documentation PR if needed).
+  Do not delete completed ticket files. If an issue is reopened, move its file
+  back to `docs/tickets/`.
 
 ## Development and verification
 
@@ -108,8 +119,9 @@ portable commands. Browser preview shows empty screens without live API testing.
 
 ## Ticket conventions
 
-Every GitHub issue and its local copy in `docs/tickets/` must use exactly these
-three Markdown headers, in this order: `## Purpose`, `## Description`, `## Todo`.
+Every GitHub issue and its local copy in `docs/tickets/` or
+`docs/tickets/done/` must use exactly these three Markdown headers, in this order:
+`## Purpose`, `## Description`, `## Todo`.
 Keep the issue title in GitHub's title field, not in a fourth body header.
 
 Purpose explains why; Description contains scope, dependencies, references and

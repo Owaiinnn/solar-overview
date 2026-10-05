@@ -160,8 +160,8 @@ this implementation ticket:
 
 Unchecked items below remain uncompleted and are explicitly transferred to those
 follow-ups; closing #7 does not claim they passed. The local ticket stays in
-`docs/tickets/` as implementation and verification history. Protocol details,
-source references and test commands are in [P1 notes](../p1-check.md).
+`docs/tickets/done/` as implementation and verification history. Protocol details,
+source references and test commands are in [P1 notes](https://github.com/Owaiinnn/solar-overview/blob/main/docs/p1-check.md).
 
 ## Todo
 

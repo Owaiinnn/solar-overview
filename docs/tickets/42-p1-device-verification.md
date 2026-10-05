@@ -8,7 +8,7 @@ The implementation reads timestamped raw DSMR electricity measurements through t
 
 Device reports firmware `V1.4.0C_R021.102_MP12WR_D0000078`, DSMR version `50` and meter header/model `ISK5\2M550T-1011`; three phase voltage/current fields are present. Four samples spaced ten seconds apart had advancing, current timestamps. This does not establish exact cadence, physical wiring, behavior through a real DST transition or phone roaming.
 
-Preserve existing connections and provider cooldowns. No battery controls or reader settings need to change. Keep private addresses, credentials, screenshots and raw payloads outside git/issues. Existing parser tests cover malformed telegrams, CRC, timestamp/DST, missing values, resets and changed identity; do not claim those synthetic checks as physical-device observations. See `docs/p1-check.md` and the verification evidence retained in `docs/tickets/07-house-meter.md`.
+Preserve existing connections and provider cooldowns. No battery controls or reader settings need to change. Keep private addresses, credentials, screenshots and raw payloads outside git/issues. Existing parser tests cover malformed telegrams, CRC, timestamp/DST, missing values, resets and changed identity; do not claim those synthetic checks as physical-device observations. See `docs/p1-check.md` and the verification evidence retained in `docs/tickets/done/07-house-meter.md`.
 
 Household calculation is separate follow-up work dependent on #6; #35 owns Home visualization and #36 owns local history.
 
