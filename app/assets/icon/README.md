@@ -1,21 +1,27 @@
 # House launcher icon
 
-The owner selected the latest green-and-ivory concept, including the front door
-to the right of the projecting bay window, on 2026-09-25.
-The final vector keeps the attic and both three-pane windows on one vertical
-centre line. The upper and lower middle-pane dividers align, while the lower bay
-is slightly wider overall. Its width is reduced slightly from the selected
-concept to fit a door between the narrow concept and the first wider-door revision.
+The green-and-ivory vector is a level front elevation informed by the owner's
+normal and ultrawide reference photos. The normal view guides proportions; the
+closer view clarifies roof edging, glazing, canopies and the entrance. It is an
+illustrative correction of camera tilt/convergence, not a measured survey.
 
-- `selected-concept.png`: selected generated concept, not the private house photo.
-- `house.svg`: editable vector master, simplified from that concept for small sizes.
+The balanced steep gable and attic/upper windows share x=54. The projecting bay
+sits left of that axis, with the door on the right and one narrow upright hedge
+between them. The bay and upper pane dividers intentionally do not align. The
+ridge cap, horizontal fascias, bay sill and entrance threshold remain simplified;
+no other vegetation, neighboring buildings or identifying details are included.
+
+- `selected-concept.png`: historical generated concept, not the current geometry or a private photo.
+- `house.svg`: editable vector master of the corrected facade, simplified for small sizes.
 - `house.png`: 1024px opaque export of the installed design.
 - `preview.png`: circle, rounded-square, squircle and simulated themed previews,
   plus actual 20–60px exports. This is generated artwork, not a device screenshot.
 
 The green is the app's `#22634A` theme seed; the outline is warm ivory `#FFF2D8`.
-The steep gable, attic window, upper three-part window, bay and right-hand door
-remain distinct at launcher sizes. At 20px the smallest details naturally soften.
+The steep gable, attic window, upper three-part window, bay, right-hand door
+and single scalloped hedge remain distinct at launcher sizes. At 20px the door
+glazing and other smallest details naturally soften; the bay/hedge/entrance
+silhouettes carry the layout.
 
 ## Regenerate
 
@@ -36,6 +42,13 @@ Edit the SVG's background rectangle and stroked paths, then regenerate. Keep its
 108×108 viewport, the background rectangle and the single group of paths. Paths
 use explicit stroke widths and inherit the group's color and round caps/joins;
 convert other SVG shapes or transforms to paths before using them here.
+
+The front geometry also lives in `app/lib/src/solar_scene.dart` and the house group
+in `docs/assets/readme-banner.svg`. Keep those in step with the master; the icon
+generator exports launchers only. Copy the master's paths verbatim to the banner's
+existing transformed group, preserving its text/layout. See
+[`docs/home-scene.md`](../../../docs/home-scene.md#shared-house-geometry) for the
+coordinate landmarks and animation placement. Source photos stay private/local.
 
 Android output is in `app/android/app/src/main/res`:
 
@@ -66,13 +79,6 @@ then `flutter build apk --debug`. Update an existing emulator with
 from the repository root. The `-r` flag retains app data. Do not uninstall, clear
 app data, or wipe the emulator. Inspect the launcher app drawer and home screen;
 enable themed icons on a supporting launcher to check its monochrome rendering.
-
-Verified on 2026-09-25: the final debug APK replaced the installed app on the
-existing API 36 emulator, with saved preferences byte-for-byte unchanged. A
-local native instrumentation check loaded the installed application icon,
-confirmed its adaptive and monochrome layers, and rendered both for visual
-inspection. Direct app-drawer/home-screen observation was unavailable because
-the computer UI tool could not attach to the emulator.
 
 Full Xcode is not installed on the development Mac, so iOS simulator/device
 appearance is deferred until Xcode and an iOS simulator or signed device are

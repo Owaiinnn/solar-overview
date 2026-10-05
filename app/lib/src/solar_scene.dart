@@ -143,9 +143,7 @@ class SolarScenePainter extends CustomPainter {
     const green = Color(0xFF22634A);
     const dark = Color(0xFF174C39);
     const cream = Color(0xFFFFF2D8);
-    // A soft garden silhouette grounds the scene without implying wiring.
-    fill(const Color(0xFFE7EDE2));
-    canvas.drawOval(const Rect.fromLTWH(24, 206, 312, 34), paint);
+    // Abstract backdrop only: the entrance hedge is the sole vegetation.
     fill(const Color(0xFFEAF0E5));
     canvas.drawCircle(const Offset(167, 142), 94, paint);
     final pulse = .5 + .5 * math.sin(phase.value * math.pi * 2);
@@ -185,21 +183,21 @@ class SolarScenePainter extends CustomPainter {
     // Front elevation uses the exact coordinates of assets/icon/house.svg.
     // Only the side roof/wall and panels extend that front-view logo into a scene.
     polygon([
-      const Offset(74, 59),
-      const Offset(98, 52),
-      const Offset(98, 71),
-      const Offset(74, 78),
+      const Offset(75, 55),
+      const Offset(99, 48),
+      const Offset(99, 71),
+      const Offset(75, 78),
     ], const Color(0xFFD7E2CB));
     polygon([
       const Offset(54, 23),
       const Offset(78, 16),
-      const Offset(101, 52),
-      const Offset(77, 59),
+      const Offset(101, 48),
+      const Offset(77, 55),
     ], green);
     for (var bank = 0; bank < 2; bank++) {
       final origin = Offset(65 + bank * 11.0, 32 - bank * 3.2);
       const across = Offset(9, -2.6);
-      const down = Offset(12, 18.8);
+      const down = Offset(11, 15.3);
       polygon([
         origin,
         origin + across,
@@ -218,60 +216,94 @@ class SolarScenePainter extends CustomPainter {
       );
     }
     polygon([
-      const Offset(31, 59),
+      const Offset(31, 55),
       const Offset(54, 23),
-      const Offset(77, 59),
-      const Offset(74, 59),
-      const Offset(74, 78),
-      const Offset(34, 78),
-      const Offset(34, 59),
+      const Offset(77, 55),
+      const Offset(75, 55),
+      const Offset(75, 78),
+      const Offset(33, 78),
+      const Offset(33, 55),
     ], cream);
-    line(const Offset(31, 59), const Offset(54, 23), dark, 1.8);
-    line(const Offset(54, 23), const Offset(77, 59), dark, 1.8);
-    line(const Offset(30, 59), const Offset(35, 59), dark, 1.8);
-    line(const Offset(73, 59), const Offset(78, 59), dark, 1.8);
-    // Narrow attic and wide upper window, centered at the logo's x=54.
+    line(const Offset(31, 55), const Offset(54, 23), dark, 1.8);
+    line(const Offset(54, 23), const Offset(77, 55), dark, 1.8);
+    line(const Offset(53, 22.5), const Offset(55, 22.5), dark, 1.8);
+    line(const Offset(30.5, 55), const Offset(34, 55), dark, 1.8);
+    line(const Offset(74, 55), const Offset(77.5, 55), dark, 1.8);
+    // Attic and upper window remain centered on the balanced gable.
     fill(green);
-    canvas.drawRect(const Rect.fromLTRB(52.7, 31, 55.3, 38.5), paint);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        const Rect.fromLTRB(44, 44.5, 64, 54),
-        const Radius.circular(.5),
-      ),
-      paint,
-    );
-    for (final x in [48.0, 60.0]) {
-      line(Offset(x, 44.5), Offset(x, 54), cream, .8);
+    canvas.drawRect(const Rect.fromLTRB(52.7, 29.5, 55.3, 35.5), paint);
+    line(const Offset(52.2, 35.8), const Offset(55.8, 35.8), dark, .5);
+    fill(green);
+    canvas.drawRect(const Rect.fromLTRB(45, 41, 63, 49.5), paint);
+    for (final x in [48.5, 59.5]) {
+      line(Offset(x, 41), Offset(x, 49.5), cream, .8);
     }
-    // Projecting bay: shallow canopy, matching aligned three-pane dividers,
-    // and a raised base. No horizontal crossbar absent from the app logo.
-    fill(const Color(0xFFB7C9AD));
-    canvas.drawRect(const Rect.fromLTRB(41, 62, 67, 64.5), paint);
+    line(const Offset(44.5, 50), const Offset(63.5, 50), dark, .7);
+    // Projecting bay on the left, independent of the upper pane divisions.
     fill(const Color(0xFFD7E2CB));
-    canvas.drawRect(const Rect.fromLTRB(43.5, 64.5, 64.5, 78), paint);
-    fill(green);
-    canvas.drawRect(const Rect.fromLTRB(43.5, 64.5, 64.5, 75.5), paint);
-    for (final x in [48.0, 60.0]) {
-      line(Offset(x, 64.5), Offset(x, 75.5), cream, .8);
+    canvas.drawRect(const Rect.fromLTRB(34.5, 59.5, 55, 78), paint);
+    polygon([
+      const Offset(34.5, 59.5),
+      const Offset(55, 59.5),
+      const Offset(55, 71.5),
+      const Offset(34.5, 71.5),
+    ], green);
+    for (final x in [39.0, 50.5]) {
+      line(Offset(x, 59.5), Offset(x, 71.5), cream, .85);
     }
-    line(const Offset(43.25, 75.5), const Offset(64.75, 75.5), green, .8);
+    line(const Offset(34.5, 59.5), const Offset(34.5, 71.5), cream, .85);
+    line(const Offset(55, 59.5), const Offset(55, 71.5), cream, .85);
+    line(const Offset(34, 72), const Offset(55.5, 72), cream, 1);
+    line(const Offset(34, 72.6), const Offset(55.5, 72.6), dark, .4);
+    fill(dark);
+    canvas.drawRect(const Rect.fromLTRB(32.5, 58, 55.5, 59.5), paint);
+    canvas.drawRect(const Rect.fromLTRB(61.5, 59, 75, 60), paint);
+    // Dark entrance, slender sidelights and vertical door glazing.
     fill(green);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        const Rect.fromLTRB(66.25, 66, 72, 78),
-        const Radius.circular(.5),
-      ),
-      paint,
-    );
-    line(const Offset(70.25, 72.5), const Offset(70.75, 72.5), cream, .6);
+    canvas.drawRect(const Rect.fromLTRB(63.5, 61, 73, 73), paint);
+    fill(dark);
+    canvas.drawRect(const Rect.fromLTRB(65, 61, 71.5, 77.5), paint);
+    for (final x in [65.0, 71.5]) {
+      line(Offset(x, 61), Offset(x, 77.5), cream, .65);
+    }
+    fill(const Color(0xFF82A997));
+    canvas.drawRect(const Rect.fromLTRB(67.5, 63, 69, 74.5), paint);
+    for (final y in [65.7, 68.7, 71.7]) {
+      line(Offset(67.5, y), Offset(69, y), dark, .5);
+    }
+    line(const Offset(65.8, 69.5), const Offset(66.1, 69.5), cream, .5);
+    line(const Offset(64, 78), const Offset(73, 78), dark, .8);
+    // Same closed hedge silhouette as house.svg, inside the house transform:
+    // it rises with the facade during loading, never as an independent plant.
+    final hedge = Path()
+      ..moveTo(58.7, 54)
+      ..quadraticBezierTo(60.8, 53.5, 60.7, 57)
+      ..quadraticBezierTo(62.3, 58, 61.6, 61)
+      ..quadraticBezierTo(63, 63, 62, 65)
+      ..quadraticBezierTo(63.4, 67, 62.2, 69)
+      ..quadraticBezierTo(63.4, 71, 62.4, 73)
+      ..quadraticBezierTo(63.3, 76, 61.7, 79)
+      ..quadraticBezierTo(59.5, 80, 56.5, 79)
+      ..quadraticBezierTo(55.1, 77, 56.1, 74)
+      ..quadraticBezierTo(54.9, 72, 56, 69)
+      ..quadraticBezierTo(55, 66, 56.1, 64)
+      ..quadraticBezierTo(55.3, 61, 56.8, 59)
+      ..quadraticBezierTo(56.2, 56, 58.7, 54)
+      ..close();
+    fill(green);
+    canvas.drawPath(hedge, paint);
+    // Sparse foliage marks read at scene size without tracing individual leaves.
+    for (var i = 0; i < 5; i++) {
+      final y = 59 + i * 3.8;
+      line(Offset(57.5, y), Offset(58.6, y + 1.2), const Color(0xFF88A783), .6);
+      line(
+        Offset(60.6, y + 1),
+        Offset(59.8, y + 2.1),
+        const Color(0xFF88A783),
+        .6,
+      );
+    }
     canvas.restore();
-    // Small garden plants frame the house.
-    for (final x in [65.0, 300.0]) {
-      line(Offset(x, 218), Offset(x, 182), green, 3);
-      fill(const Color(0xFF88A783));
-      canvas.drawOval(Rect.fromLTWH(x - 17, 178, 18, 28), paint);
-      canvas.drawOval(Rect.fromLTWH(x, 187, 16, 24), paint);
-    }
     if (producing && !loading) {
       // Staggered, soft rays visibly arrive at the panel surface every loop.
       for (var i = 0; i < 3; i++) {

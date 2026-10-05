@@ -48,12 +48,48 @@ assets or the Lottie library is included, so no new third-party notices are need
 The selected scene is original Flutter `CustomPainter` artwork, with the green/ivory
 palette and exact front-elevation coordinates of this repository's
 [`house.svg`](../app/assets/icon/house.svg): steep gable, narrow attic window,
-centered three-pane upper window, aligned projecting bay and right-hand door.
+centered three-pane upper window, left projecting bay, right-hand door and the
+single tall entrance hedge.
 Only the side wall, roof and panels extend that front view into the scene. No downloaded
 artwork, font, raster image, remote asset, paid tool or runtime dependency is added.
 The editable geometry ships as Dart source; it works offline and can be changed and
 redistributed with this app without a third-party asset license. Flutter's existing
 SDK licensing remains unchanged.
+
+## Shared house geometry
+
+The normal reference guides the facade's proportions and the ultrawide view
+clarifies architectural details. Camera roll/convergence and wide-angle distortion
+are removed by drawing a balanced gable with level sills/fascias and vertical
+frames. This is a simplified elevation, not a photogrammetric measurement.
+The bay's leftward offset and entrance on the right are real asymmetry; do not
+center the bay under the upper window or align their pane divisions.
+
+Coordinates use the icon's 108×108 viewport in both SVG and Dart:
+
+| Feature | Shared landmarks |
+| --- | --- |
+| Gable / ridge cap | apex (54, 23); eaves (31, 55) and (77, 55); cap y=22.5 |
+| Front wall | x=33–75; base y=78 |
+| Attic window | x=52.7–55.3; y=29.5–35.5 |
+| Upper window | x=45–63; y=41–49.5; dividers x=48.5, 59.5 |
+| Left bay | canopy x=32.5–55.5, y=58–59.5; glazing x=34.5–55, y=59.5–71.5 |
+| Bay panes / sill | dividers x=39, 50.5; sill y=72 |
+| Right entrance | surround x=63.5–73, y=61–73; door x=65–71.5 to y=77.5; step y=78 |
+| Single hedge | same quadratic path in SVG/Dart; narrow crown near (58.7, 54), base near y=79 |
+
+The icon uses a closed scalloped outline so the hedge survives monochrome output.
+The scene fills the same silhouette and adds sparse foliage marks, door glazing
+crossbars and a handle at its larger display size. All house parts, including the
+hedge, are drawn inside the same loading translation. The old flanking garden
+plants and lawn-shaped oval are removed; only the abstract backdrop and animated
+contact shadow remain. Open space around the house is available for future energy
+indicators. Roof/panels remain schematic and do not establish real placement.
+
+When editing geometry, update `house.svg`, the matching drawing in
+`solar_scene.dart`, and the banner's existing house group together. Preserve the
+banner's text and transform. Run the [icon export workflow](../app/assets/icon/README.md#regenerate)
+and inspect both the mask/small-size sheet and native Home loading captures below.
 
 ## Rendering and accessibility
 
