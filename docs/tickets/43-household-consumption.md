@@ -10,7 +10,7 @@ Dependencies: local battery integration #6, P1 implementation #7, and the two ex
 
 Establish a common AC boundary before using solar AC production + signed net grid import + signed battery AC discharge, with export and charging having opposite signs. Do not mix pack DC power with AC readings, double-count bypass/solar, or infer household use from the battery's zero load field or SolaX summary counters. The existing solar freshness window and combined-source skew threshold do not establish a valid instantaneous household balance.
 
-Keep independent P1 readings available when derived household use is unavailable. Preserve measurement times; HTTP receipt time cannot replace an absent source measurement timestamp. Do not clamp inconsistent balances to zero or provide surplus advice from incompatible inputs. See `docs/p1-check.md`, `docs/solax-check.md` and the evidence retained in `docs/tickets/07-house-meter.md`.
+Keep independent P1 readings available when derived household use is unavailable. Preserve measurement times; HTTP receipt time cannot replace an absent source measurement timestamp. Do not clamp inconsistent balances to zero or provide surplus advice from incompatible inputs. See `docs/p1-check.md`, `docs/solax-check.md` and the evidence retained in `docs/tickets/done/07-house-meter.md`.
 
 ## Todo
 
