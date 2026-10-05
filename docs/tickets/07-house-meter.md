@@ -8,8 +8,8 @@ then establish household consumption only where the full energy balance is valid
 Device discovery and agent-run read-only checks completed on 2026-10-04. The
 INDEVOLT app identifies the reader as P1-2WR and links it to the Home Energy Hub.
 The owner enabled its separate local HTTP API. No Home Assistant or cloud relay
-is required for the chosen home-network connection. The underlying electricity
-meter's exact model and coverage of the full installation remain to be verified.
+is required for the chosen home-network connection. The later home-network verification below records the device-reported meter
+model and owner-confirmed installation coverage.
 
 The Mac successfully read `GET /rpc/P1.JsonData` and `GET /rpc/P1.GetData` on port
 8080 at the reader's own local address. The battery's `Indevolt.GetData` path
@@ -68,9 +68,8 @@ owns appliance headroom. No controls, cloud service, sample mode or gas feature.
 
 Initial implementation handoff (2026-10-05): the owner was away from home. The app
 implementation is on `feat/7-local-p1`, based on current main independently of
-the open battery PR #39. Keep this issue open for the live/device and household
-balance work below; no real P1 connection was attempted during the initial
-implementation.
+the open battery PR #39. No real P1 connection was attempted during the initial
+implementation; subsequent live checks and the follow-up handoff are below.
 
 - Added a read-only raw `P1.GetData` client with explicit OBIS units, precise
   integer-Wh tariff counters, meter identity and Dutch DSMR S/W timestamps.
@@ -147,12 +146,22 @@ Home-network verification (2026-10-05, after the owner returned):
   native synthetic tests and PR CI remain passing. Private responses, screenshots,
   UI dumps and preference comparisons remain ignored and uncommitted.
 
-Remaining work: exact measurement cadence and real DST behavior; independent
-physical-meter/app comparisons through battery charge/discharge; battery AC/bypass
-boundaries and defensible cross-source household calculation; physical Android and
-native iOS. Preserve remaining scope in a linked follow-up before any future closure
-if the implementation is merged separately. Implementation details, source references
-and test commands are in [P1 notes](../p1-check.md).
+Implementation handoff for PR #41: the local P1 integration is delivered and
+verified as described above. The owner authorized merging the implementation on
+2026-10-05. Remaining scope is preserved in linked follow-up issues before closing
+this implementation ticket:
+
+- [#42 — P1 device verification](https://github.com/Owaiinnn/solar-overview/issues/42)
+  owns physical meter/phase checks, exact cadence and real DST behavior, independent
+  comparisons through battery modes, tariff precision and physical Android/native iOS.
+- [#43 — Household consumption](https://github.com/Owaiinnn/solar-overview/issues/43)
+  owns battery AC/bypass boundaries, defensible timestamp alignment and conditional
+  household calculations, including independent validation and unavailable states.
+
+Unchecked items below remain uncompleted and are explicitly transferred to those
+follow-ups; closing #7 does not claim they passed. The local ticket stays in
+`docs/tickets/` as implementation and verification history. Protocol details,
+source references and test commands are in [P1 notes](../p1-check.md).
 
 ## Todo
 
@@ -160,15 +169,15 @@ and test commands are in [P1 notes](../p1-check.md).
 - [x] Obtain timestamped raw meter data and JSON readings through the enabled local HTTP API on the Mac.
 - [x] Verify export sign and JSON power scaling against the raw telegram; identify tariff energy counters as cumulative kWh.
 - [x] Record device-reported reader firmware, meter model/header and three-phase fields; obtain owner confirmation that both solar systems and the battery are behind this meter.
-- [ ] Verify physical meter/phase configuration, exact update cadence and real timestamp DST behavior; current summer-time conversion has been checked.
+- [ ] Deferred to #42: verify physical meter/phase configuration, exact update cadence and real timestamp DST behavior; current summer-time conversion has been checked.
 - [x] Implement the P1 client/parser with explicit firmware/schema mapping, raw units, timestamp validation, counter precision/provenance and malformed/missing-data handling.
 - [x] Add independent mobile Settings test/save/replace/remove, secure persistence, cached readings, bounded foreground refresh/backoff and changed-address/off-network recovery without affecting existing connections.
 - [x] Show net grid import/export, measurement time, cumulative tariff counters and optional phase detail in Details; distinguish grid exchange from household use and daily energy.
-- [ ] Compare live import and export with the meter/app, including battery charge/discharge; resolve aggregate-versus-tariff differences and guard meter resets/replacement.
-- [ ] Document battery AC/bypass boundaries and a timestamp-aligned household calculation with explicit availability/loss assumptions, using the owner-confirmed shared meter coverage.
-- [ ] Show household consumption only when required inputs are compatible and recent; keep missing/stale inputs unavailable and suppress unsupported surplus advice.
+- [ ] Deferred to #42: compare live import and export with the meter/app, including battery charge/discharge; resolve aggregate-versus-tariff differences and guard meter resets/replacement.
+- [ ] Deferred to #43: document battery AC/bypass boundaries and a timestamp-aligned household calculation with explicit availability/loss assumptions, using the owner-confirmed shared meter coverage.
+- [ ] Deferred to #43: show household consumption only when required inputs are compatible and recent; keep missing/stale inputs unavailable and suppress unsupported surplus advice.
 - [x] Test signs/scaling, raw timestamps/DST, missing versus zero, stale/repeated data, counter resets, inconsistent balances, cache and source isolation using synthetic fixtures.
 - [x] Verify real-meter setup and saved readings after full process restart on the Android emulator; distinguish agent checks from owner-reported comparison/coverage.
 - [x] Verify automatic recovery after emulator connectivity loss, persisted retry waits and preservation of existing solar connections.
-- [ ] Verify live setup, process restart and leaving/returning home on a physical Android phone.
-- [ ] Run required Flutter checks and visual verification; preserve uncompleted physical Android/native iOS checks in an explicit follow-up before closing.
+- [ ] Deferred to #42: verify live setup, process restart and leaving/returning home on a physical Android phone.
+- [x] Run required Flutter checks and emulator visual verification; preserve uncompleted physical Android/native iOS checks in #42 before closing.
