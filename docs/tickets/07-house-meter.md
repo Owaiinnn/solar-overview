@@ -66,18 +66,66 @@ Dependencies: the existing Flutter source structure; derived household flow also
 depends on #6. #35 owns Home visualization, #36 owns local history, and #8
 owns appliance headroom. No controls, cloud service, sample mode or gas feature.
 
+Implementation handoff (2026-10-05): the owner remains away from home. The app
+implementation is on `feat/7-local-p1`, based on current main independently of
+the open battery PR #39. Keep this issue open for the live/device and household
+balance work below; no real P1 connection was attempted during this implementation.
+
+- Added a read-only raw `P1.GetData` client with explicit OBIS units, precise
+  integer-Wh tariff counters, meter identity and Dutch DSMR S/W timestamps.
+  Missing values remain unavailable. Complete framed telegrams validate CRC;
+  headerless vendor output cannot validate the original checksum. The separate
+  untimestamped JSON endpoint is not used or mixed into raw readings.
+- Added independent secure connection/cache storage, Settings test/save/replace/
+  remove, Details import/export/zero states, cumulative tariffs and optional phase
+  voltage/current. Failed replacements retain the old connection. Reader identity
+  changes require explicit replacement; counter decreases produce a warning.
+- Foreground refresh uses a provisional 30-second cadence, 90-second measurement/
+  receipt freshness and 1/2/4/5-minute persisted failure backoff. Duplicate source
+  timestamps cannot extend freshness. Old, inconsistent same-time and excessively
+  future readings are rejected. Backgrounding stops polling; cache and waits
+  survive controller restoration. These are app policies, not verified meter cadence.
+- Household use remains unavailable: meter coverage, battery AC/bypass boundaries
+  and cross-source time alignment are not established. No daily meter energy,
+  household balance or surplus advice is derived. Home animation remains #35.
+- Agent-run checks: Flutter 3.47.5 dependency resolution, formatting (49 files),
+  analysis and all 166 unit/widget tests passed. Coverage includes timestamp/DST,
+  units/signs/CRC, missing/invalid fields, stale/repeated readings, reset/identity
+  handling, cache/backoff, replacement/removal, storage failures, backgrounding,
+  large text and unchanged solar totals/waits. Android debug APK build passed;
+  iOS plist syntax check passed, but this is not native iOS verification.
+- API 36 emulator native test passed with an on-device synthetic HTTP server and
+  isolated secure-storage keys: setup, controller/store recreation, persisted wait,
+  import/export/zero, failure/recovery, 302/401 handling, replacement/removal and
+  SolarEdge/SolaX storage isolation. Synthetic state screenshots were inspected.
+  This does not prove real meter access, real off-network recovery or OS process
+  persistence for a live P1 connection.
+- Restored the normal app with `adb install -r`. All pre-existing preference
+  entries were compared privately and preserved unchanged. Direct ADB walkthrough
+  checked normal P1 Settings layout, empty-address validation, Details empty state
+  and its connection navigation while existing solar connections remained intact.
+  No source screenshots, raw responses, private addresses or credentials are committed.
+
+No owner-run verification is claimed. Remaining work: actual model/firmware,
+measurement cadence/timezone and installation coverage; matching-time import and
+export comparisons against the meter/app; battery topology and defensible household
+calculation; live Android setup, process restart and leaving/returning home;
+physical Android and native iOS. Preserve those in a linked follow-up before any
+future closure if the implementation is merged separately. Implementation details,
+source references and test commands are in [P1 notes](../p1-check.md).
+
 ## Todo
 
 - [x] Identify the P1-2WR reader and its link to the INDEVOLT Home Energy Hub from owner-provided screens.
 - [x] Obtain timestamped raw meter data and JSON readings through the enabled local HTTP API on the Mac.
 - [x] Verify export sign and JSON power scaling against the raw telegram; identify tariff energy counters as cumulative kWh.
 - [ ] Verify exact reader firmware/electricity-meter model, whole-installation coverage, phase configuration, update cadence and timestamp timezone/DST behavior.
-- [ ] Implement the P1 client/parser with explicit firmware/schema mapping, raw units, timestamp validation, counter precision/provenance and malformed/missing-data handling.
-- [ ] Add independent mobile Settings test/save/replace/remove, secure persistence, cached readings, bounded foreground refresh/backoff and changed-address/off-network recovery without affecting existing connections.
-- [ ] Show net grid import/export, measurement time, cumulative tariff counters and optional phase detail in Details; distinguish grid exchange from household use and daily energy.
+- [x] Implement the P1 client/parser with explicit firmware/schema mapping, raw units, timestamp validation, counter precision/provenance and malformed/missing-data handling.
+- [x] Add independent mobile Settings test/save/replace/remove, secure persistence, cached readings, bounded foreground refresh/backoff and changed-address/off-network recovery without affecting existing connections.
+- [x] Show net grid import/export, measurement time, cumulative tariff counters and optional phase detail in Details; distinguish grid exchange from household use and daily energy.
 - [ ] Compare live import and export with the meter/app, including battery charge/discharge; resolve aggregate-versus-tariff differences and guard meter resets/replacement.
 - [ ] Confirm coverage of both solar systems and the battery, then document AC/bypass boundaries and a timestamp-aligned household calculation with explicit availability/loss assumptions.
 - [ ] Show household consumption only when required inputs are compatible and recent; keep missing/stale inputs unavailable and suppress unsupported surplus advice.
-- [ ] Test signs/scaling, raw timestamps/DST, missing versus zero, stale/repeated data, counter resets, inconsistent balances, cache and source isolation using synthetic fixtures.
+- [x] Test signs/scaling, raw timestamps/DST, missing versus zero, stale/repeated data, counter resets, inconsistent balances, cache and source isolation using synthetic fixtures.
 - [ ] Verify live Android connection, saved readings after restart, loss/return of home-network access and provider isolation; record agent-run versus owner-run checks.
 - [ ] Run required Flutter checks and visual verification; preserve uncompleted physical Android/native iOS checks in an explicit follow-up before closing.
