@@ -91,7 +91,10 @@ class HomePage extends StatelessWidget {
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxWidth: 520,
-                  minHeight: constraints.maxHeight - 24,
+                  minHeight: (constraints.maxHeight - 24).clamp(
+                    0.0,
+                    double.infinity,
+                  ),
                 ),
                 child: IntrinsicHeight(
                   child: Column(
