@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:solar_overview/src/app.dart';
+import 'package:solar_overview/src/home.dart';
 import 'package:solar_overview/src/connection_controller.dart';
 
 import 'package:solar_overview/src/solar_scene.dart';
@@ -24,6 +25,30 @@ SolarScenePainter scene(WidgetTester tester) =>
         as SolarScenePainter;
 
 void main() {
+  testWidgets('Home tolerates a zero-height startup viewport', (tester) async {
+    final edge = await edgeController();
+    for (final height in [0.0, 640.0]) {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Center(
+            child: SizedBox(
+              width: 360,
+              height: height,
+              child: HomePage(
+                controller: edge,
+                solax: null,
+                active: false,
+                openDetails: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+    }
+    expect(find.text('SolarEdge only · 1 of 2 sources'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
   for (final size in [const Size(360, 640), const Size(390, 844)]) {
     for (final scale in [1.0, 2.0]) {
       testWidgets('Home is readable at $size and text scale $scale', (
