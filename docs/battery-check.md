@@ -68,7 +68,7 @@ It verifies the native HTTP client, not access to a real battery on the home LAN
 - [Vendor field reference](https://docs.indevolt.com/docs/hardware/open-data/http-api/)
 - [Android cleartext configuration](https://developer.android.com/privacy-and-security/security-config)
 - [Apple local-network transport setting](https://developer.apple.com/documentation/bundleresources/information-property-list/nsapptransportsecurity/nsallowslocalnetworking)
-- [Ticket 6 scope, evidence and outstanding checks](tickets/06-powerflex.md)
+- [Ticket 6 scope, evidence and outstanding checks](tickets/done/06-powerflex.md)
 - [Ticket 53 device and measurement verification](tickets/53-battery-device-verification.md)
 
 Installed module models, usable capacity, AC/bypass boundaries, device timestamps,
