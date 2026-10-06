@@ -39,7 +39,7 @@ scripts, Android build/manifests/resources, the iOS test stub and browser/build
 configuration. Removed redundant prose and template TODOs. Useful timing, quota,
 field-provenance, security, storage and animation rationale is retained in the
 SolarEdge/SolaX/P1 guides, Home scene guide, icon guide and
-[build configuration](../build-configuration.md), linked from the coding guide.
+[build configuration](https://github.com/Owaiinnn/solar-overview/blob/main/docs/build-configuration.md), linked from the coding guide.
 No new or reworded explanatory source comments were needed or added. Shebangs,
 preprocessor directives, the analyzer suppression and generated-file markers are
 preserved. The two Python module docstrings used by argparse remain executable
@@ -59,9 +59,12 @@ test, icon regeneration or visual walkthrough was run because runtime/configurat
 behavior and assets did not change. No live providers or saved connections were
 accessed. No user-run testing is claimed.
 
-Remaining: implementation PR review, required CI and owner-requested merge, then
-verify issue closure and archive this local ticket through the normal PR workflow.
-There are no implementation blockers.
+Completion — 2026-10-06: both CI runs passed, and the owner requested the merge.
+[PR #49](https://github.com/Owaiinnn/solar-overview/pull/49) was rebase-merged into
+main at `8f7411c`. GitHub issue #47 was verified closed after the merge. This
+completed ticket is archived under `docs/tickets/done/`; its implementation scope
+and verification history are preserved. No implementation work or blockers remain.
+The archive change passed ticket-header, link, final-newline and diff checks.
 
 ## Todo
 
