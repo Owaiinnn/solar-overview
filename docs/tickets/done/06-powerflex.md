@@ -89,7 +89,7 @@ Implementation handoff (2026-10-04):
   transitions, actual off-network/return-home behavior and counter reset/timing;
   native iOS verification. These checks are now explicitly carried forward in #53 for the
   owner-requested merge of PR #39; implementation closure does not claim they passed. Home animation remains in #35.
-- Policy, field provenance and native setup: [battery notes](../battery-check.md).
+- Policy, field provenance and native setup: [battery notes](../../battery-check.md).
 
 Merge preparation (2026-10-06):
 
@@ -114,6 +114,11 @@ Merge preparation (2026-10-06):
 - GitHub could not rebase the merge commit, so the same verified file tree was
   rebuilt as three logical commits atop current main. A full tree diff confirmed
   identical contents before this documentation update.
+
+Merge completion (2026-10-06): PR #39 was rebase-merged after both final CI
+checks passed. GitHub issue #6 was verified closed before this file was archived.
+Outstanding device and measurement checks remain open in #53; unchecked items
+below preserve the original verification history rather than claim completion.
 
 ## Todo
 
