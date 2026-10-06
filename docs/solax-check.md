@@ -133,3 +133,32 @@ secure-storage lifecycle with isolated synthetic records. Native tests establish
 persistence across controller/store instances, not a live mobile connection or OS
 process-restart test. No raw responses, private IDs, credentials or screenshots
 were committed. Live Android UI, physical phones and iOS remain pending in follow-up #25.
+
+## Client and persistence safeguards
+
+The Flutter client accepts only the verified EU host and residential inverter
+endpoints; there is no configurable URL, control API, app code or battery/meter
+request path. Plant metadata retains only a validated IANA timezone, including
+the supported vendor display-name mapping, rather than location/address details.
+Device fields are allowlisted. Model 28 is the supported single-phase boundary;
+other models may have different phase or battery capabilities. MPPT DC input is
+never added to AC output.
+
+`dataTime` is treated as UTC even without a suffix; `plantLocalTime` is a device
+source timestamp, not the time of the plant request. HTTP receipt time never
+replaces it. Daily AC energy remains a qualified device counter, not a plant/day
+headline or combined energy total; idle/reset verification remains in #25.
+
+Discovery is bounded even if pagination metadata is broken: at most ten plant
+pages and five selections of up to ten device pages each, plus authentication
+and one reading per 15-minute workflow. Renewal persists the token before asking
+for telemetry. Widgets share token ownership; they must not mint concurrently or
+retry minting repeatedly after revocation. Timeout handling cancels native requests,
+including stalled response bodies, so authentication cannot continue behind the
+next attempt. Raw transport/parsing/provider errors may contain identifiers,
+locations, URLs or tokens and are neither logged, chained nor displayed.
+
+One atomic secure-storage record keeps account credentials, token and reading
+together. Disconnect retains only the device-local request deadline. Storage
+recovery preserves token/quota safety writes but cannot silently save a failed
+account replacement.

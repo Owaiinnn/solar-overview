@@ -84,3 +84,7 @@ Full Xcode is not installed on the development Mac, so iOS simulator/device
 appearance is deferred until Xcode and an iOS simulator or signed device are
 available. Generated asset dimensions and opacity can be checked on any platform.
 Physical Android launcher checks also remain a follow-up.
+
+The squircle in the synthetic preview uses the superellipse
+`x^4 + y^4 = r^4`. The preview contains generated artwork only, with no device
+screenshots or private data.

@@ -3,7 +3,9 @@
 Home shows the same `ProductionTotal` as Details: eligible solar-only AC output,
 qualified source coverage and the existing freshness/timestamp guard. Source
 controllers, stored readings and request waits are shared; opening either page
-or playing the scene never requests readings.
+or playing the scene never requests readings. The owner confirmed the separate
+solar-only AC outputs in [#4](tickets/done/04-overview.md); MPPT inputs, energy
+counters and battery flows never enter this subtotal.
 
 ## Presentation
 
@@ -138,3 +140,11 @@ flutter drive --keep-app-running -d DEVICE_ID --driver integration_test/home_vis
 Synthetic screenshots are saved locally under ignored `app/build/home-preview/`.
 As with the scene benchmark, keep the app installed, then rebuild the normal
 `lib/main.dart` target and install with `adb install -r`.
+
+## Painter phase
+
+The house rests on the ground at phase zero, including reduced-motion mode.
+The contact shadow changes with the loading lift. The entrance hedge stays inside
+the same house transform; the backdrop is abstract and adds no other vegetation.
+Three staggered rays reach the panel surface each loop when eligible power is
+positive. This timing is decorative and never represents a measured flow rate.
