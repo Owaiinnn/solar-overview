@@ -1,5 +1,5 @@
 import 'connection_controller.dart';
-import 'solaredge.dart';
+import 'solar_freshness.dart';
 import 'solax_controller.dart';
 
 class ProductionTotal {
@@ -31,6 +31,13 @@ class ProductionTotal {
   final List<DateTime> _times = [];
   static bool _valid(double? value) =>
       value != null && value.isFinite && value >= 0;
+
+  bool get partial => sources.length == 1;
+  String get title =>
+      partial ? 'Partial solar production' : 'Combined solar production';
+  String get coverage => partial
+      ? '${sources.keys.single} only · 1 of 2 sources'
+      : 'SolarEdge + SolaX · ${sources.length} of 2 sources';
 
   bool get timeMismatch =>
       _times.length == 2 &&

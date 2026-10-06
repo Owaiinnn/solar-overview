@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'connection_controller.dart';
 import 'production_total.dart';
+import 'solar_freshness.dart';
 import 'solar_scene.dart';
-import 'solaredge.dart';
 import 'solax_controller.dart';
 
 class HomePage extends StatelessWidget {
@@ -44,27 +44,21 @@ class HomePage extends StatelessWidget {
     builder: (context, _) {
       final total = ProductionTotal(controller, solax);
       final watts = total.watts;
-      final partial = total.sources.length == 1;
       final loading =
           !controller.initialized ||
           (controller.connected && controller.busy) ||
           (solax != null &&
               (!solax!.initialized || (solax!.connected && solax!.busy)));
-      final title = partial
-          ? 'Partial solar production'
-          : 'Combined solar production';
       final coverage = loading && watts == null
           ? 'Checking your solar sources'
-          : partial
-          ? '${total.sources.keys.single} only · 1 of 2 sources'
-          : 'SolarEdge + SolaX · ${total.sources.length} of 2 sources';
+          : total.coverage;
       final message = loading
           ? 'Fetching your solar readings…'
           : total.timeMismatch
           ? 'Source times are over 5 minutes apart. Total unavailable.'
           : watts != null
           ? watts == 0
-                ? 'No production reported${partial ? ' by this source' : ''}.'
+                ? 'No production reported${total.partial ? ' by this source' : ''}.'
                 : 'Recent cloud readings · not instantaneous'
           : 'No compatible recent readings. See Details to connect or refresh.';
       final edgeStatus = _status(
@@ -104,7 +98,7 @@ class HomePage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        title,
+                        total.title,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),

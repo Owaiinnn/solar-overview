@@ -4,7 +4,7 @@ import 'connection_controller.dart';
 import 'p1_controller.dart';
 import 'p1_widgets.dart';
 import 'production_total.dart';
-import 'solaredge.dart';
+import 'solar_freshness.dart';
 import 'solax_controller.dart';
 
 class OverviewPage extends StatelessWidget {
@@ -67,22 +67,16 @@ class OverviewPage extends StatelessWidget {
 
   Widget _productionTotal() {
     final total = ProductionTotal(controller, solax);
-    final partial = total.sources.length == 1;
     return _SourceCard(
-      title: partial ? 'Partial solar production' : 'Combined solar production',
+      title: total.title,
       children: [
-        _Measurement(
-          label: partial
-              ? '${total.sources.keys.single} only · 1 of 2 sources'
-              : 'SolarEdge + SolaX · ${total.sources.length} of 2 sources',
-          value: _kilo(total.watts, 'kW'),
-        ),
+        _Measurement(label: total.coverage, value: _kilo(total.watts, 'kW')),
         if (total.timeMismatch)
           const Text(
             'Readings are more than five minutes apart. '
             'A combined reading is unavailable.',
           )
-        else if (partial)
+        else if (total.partial)
           const Text(
             'The other source is disconnected, missing, stale or needs '
             'attention. This is a subtotal, not whole-home solar production.',
