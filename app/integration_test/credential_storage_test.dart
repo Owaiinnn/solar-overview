@@ -11,7 +11,6 @@ void main() {
   testWidgets('native storage persists across instances and supports removal', (
     tester,
   ) async {
-    // Separate key: never overwrite or remove the user's saved connection.
     const testKey = 'solar_overview.integration_test.credentials';
     final store = SecureCredentialStore(storageKey: testKey);
     try {

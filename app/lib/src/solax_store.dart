@@ -4,8 +4,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'solax.dart';
 
-// One atomic record prevents credentials, token and reading from being mixed
-// across accounts. Disconnect retains only the device-local request deadline.
 class SolaxRecord {
   const SolaxRecord({
     this.credentials,

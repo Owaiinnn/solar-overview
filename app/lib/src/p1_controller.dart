@@ -131,7 +131,6 @@ class P1Controller extends ChangeNotifier {
     error = null;
     _notify();
     try {
-      // Reserve the next attempt before network I/O. Restart cannot bypass waits.
       if (!await _write(
         _record.withGate(now.add(interval), _record.failures),
       )) {

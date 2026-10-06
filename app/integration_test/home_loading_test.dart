@@ -19,7 +19,6 @@ void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
   testWidgets('native Home loading animation then empty state', (tester) async {
-    // All state is synthetic and in memory. Never access device credentials.
     final store = _OpeningStore();
     final edge = ConnectionController(store, FakeSource());
     final opening = edge.initialize();

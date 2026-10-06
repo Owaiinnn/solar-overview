@@ -7,7 +7,6 @@ import 'site_time.dart';
 import 'solaredge.dart' show ReadingFreshness;
 
 String? solaxTimeZone(String? value) {
-  // The vendor labels this IANA but also returns this documented display name.
   if (value?.replaceAll(' ', '') ==
       '(UTC+01:00)Amsterdam,Berlin,Bern,Rome,Stockholm,Vienna') {
     return 'Europe/Amsterdam';
@@ -15,8 +14,6 @@ String? solaxTimeZone(String? value) {
   return siteLocation(value)?.name;
 }
 
-// Only the EU host and residential inverter endpoints have been verified.
-// No configurable URL, controls, app code, or battery/meter calls are accepted.
 class SolaxCredentials {
   SolaxCredentials(String clientId, String clientSecret)
     : clientId = clientId.trim(),
@@ -88,7 +85,6 @@ class SolaxToken {
 class SolaxPlant {
   const SolaxPlant(this.id, this.timeZone);
   final String id;
-  // Keep only a validated IANA zone, never address/name/location details.
   final String? timeZone;
   Map<String, dynamic> toJson() => {'id': id, 'timeZone': timeZone};
   factory SolaxPlant.fromJson(Map<String, dynamic> json) =>
@@ -102,8 +98,6 @@ class SolaxDevice {
   final String sn;
   final String plantId;
   final int? model;
-  // Appendix 4 identifies model 28 as the single-phase X1-Micro 2 in 1.
-  // Other models may have batteries or different phase/capability boundaries.
   bool get supported => model == 28;
   Map<String, dynamic> toJson() => {
     'sn': sn,
@@ -123,9 +117,6 @@ String _id(Object? value) {
   return value;
 }
 
-// Allowlisted device measurements with field provenance. Residential power is W;
-// energy is kWh (converted to Wh by accessors), voltage V, current A, frequency Hz,
-// temperature Celsius. MPPT input is never added to inverter AC output.
 class SolaxReading {
   SolaxReading({
     required Map<String, double?> fields,
@@ -162,14 +153,11 @@ class SolaxReading {
     'MPPT2Current',
   ];
   final Map<String, double?> fields;
-  // plantLocalTime is the device's source timestamp, not the plant request time.
   final String? reportedAt;
   final String? timeZone;
   final int? statusCode;
   String get provenance => '/openapi/v2/device/realtime_data';
   final DateTime? sourceUtc;
-  // dataTime is explicitly UTC in the reference and disambiguates repeated DST
-  // hours. Never substitute the HTTP request time for a source timestamp.
   DateTime? get reportedAtUtc =>
       sourceUtc ?? siteTimestampUtc(reportedAt, timeZone);
   double? get powerWatts => _nonnegative(fields['acPower1']);
@@ -219,7 +207,6 @@ class SolaxReading {
   };
   static DateTime? _utc(Object? value) {
     if (value is! String) return null;
-    // The API calls dataTime UTC, including when its string has no suffix.
     final plain = validSiteTimestamp(value);
     if (plain != null) {
       return DateTime.parse('${plain.replaceFirst(' ', 'T')}Z');
@@ -312,7 +299,6 @@ class SolaxApi implements SolaxSource {
   final DateTime Function() _now;
   final Duration timeout;
   static const host = 'openapi-eu.solaxcloud.com';
-  // A bounded discovery protects quota even when pagination metadata is broken.
   static const maxPages = 10;
 
   @override
@@ -536,7 +522,6 @@ class SolaxApi implements SolaxSource {
       }
       final json = jsonDecode(response.body);
       if (json is! Map<String, dynamic>) throw const FormatException();
-      // Vendor Appendix 1. Never expose provider error messages.
       if ([10405, 10406].contains(json['code'])) {
         throw const SolaxFailure(
           'SolaX request limit reached. Requests are paused for 24 hours.',
@@ -570,14 +555,10 @@ class SolaxApi implements SolaxSource {
     } on SolaxFailure {
       rethrow;
     } catch (_) {
-      // Errors can contain identifiers, locations, URLs or tokens. Do not log,
-      // chain or display them, including parsing and body-stream failures.
       throw const SolaxFailure(
         'Could not read SolaX data. Check your connection and retry later.',
       );
     } finally {
-      // Cancel timed-out native requests, including stalled response bodies.
-      // A timeout must not leave authentication running behind the next attempt.
       abort.complete();
     }
   }

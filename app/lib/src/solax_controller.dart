@@ -58,8 +58,6 @@ class SolaxController extends ChangeNotifier {
       _record = value;
       _recovery = null;
     } catch (_) {
-      // Retain quota/token safety writes; a failed account replacement must not
-      // silently become saved when the user retries storage.
       _recovery = recoverValue ? value : _record;
       storageUnavailable = true;
       throw const SolaxFailure(
@@ -86,8 +84,6 @@ class SolaxController extends ChangeNotifier {
     final existing = _record.token;
     if (existing != null && existing.usable(_now())) return existing;
     final token = await _source.authenticate(_record.credentials!);
-    // Persist a renewed token before requesting telemetry. Never mint tokens
-    // concurrently, repeatedly on revocation, or independently in each widget.
     await _persist(_record.withToken(token), recoverValue: true);
     return token;
   }
@@ -248,8 +244,6 @@ class SolaxController extends ChangeNotifier {
     notifyListeners();
     try {
       _checkSelectionSession();
-      // At most 10 plant pages, 5 x 10 device pages, auth and one reading
-      // per 15-minute workflow. This bounds interactive discovery as well.
       if (++_plantQueries > 5) {
         throw const SolaxFailure(
           'SolaX selection request limit reached. Test again after the wait.',

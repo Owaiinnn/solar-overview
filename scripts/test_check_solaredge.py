@@ -1,5 +1,3 @@
-"""Checks for credential redaction and the smoke-test's data handling."""
-
 import contextlib
 import io
 import json

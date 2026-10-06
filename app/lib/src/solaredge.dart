@@ -20,7 +20,6 @@ class SolarEdgeCredentials {
   final String siteId;
   final String apiKey;
 
-  // Never include credentials in diagnostics, including failed test output.
   @override
   String toString() => 'SolarEdgeCredentials(redacted)';
 }
@@ -107,8 +106,6 @@ class SolarEdgeApi implements SolarEdgeSource {
 
   @override
   Future<SolarOverview> overview(SolarEdgeCredentials credentials) async {
-    // Sequential calls stay below the provider's concurrency limit. Fetch the
-    // overview first so rejected credentials never trigger a second request.
     final data = await _get(credentials, 'overview');
     final details = await _get(credentials, 'details');
     final location = details['location'];
@@ -169,8 +166,6 @@ class SolarEdgeApi implements SolarEdgeSource {
         'SolarEdge returned an unreadable response. Please try again later.',
       );
     } catch (_) {
-      // HTTP exceptions can contain the request URL, which includes the key.
-      // Never forward exception strings or raw provider responses to the UI/logs.
       throw const SolarEdgeFailure(
         'Could not reach SolarEdge. Check your internet connection and try again.',
       );

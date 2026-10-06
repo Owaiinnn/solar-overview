@@ -1,7 +1,6 @@
 import 'package:timezone/data/latest_all.dart' as database;
 import 'package:timezone/timezone.dart' as tz;
 
-// Include IANA aliases (for example Europe/Amsterdam and UTC) returned by sites.
 bool _loaded = false;
 
 tz.Location? siteLocation(String? name) {
@@ -23,7 +22,6 @@ String? validSiteTimestamp(Object? value) {
     return null;
   }
   final parsed = DateTime.tryParse('${value.replaceFirst(' ', 'T')}Z');
-  // DateTime accepts overflowing dates (February 30, hour 25); reject them.
   return parsed != null &&
           parsed.toIso8601String().substring(0, 19) ==
               value.replaceFirst(' ', 'T')
@@ -48,7 +46,6 @@ DateTime? siteTimestampUtc(String? stamp, String? zone) {
       matches.add(candidate);
     }
   }
-  // A missing or repeated DST hour cannot identify an unambiguous instant.
   return matches.length == 1 ? matches.single : null;
 }
 

@@ -30,7 +30,6 @@ def render(master, size, foreground=False):
     root = deepcopy(master)
     if foreground:
         root.remove(root.find(f"{SVG}rect"))
-    # Android displays the central 72dp of the 108dp adaptive layers.
     root.set("viewBox", "18 18 72 72")
     root.set("width", str(size))
     root.set("height", str(size))
@@ -63,12 +62,10 @@ def vector(master, monochrome=False):
 
 
 def preview(master, target):
-    """Synthetic mask/readability sheet; contains no device or private data."""
     scale = 4
     sheet = Image.new("RGB", (800, 400), "#EDF0EA")
     draw = ImageDraw.Draw(sheet)
     foreground = render(master, 128 * scale, foreground=True)
-    # Verify the entire mark fits Android's central 66dp safe circle.
     safe = Image.new("L", foreground.size)
     safe_draw = ImageDraw.Draw(safe)
     inset = foreground.width * 3 / 72
@@ -85,7 +82,6 @@ def preview(master, target):
         elif i == 1:
             d.rounded_rectangle(bounds, radius=icon.width * .22, fill=255)
         else:
-            # Superellipse x^4 + y^4 = r^4.
             center = (icon.width - 1) / 2
             points = []
             for degree in range(360):

@@ -47,7 +47,6 @@ class SecureCredentialStore implements CredentialStore {
   @override
   Future<void> write(SolarEdgeCredentials credentials) async {
     try {
-      // One entry prevents mixing a new site ID with an old API key.
       await _storage.write(
         key: storageKey,
         value: jsonEncode({
