@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'credential_store.dart';
 import 'reading_store.dart';
+import 'solar_freshness.dart';
 import 'solaredge.dart';
 
 class ConnectionController extends ChangeNotifier {

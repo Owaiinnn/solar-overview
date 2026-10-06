@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
+import 'solar_freshness.dart';
 import 'solax.dart';
 import 'solax_store.dart';
-import 'solaredge.dart' show ReadingFreshness;
 
 class SolaxController extends ChangeNotifier {
   SolaxController(this._store, this._source, {DateTime Function()? now})

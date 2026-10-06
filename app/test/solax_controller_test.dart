@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:solar_overview/src/connection_controller.dart';
+import 'package:solar_overview/src/solar_freshness.dart';
 import 'package:solar_overview/src/solax.dart';
 import 'package:solar_overview/src/solax_controller.dart';
-import 'package:solar_overview/src/connection_controller.dart';
-import 'package:solar_overview/src/solaredge.dart';
 
 import 'fakes.dart';
 import 'solax_fakes.dart';

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'solar_freshness.dart';
 import 'solax.dart';
 import 'solax_controller.dart';
-import 'solaredge.dart' show ReadingFreshness;
 
 class SolaxSettingsCard extends StatefulWidget {
   const SolaxSettingsCard({super.key, this.controller, this.preview = false});

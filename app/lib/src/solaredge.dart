@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'site_time.dart';
+import 'solar_freshness.dart';
 
 class SolarEdgeCredentials {
   SolarEdgeCredentials(String siteId, String apiKey)
@@ -33,8 +34,6 @@ class SolarEdgeFailure implements Exception {
   String toString() => message;
 }
 
-enum ReadingFreshness { recent, stale, unknown }
-
 class SolarOverview {
   const SolarOverview({
     this.powerWatts,
@@ -50,15 +49,8 @@ class SolarOverview {
   String get source => 'SolarEdge';
   DateTime? get reportedAtUtc => siteTimestampUtc(reportedAt, timeZone);
 
-  ReadingFreshness freshness(DateTime now) {
-    final stamp = reportedAtUtc;
-    if (stamp == null || stamp.isAfter(now.toUtc())) {
-      return ReadingFreshness.unknown;
-    }
-    return now.toUtc().difference(stamp) >= const Duration(minutes: 30)
-        ? ReadingFreshness.stale
-        : ReadingFreshness.recent;
-  }
+  ReadingFreshness freshness(DateTime now) =>
+      solarFreshness(reportedAtUtc, now);
 
   double? todayEnergyWh(DateTime now) {
     final stamp = reportedAtUtc;

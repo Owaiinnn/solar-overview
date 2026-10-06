@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:solar_overview/src/connection_controller.dart';
 import 'package:solar_overview/src/reading_store.dart';
+import 'package:solar_overview/src/solar_freshness.dart';
 import 'package:solar_overview/src/solaredge.dart';
 
 import 'fakes.dart';

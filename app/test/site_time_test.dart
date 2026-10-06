@@ -1,7 +1,47 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:solar_overview/src/solar_freshness.dart';
 import 'package:solar_overview/src/solaredge.dart';
+import 'package:solar_overview/src/solax.dart';
 
 void main() {
+  test('both solar sources preserve the exact freshness boundary', () {
+    final stamp = DateTime.utc(2026, 9, 28, 12);
+    final edge = SolarOverview(
+      reportedAt: '2026-09-28 14:00:00',
+      timeZone: 'Europe/Amsterdam',
+    );
+    final solax = SolaxReading.fromResponse({
+      'dataTime': '2026-09-28T12:00:00Z',
+    }, 'Europe/Amsterdam');
+    for (final freshness in [edge.freshness, solax.freshness]) {
+      expect(
+        freshness(stamp.subtract(const Duration(microseconds: 1))),
+        ReadingFreshness.unknown,
+      );
+      expect(freshness(stamp), ReadingFreshness.recent);
+      expect(
+        freshness(
+          stamp
+              .add(const Duration(minutes: 30))
+              .subtract(const Duration(microseconds: 1)),
+        ),
+        ReadingFreshness.recent,
+      );
+      expect(
+        freshness(stamp.add(const Duration(minutes: 30))),
+        ReadingFreshness.stale,
+      );
+      expect(
+        freshness(stamp.add(const Duration(minutes: 30)).toLocal()),
+        ReadingFreshness.stale,
+      );
+    }
+    expect(const SolarOverview().freshness(stamp), ReadingFreshness.unknown);
+    expect(
+      SolaxReading.fromResponse({}, 'Europe/Amsterdam').freshness(stamp),
+      ReadingFreshness.unknown,
+    );
+  });
   SolarOverview reading(String? stamp, [String? zone = 'Europe/Amsterdam']) =>
       SolarOverview.fromJson({
         'currentPower': {'power': 0},

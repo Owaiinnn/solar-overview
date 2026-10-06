@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'site_time.dart';
-import 'solaredge.dart' show ReadingFreshness;
+import 'solar_freshness.dart';
 
 String? solaxTimeZone(String? value) {
   if (value?.replaceAll(' ', '') ==
@@ -223,15 +223,8 @@ class SolaxReading {
     return DateTime.tryParse(value);
   }
 
-  ReadingFreshness freshness(DateTime now) {
-    final stamp = reportedAtUtc;
-    if (stamp == null || stamp.isAfter(now.toUtc())) {
-      return ReadingFreshness.unknown;
-    }
-    return now.toUtc().difference(stamp) >= const Duration(minutes: 30)
-        ? ReadingFreshness.stale
-        : ReadingFreshness.recent;
-  }
+  ReadingFreshness freshness(DateTime now) =>
+      solarFreshness(reportedAtUtc, now);
 
   factory SolaxReading.fromResponse(Map<String, dynamic> json, String? zone) {
     double? number(Object? value) =>
