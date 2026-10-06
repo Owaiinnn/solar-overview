@@ -1,7 +1,6 @@
 import 'credential_store.dart';
 import 'solaredge.dart';
 
-/// Browser UI preview: no device credential storage or live API requests.
 class BrowserPreview implements CredentialStore, SolarEdgeSource {
   const BrowserPreview();
 

@@ -21,8 +21,6 @@ void main() {
   testWidgets('native P1 HTTP, secure restart/isolation and visible states', (
     tester,
   ) async {
-    // Synthetic HTTP server on this Android device. No real meter, provider,
-    // production storage key or credential is read or modified by this test.
     final interfaces = await NetworkInterface.list(
       type: InternetAddressType.IPv4,
     );
@@ -82,7 +80,6 @@ void main() {
       await tester.enterText(find.byKey(const Key('p1-address')), host);
       await tester.ensureVisible(find.text('Test & save P1'));
       await tester.tap(find.text('Test & save P1'));
-      // Native network + secure-storage calls need actual event-loop time.
       for (var i = 0; i < 100 && !c.connected; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
@@ -160,8 +157,6 @@ void main() {
         requests.every((request) => request == 'GET /rpc/P1.GetData'),
         isTrue,
       );
-      // Failed replacement retains saved reader; explicit successful replacement
-      // then removal affect only this test's P1 record.
       now = now.add(c.wait);
       expect(await c.connect(host), isFalse);
       expect(c.address!.host, host);

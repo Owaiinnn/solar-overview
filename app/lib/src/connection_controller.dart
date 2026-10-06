@@ -48,7 +48,6 @@ class ConnectionController extends ChangeNotifier {
         : 'Next request available in $minutes minutes.';
   }
 
-  // The app calls this when resumed and once a minute; it never polls the API.
   void updateFreshness() => notifyListeners();
 
   Future<void> _loadCache() async {
@@ -63,8 +62,6 @@ class ConnectionController extends ChangeNotifier {
   }
 
   Future<void> _persist(ReadingCache value) async {
-    // Keep the in-session gate even if a storage write fails. No requests are
-    // allowed until storage can be retried, including after a failed 429 write.
     _cache = value;
     try {
       await _readingStore.write(value);
@@ -77,8 +74,6 @@ class ConnectionController extends ChangeNotifier {
   Future<SolarOverview> _request(SolarEdgeCredentials credentials) async {
     await _loadCache();
     if (!canRequest) throw SolarEdgeFailure(refreshNotice!);
-    // Reserve before network access, so failures and process termination also
-    // consume a slot. Connection tests, replacements and refresh share this gate.
     await _persist(_cache.withGate(_now().toUtc().add(refreshInterval)));
     try {
       return await _source.overview(credentials);
@@ -121,7 +116,6 @@ class ConnectionController extends ChangeNotifier {
         rethrow;
       }
       await _loadCache();
-      // Also retry a previously failed write (especially an extended 429 gate).
       if (storageUnavailable) await _persist(_cache);
       storageUnavailable = false;
       overview = _credentials != null && _cache.siteId == siteId
@@ -149,8 +143,6 @@ class ConnectionController extends ChangeNotifier {
     try {
       final candidate = SolarEdgeCredentials(siteId, apiKey);
       final reading = await _request(candidate);
-      // Invalidate the previous snapshot before changing credentials; a crash
-      // during replacement must never associate old readings with a new key.
       final previousCache = _cache;
       await _persist(_cache.withoutReading());
       try {
@@ -165,7 +157,6 @@ class ConnectionController extends ChangeNotifier {
       return true;
     } on SolarEdgeFailure catch (failure) {
       error = failure.message;
-      // A cache failure after saving credentials does not undo that valid save.
       return saved;
     } finally {
       busy = false;
@@ -199,8 +190,6 @@ class ConnectionController extends ChangeNotifier {
         try {
           await _loadCache();
         } on SolarEdgeFailure {
-          // Allow recovery from a corrupt record without resetting its unknown
-          // quota. A conservative pause replaces it without any saved readings.
           _cache = ReadingCache(
             nextAttempt: _now().toUtc().add(const Duration(hours: 24)),
             rateLimited: true,

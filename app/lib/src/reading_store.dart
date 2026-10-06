@@ -4,8 +4,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'solaredge.dart';
 
-// One atomic record couples the last successful snapshot and the request gate.
-// It contains normalized values only, never keys, URLs or raw API responses.
 class ReadingCache {
   const ReadingCache({
     this.siteId,

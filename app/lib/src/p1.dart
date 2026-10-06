@@ -37,9 +37,6 @@ class P1Address {
 
 enum GridDirection { importing, exporting, balanced, unavailable }
 
-/// Dutch DSMR timestamp. The suffix resolves the repeated autumn hour. Check
-/// the actual Europe/Amsterdam offset to reject impossible spring times and
-/// incorrect seasonal suffixes. Never substitute the HTTP receipt time.
 DateTime p1TimestampUtc(String stamp) {
   if (!RegExp(r'^\d{12}[SW]$').hasMatch(stamp)) {
     throw const P1Failure('The meter timestamp is missing or invalid.');
@@ -71,8 +68,6 @@ DateTime p1TimestampUtc(String stamp) {
   return utc;
 }
 
-/// Retains only electricity fields, normalized units and meter identity.
-/// Counter values are integer Wh, preserving all three raw kWh decimals.
 class P1Reading {
   P1Reading._({
     required this.meterId,
@@ -112,12 +107,10 @@ class P1Reading {
     _ => GridDirection.balanced,
   };
   String get provenance => 'P1.GetData · DSMR electricity OBIS';
-  // Grid exchange alone cannot establish whole-house consumption.
   bool get suitableForHouseholdBalance => false;
 
   factory P1Reading.parse(String response) {
     var text = response.trim();
-    // The vendor documents a raw text block wrapped in braces, not JSON.
     if (text.startsWith('{') && text.endsWith('}')) {
       text = text.substring(1, text.length - 1).trim();
     }
@@ -183,7 +176,6 @@ class P1Reading {
       if (value == null) return null;
       final match = RegExp(r'^\((\d{1,12})(?:\.(\d{1,3}))?\*' + unit + r'\)$')
           .firstMatch(value);
-      // A present invalid field invalidates the telegram. Missing fields stay null.
       if (match == null) {
         throw const P1Failure('A meter reading has an invalid value or unit.');
       }

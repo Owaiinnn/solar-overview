@@ -11,7 +11,6 @@ void main() {
   testWidgets('native scene repeats and records steady-state rendering cost', (
     tester,
   ) async {
-    // Isolated artwork only: never opens storage or contacts either provider.
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(

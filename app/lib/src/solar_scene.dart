@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// Original, offline vector artwork. Motion is decorative, never a flow meter.
 class SolarScene extends StatefulWidget {
   const SolarScene({
     super.key,
@@ -105,7 +104,6 @@ class SolarScenePainter extends CustomPainter {
   final bool producing;
   final bool loading;
 
-  // At phase zero the house rests on the ground, including reduced motion.
   double get houseLift => loading
       ? 10 * math.pow(math.sin(phase.value * math.pi), 2).toDouble()
       : 0;
@@ -143,7 +141,6 @@ class SolarScenePainter extends CustomPainter {
     const green = Color(0xFF22634A);
     const dark = Color(0xFF174C39);
     const cream = Color(0xFFFFF2D8);
-    // Abstract backdrop only: the entrance hedge is the sole vegetation.
     fill(const Color(0xFFEAF0E5));
     canvas.drawCircle(const Offset(167, 142), 94, paint);
     final pulse = .5 + .5 * math.sin(phase.value * math.pi * 2);
@@ -166,7 +163,6 @@ class SolarScenePainter extends CustomPainter {
         2,
       );
     }
-    // Soft contact shadow changes as the house rises during loading.
     fill(green.withValues(alpha: .10 - houseLift * .003));
     canvas.drawOval(
       Rect.fromCenter(
@@ -180,8 +176,6 @@ class SolarScenePainter extends CustomPainter {
     canvas.translate(145, 56 - houseLift);
     canvas.scale(3);
     canvas.translate(-54, -23);
-    // Front elevation uses the exact coordinates of assets/icon/house.svg.
-    // Only the side roof/wall and panels extend that front-view logo into a scene.
     polygon([
       const Offset(75, 55),
       const Offset(99, 48),
@@ -229,7 +223,6 @@ class SolarScenePainter extends CustomPainter {
     line(const Offset(53, 22.5), const Offset(55, 22.5), dark, 1.8);
     line(const Offset(30.5, 55), const Offset(34, 55), dark, 1.8);
     line(const Offset(74, 55), const Offset(77.5, 55), dark, 1.8);
-    // Attic and upper window remain centered on the balanced gable.
     fill(green);
     canvas.drawRect(const Rect.fromLTRB(52.7, 29.5, 55.3, 35.5), paint);
     line(const Offset(52.2, 35.8), const Offset(55.8, 35.8), dark, .5);
@@ -239,7 +232,6 @@ class SolarScenePainter extends CustomPainter {
       line(Offset(x, 41), Offset(x, 49.5), cream, .8);
     }
     line(const Offset(44.5, 50), const Offset(63.5, 50), dark, .7);
-    // Projecting bay on the left, independent of the upper pane divisions.
     fill(const Color(0xFFD7E2CB));
     canvas.drawRect(const Rect.fromLTRB(34.5, 59.5, 55, 78), paint);
     polygon([
@@ -258,7 +250,6 @@ class SolarScenePainter extends CustomPainter {
     fill(dark);
     canvas.drawRect(const Rect.fromLTRB(32.5, 58, 55.5, 59.5), paint);
     canvas.drawRect(const Rect.fromLTRB(61.5, 59, 75, 60), paint);
-    // Dark entrance, slender sidelights and vertical door glazing.
     fill(green);
     canvas.drawRect(const Rect.fromLTRB(63.5, 61, 73, 73), paint);
     fill(dark);
@@ -273,8 +264,6 @@ class SolarScenePainter extends CustomPainter {
     }
     line(const Offset(65.8, 69.5), const Offset(66.1, 69.5), cream, .5);
     line(const Offset(64, 78), const Offset(73, 78), dark, .8);
-    // Same closed hedge silhouette as house.svg, inside the house transform:
-    // it rises with the facade during loading, never as an independent plant.
     final hedge = Path()
       ..moveTo(58.7, 54)
       ..quadraticBezierTo(60.8, 53.5, 60.7, 57)
@@ -292,7 +281,6 @@ class SolarScenePainter extends CustomPainter {
       ..close();
     fill(green);
     canvas.drawPath(hedge, paint);
-    // Sparse foliage marks read at scene size without tracing individual leaves.
     for (var i = 0; i < 5; i++) {
       final y = 59 + i * 3.8;
       line(Offset(57.5, y), Offset(58.6, y + 1.2), const Color(0xFF88A783), .6);
@@ -305,7 +293,6 @@ class SolarScenePainter extends CustomPainter {
     }
     canvas.restore();
     if (producing && !loading) {
-      // Staggered, soft rays visibly arrive at the panel surface every loop.
       for (var i = 0; i < 3; i++) {
         final t = (phase.value + i / 3) % 1;
         final start = Offset(267 + i * 6.0, 68);

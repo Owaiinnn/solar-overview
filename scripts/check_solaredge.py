@@ -15,8 +15,6 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 
 class NoRedirect(HTTPRedirectHandler):
-    """Do not forward a credential-bearing request through a redirect."""
-
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
 
@@ -48,7 +46,6 @@ def fetch(site_id, key, endpoint, params=None):
         }
         raise CheckError('HTTP {} ({})'.format(error.code, hints.get(error.code, 'request failed'))) from None
     except (URLError, TimeoutError, OSError):
-        # Exception strings and URLs can contain the API key. Never print them.
         raise CheckError('Network/TLS request failed; verify network access and certificate setup.') from None
     except (ValueError, TypeError):
         raise CheckError('Response was not valid JSON.') from None
@@ -91,7 +88,6 @@ def main():
             value = entry.get('power' if field == 'currentPower' else 'energy') if isinstance(entry, dict) else None
             print('{}: {}'.format(label, '{} {}'.format(value, unit) if number(value) else 'unavailable'))
 
-        # Query the day of the most recent overview reading, without assuming UTC.
         if last_update:
             day = last_update.strftime('%Y-%m-%d')
             history = fetch(site_id, key, 'power', {

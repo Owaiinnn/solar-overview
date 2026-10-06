@@ -2,8 +2,6 @@ import 'connection_controller.dart';
 import 'solaredge.dart';
 import 'solax_controller.dart';
 
-/// The owner confirmed separate solar-only AC outputs for this installation
-/// (ticket #4). MPPT inputs, energy counters and battery flows never enter here.
 class ProductionTotal {
   ProductionTotal(ConnectionController solarEdge, SolaxController? solax) {
     final edge = solarEdge.overview;

@@ -6,7 +6,6 @@ import 'solar_scene.dart';
 import 'solaredge.dart';
 import 'solax_controller.dart';
 
-/// A compact view of the same guarded AC subtotal used by Details.
 class HomePage extends StatelessWidget {
   const HomePage({
     super.key,

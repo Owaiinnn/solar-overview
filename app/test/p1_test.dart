@@ -92,7 +92,6 @@ void main() {
     },
   );
   test('CRC is checked for a complete framed telegram', () {
-    // Precomputed CRC16/ARC over the exact CRLF bytes from slash to bang.
     const frame =
         '/TEST\r\n0-0:1.0.0(261005120000S)\r\n0-0:96.1.1(54455354)\r\n1-0:1.7.0(00.100*kW)\r\n1-0:2.7.0(00.000*kW)\r\n!C31D';
     expect(P1Reading.parse(frame).netWatts, 100);

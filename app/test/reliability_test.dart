@@ -246,7 +246,6 @@ void main() {
   });
 
   test('snapshot save failure preserves saved credentials and recovers without another request', () async {
-    // Reservation, old snapshot invalidation, then new snapshot save.
     cache.failAtWrite = 3;
     final first = controller();
     expect(await first.connect('123', fakeKey), isTrue);
@@ -265,7 +264,6 @@ void main() {
     await first.connect('123', fakeKey);
     now = now.add(ConnectionController.refreshInterval);
     source.rateLimit = true;
-    // The next reservation succeeds, but the extended gate write fails.
     cache.failAtWrite = cache.writes + 2;
     await first.refresh();
     expect(first.storageUnavailable, isTrue);

@@ -1,7 +1,6 @@
 import 'package:solar_overview/src/credential_store.dart';
 import 'package:solar_overview/src/solaredge.dart';
 
-// Deliberately synthetic fixtures; never use a real site or API key in tests.
 const fakeKey = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 class MemoryStore implements CredentialStore {

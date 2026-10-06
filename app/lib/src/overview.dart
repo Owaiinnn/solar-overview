@@ -196,8 +196,6 @@ class OverviewPage extends StatelessWidget {
             label: 'Reported AC output',
             value: _kilo(data?.powerWatts, 'kW'),
           ),
-          // Deliberately a qualified device counter, not a plant/day headline or
-          // a combined energy total. End-of-day behavior remains ticket #25.
           _Measurement(
             label: 'Today’s inverter AC energy (device counter)',
             value: _kilo(c.todayEnergyWh, 'kWh'),
