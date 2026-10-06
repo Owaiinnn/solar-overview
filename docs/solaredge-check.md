@@ -79,3 +79,37 @@ python3 -m unittest discover -s scripts -p 'test_*.py' -v
 These offline checks cover error redaction, redirect blocking, and distinguishing
 missing readings from zero. Flutter setup and checks are documented in
 [app/README.md](../app/README.md).
+
+## Flutter request and storage safeguards
+
+`app/lib/src/connection_controller.dart` reserves the 15-minute request gate
+before network access, including connection tests and replacements. Failures and
+process termination consume that slot. A rate-limit response extends the wait to
+24 hours. The in-memory deadline survives a failed storage write; requests stop
+until storage recovery persists it. Freshness notifications run on resume and
+once a minute without polling the API.
+
+The reading store atomically couples normalized readings and the request gate;
+it never stores keys, URLs or raw responses. The credential store keeps site ID
+and key in one entry so they cannot be mixed across saves. Replacement invalidates
+the previous snapshot before writing new credentials, preventing a crash from
+associating old readings with a new key. A failed credential write restores the
+previous cache; a later snapshot-save failure does not undo valid credentials.
+The reliability tests inject failure at the third write (reservation, invalidation,
+snapshot) and at the second write of a rate-limited refresh (reservation, extended
+gate). Removing a corrupt cache retains a conservative 24-hour pause because its
+previous quota state is unknown.
+
+The Flutter client requests overview before site details, sequentially, so rejected
+credentials do not trigger another request and concurrent requests do not increase
+provider load. Credential diagnostics are redacted. Network exceptions may contain
+key-bearing URLs; neither client nor check script forwards exception strings or
+raw responses to UI/logs. The script blocks redirects to prevent credential
+forwarding and requests the overview reading's local calendar day without assuming
+UTC.
+
+`app/lib/src/site_time.dart` includes the full IANA database and its aliases,
+including Europe/Amsterdam and UTC. It rejects overflowing dates/times that Dart
+would otherwise normalize, as well as missing or repeated DST hours without an
+unambiguous instant. The native credential/cache tests use separate synthetic
+storage keys, never the owner's saved connection.

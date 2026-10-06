@@ -116,3 +116,17 @@ Always restore the normal app target afterward with `install -r`.
 Actual test results, remaining device comparisons and unavailable checks belong
 in [the ticket](tickets/done/07-house-meter.md). Source fixtures belong only in tests;
 there is no shipped sample-data mode.
+
+## Parser and native-test details
+
+The vendor's brace-wrapped payload is raw text, not JSON. Electricity counters
+retain all three raw kWh decimals as integer Wh. A present but invalid known
+field invalidates the entire telegram; an absent optional field remains null.
+The framed fixture in `app/test/p1_test.dart` uses a precomputed CRC16/ARC over
+the exact CRLF bytes from slash through bang.
+
+Native network and secure-storage operations in `p1_native_test.dart` need real
+event-loop time; the connection check pumps frames while waiting for completion.
+Failed replacement retains the saved test reader;
+successful replacement/removal affect only the isolated P1 test record. Synthetic
+SolarEdge/SolaX records verify source isolation without reading production keys.

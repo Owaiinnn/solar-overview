@@ -101,3 +101,13 @@ Workflow, verification commands and credential rules remain in
   link/content and diff checks. Do not add tests that merely mirror implementation.
 - Record checks actually run, remaining work and unavailable device verification
   in the ticket. Update related documentation when its described behavior changes.
+
+## Implementation references
+
+Provider timing, storage and security rationale lives with the
+[SolarEdge](../solaredge-check.md#flutter-request-and-storage-safeguards),
+[SolaX](../solax-check.md#client-and-persistence-safeguards) and
+[P1](../p1-check.md) documentation. See the [Home scene](../home-scene.md) for
+animation/geometry and the [icon workflow](../../app/assets/icon/README.md) for
+asset export. [Build configuration](../build-configuration.md) records platform
+configuration rationale and the current signing limitation.
