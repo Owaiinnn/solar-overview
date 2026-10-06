@@ -92,6 +92,50 @@ class PendingCredentialStore extends MemoryStore {
 }
 
 void main() {
+  for (final scenario in [
+    'empty',
+    'SolarEdge',
+    'SolaX',
+    'combined',
+    'mismatch',
+  ]) {
+    testWidgets('Home and Details agree on production coverage: $scenario', (
+      tester,
+    ) async {
+      final edge = await edgeController(
+        power: scenario == 'empty' || scenario == 'SolaX' ? null : 1000,
+      );
+      final solax = await solaxController(
+        power: scenario == 'empty' || scenario == 'SolarEdge' ? null : 120,
+        stamp: scenario == 'mismatch'
+            ? '2026-09-29T11:54:59Z'
+            : '2026-09-29T12:00:00Z',
+      );
+      final partial = scenario == 'SolarEdge' || scenario == 'SolaX';
+      final title = partial
+          ? 'Partial solar production'
+          : 'Combined solar production';
+      final coverage = partial
+          ? '$scenario only · 1 of 2 sources'
+          : 'SolarEdge + SolaX · ${scenario == 'empty' ? 0 : 2} of 2 sources';
+      await tester.pumpWidget(SolarApp(controller: edge, solax: solax));
+      expect(find.text(title), findsOneWidget);
+      expect(find.text(coverage), findsOneWidget);
+      await tester.ensureVisible(find.text('View details'));
+      await tester.tap(find.text('View details'));
+      await tester.pump();
+      expect(find.text(title), findsOneWidget);
+      expect(find.text(coverage), findsOneWidget);
+      if (scenario == 'mismatch') {
+        expect(
+          find.textContaining('A combined reading is unavailable.'),
+          findsOneWidget,
+        );
+      }
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
+
   test(
     'combines only AC output, including valid zero and recent saved readings',
     () async {
