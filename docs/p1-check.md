@@ -117,6 +117,57 @@ Actual test results, remaining device comparisons and unavailable checks belong
 in [the ticket](tickets/done/07-house-meter.md). Source fixtures belong only in tests;
 there is no shipped sample-data mode.
 
+## Home-network verification: 2026-10-07
+
+Times below are Europe/Amsterdam. The morning Mac probes could not reach either
+local device while the owner was away from home. After returning home, both APIs
+responded. At 18:45:12, P1 reported import 1,717 W, export zero and meter time
+18:45:10. No reader settings or battery controls were changed.
+
+A retained read-only Mac sample run obtained 35 successful responses at roughly
+one-second intervals from 18:46:39 to 18:47:13. All 34 successive source-timestamp
+steps were exactly one second; measured receipt ages ranged from 2.093 to 2.424
+seconds. Import ranged from 1,587 to 2,246 W. This establishes observed one-second
+timestamp advancement during that window, not a universal cadence guarantee,
+timestamp precision beyond seconds or real stale/repeated-device/DST behavior.
+
+The agent saved the real reader connection through Android API 36 emulator
+Settings and verified import in Details with advancing source times. During a
+temporary emulator-only Wi-Fi/mobile-data outage, the app kept its reading,
+marked current exchange unavailable and showed a retry countdown. Full process
+restart preserved connections and cached data. A second restart with networking
+restored retained the pending P1 deadline: 55 seconds at 18:56:45 became 30 seconds
+at 18:57:10. A second failed attempt had increased the retry wait to about two
+minutes. The reader recovered automatically by 18:58:10 without manual refresh
+or connection replacement; battery polling and solar connections/cooldowns
+remained independent. Both emulator network settings were restored and checked
+enabled, matching their initial states. A private helper assertion interrupted
+the initial sequence after force-stop; its cleanup restored networking and the
+restart/recovery checks were continued separately.
+
+The owner's 18:59 INDEVOLT overview screenshot showed export 116 W, battery 43%,
+Standby and 26 W, with solar and load both zero. Eight Mac probe pairs between
+18:59:18 and 18:59:56 instead showed import 1,477–1,612 W, export zero, advancing
+P1 timestamps and battery discharge around 694 W at 40.0–40.1%. The overview's
+battery values resemble the earlier standby sample, suggesting stale overview
+data rather than establishing a sign error. After a refresh/reopen request, the
+owner reported battery “40% now”, but no updated grid value or exact sample time.
+The independent grid comparison therefore remains unresolved. The screenshot's
+zero load is not evidence of zero household consumption.
+
+On the owner's requested recheck at 19:06:27, P1 reported export 1,761 W, import
+zero and meter time 19:06:26, while the battery reported discharging at 2,451 W
+pack DC. At 19:07:53, P1 export was 1,878 W with meter time 19:07:52. The agent
+visually verified Solar Overview showing export 1.881 kW from meter time 19:07:27.
+This verifies the app tracking actual reported import-to-export change; it does
+not establish agreement with the earlier vendor screenshot or household balance.
+
+No app code changed, and app tests were not rerun for this documentation-only
+update. Ticket #42 remains open for physical meter/model/phase verification,
+physical Android, native iOS (Xcode unavailable), independent grid comparison,
+counter precision/reset behavior and real stale/DST behavior. Private samples,
+screenshots, addresses and meter identifiers remain outside git/issues.
+
 ## Parser and native-test details
 
 The vendor's brace-wrapped payload is raw text, not JSON. Electricity counters
