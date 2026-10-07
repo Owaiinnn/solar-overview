@@ -69,7 +69,69 @@ It verifies the native HTTP client, not access to a real battery on the home LAN
 - [Android cleartext configuration](https://developer.android.com/privacy-and-security/security-config)
 - [Apple local-network transport setting](https://developer.apple.com/documentation/bundleresources/information-property-list/nsapptransportsecurity/nsallowslocalnetworking)
 - [Ticket 6 scope, evidence and outstanding checks](tickets/06-powerflex.md)
+- [Ticket 53 device and measurement verification](tickets/53-battery-device-verification.md)
 
-Exact model, firmware/modules, capacity, AC/bypass boundaries, device timestamps,
+Installed module models, usable capacity, AC/bypass boundaries, device timestamps,
 update cadence and day rollover must still be verified. Home flow graphics,
 household balance and historical collection belong to later integrations.
+
+## Dated device evidence: 2026-10-06
+
+All times below are Europe/Amsterdam (UTC+02:00). These observations are historical;
+they do not describe the current battery state. Raw responses, device identifiers,
+addresses and owner screenshots are not included in the repository.
+
+The agent ran read-only Mac HTTP probes on the home network. At 15:37:50 the
+battery returned the following values. The owner supplied INDEVOLT screenshots
+reported as approximately 15:40; their phone clock displays 15:39.
+
+| Reading | Local API at 15:37:50 | Owner screenshot near 15:40 |
+| --- | --- | --- |
+| SOC | 100% | 100% |
+| State | 1000, normalized idle | Standby |
+| Pack DC power | 0 W | Battery 0 W |
+| Inverter / total AC power | 0 W / 0 W | AC Output 0 W; Key Load 0 W |
+| Daily charged / discharged | 7.15 / 1.11 kWh | Charged 7.15 / Discharged 1.11 kWh |
+| Capacity field 142 | 6.05 kWh | 6.04 kWh beside SOC |
+
+The nearby readings agree for idle SOC/state/power and the charge/discharge
+counters. Zero power cannot establish AC/DC sign conventions or measurement
+boundaries. Agreement in counter values supports the displayed scale for this
+sample; it does not establish completeness, reset time or day-rollover behavior.
+The capacity values differ, and the screenshot does not establish that its energy
+value has the same meaning as field 142. Neither is verified usable capacity.
+
+The owner's Settings screenshot identifies **PowerFlex 2000Eco**, **Key Load**
+bypass and **Cluster: None**. The agent's system-config read at 15:37:28 reported
+device type `CMS-SF2000` and firmware `V1.4.0E_R00D.0B2_M4801_0000003E`.
+The commercial model comes from the screenshot, not the generic API type.
+The hub image has a badge of 2; two module identifier slots returned nonempty
+values. This is consistent with two modules but does not establish their models
+or capacities. Field 6010 reported 6, the supported maximum, not an installed count.
+
+The same-window P1 read reported meter time 15:37:49, import 0 W and export 997 W.
+The owner's later overview shows solar 1.22 kW, export 760 W and load 460 W.
+These readings were not synchronized, so neither a numerical grid comparison nor
+a household balance is verified. The P1 timestamp was about one second old at
+receipt in that sample; this does not establish sustained cadence. The battery's
+system-config clock is not a measurement timestamp. A planned longer sampling
+run has no retained result and is not counted as completed.
+
+The successful battery request used compact JSON in the `config` query. An
+earlier probe using spaced JSON returned an empty object. The app already sends
+compact JSON; this observation required no normalization or client change.
+
+## Follow-up status: 2026-10-07
+
+Fresh Mac probes could not reach the battery or P1 reader. The owner confirmed
+the Mac was on another network, so home-network checks cannot currently proceed.
+This does not establish a device or app defect. Resume with fresh readings when
+the Mac is home; do not compare new readings against yesterday's screenshots.
+
+Real-device mobile setup, restart, off-network backoff and recovery remain open.
+The probes above are Mac checks, not completed live Android app checks. Only an
+Android emulator was available, and Xcode was unavailable for native iOS checks.
+No battery controls or network settings were changed during these probes. The
+existing automated and synthetic native checks remain separate evidence recorded
+in the implementation ticket. Ticket 53 remains open for the unverified states,
+timing, capacity, topology and mobile behavior.
