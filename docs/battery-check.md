@@ -121,10 +121,10 @@ The successful battery request used compact JSON in the `config` query. An
 earlier probe using spaced JSON returned an empty object. The app already sends
 compact JSON; this observation required no normalization or client change.
 
-## Follow-up status: 2026-10-07
+## Morning access check: 2026-10-07
 
 Fresh Mac probes could not reach the battery or P1 reader. The owner confirmed
-the Mac was on another network, so home-network checks cannot currently proceed.
+the Mac was on another network, so home-network checks could not proceed then.
 This does not establish a device or app defect. Resume with fresh readings when
 the Mac is home; do not compare new readings against yesterday's screenshots.
 
@@ -135,3 +135,82 @@ No battery controls or network settings were changed during these probes. The
 existing automated and synthetic native checks remain separate evidence recorded
 in the implementation ticket. Ticket 53 remains open for the unverified states,
 timing, capacity, topology and mobile behavior.
+
+## Resumed home-network verification: 2026-10-07
+
+After the owner returned home, both local APIs responded with HTTP 200. Times
+below are Europe/Amsterdam. These were read-only Mac probes and Android API 36
+emulator checks against the real devices, not physical-phone verification.
+
+At 18:45:12, the battery reported 42.6%, discharging (1002), pack DC 726 W,
+inverter/total AC -661 W, charge counter 5.72 kWh and discharge counter 3.23 kWh.
+Eight retained samples at 30-second intervals from 18:46:39 to 18:50:09 captured
+idle followed by discharge. The idle sample was 42.5%, pack DC 26 W and both AC
+fields 0 W; the subsequent discharge samples had positive pack power 690–694 W
+and negative AC readings. This supports the sign convention during observed
+discharge, but does not verify charging, bypass wiring or measurement alignment.
+The sample run was interrupted after eight readings; no later samples from that
+run are claimed.
+
+The owner's 18:46 device-page screenshot shows 43%, Standby, AC Output 0 W,
+Key Load 0 W, charged 5.72 kWh and discharged 3.23 kWh. These are nearby rather
+than simultaneous readings: the 18:46:39 API sample had discharge counter
+3.24 kWh. The screenshot's rounded SOC and standby/AC values are consistent with
+the nearby sample. Idle with nonzero pack power remains an observation to explain;
+no tolerance or normalization was changed. The screenshot's 2.62 kWh beside SOC
+does not establish usable capacity. Today's lower charge counter than yesterday's
+7.15 kWh is consistent with a reset between observations, but its exact timing and
+completeness remain unverified.
+
+An independent comparison did **not** pass: the owner's 18:59 home overview shows
+43%, Standby, battery 26 W and grid export 116 W. Eight Mac probe pairs received
+between 18:59:18 and 18:59:56 instead reported battery 40.0–40.1%, discharging,
+pack DC 693–694 W, and P1 import 1,477–1,612 W with zero export. P1 source timestamps
+advanced throughout that window. The overview's battery values resemble the
+earlier standby sample, suggesting stale overview data, but the cause is not
+established. After being asked to refresh/reopen the app, the owner reported
+“40% now”, agreeing with the recent local SOC. This supports the stale-overview
+hypothesis for SOC, but no updated state/grid values or exact sample time were
+supplied. The state and grid discrepancy still needs a refreshed comparison. Do
+not change signs or use the displayed zero household load from this evidence.
+
+The agent completed these live emulator checks:
+
+- Saved both local addresses through Settings; existing solar connections were
+  retained. Details displayed real P1 measurements and battery SOC/state/pack
+  power, with AC and daily counters available in the expanded battery section.
+- Observed automatic foreground battery receipts at 18:52:39 and 18:53:14,
+  consistent with the 30-second gate and five-second eligibility timer. The UI
+  continued to state that the battery source time is unknown.
+- Disabled only emulator Wi-Fi and mobile data. Both cards retained their last
+  readings, reported the local-access failure and marked current data unavailable.
+  Failure retry waits were visible; a later failed attempt increased the wait to
+  about two minutes.
+- Force-stopped and relaunched the app. Saved connections and readings survived.
+  A second restart after networking was restored preserved the pending waits:
+  P1/battery countdowns of 55/56 seconds at 18:56:45 became 30/32 seconds at
+  18:57:10 rather than restarting or bypassing the gate.
+- By 18:58:10 both connections had recovered automatically without manually
+  refreshing, re-entering addresses or changing solar waits. Solar connections
+  and their decreasing cooldowns remained present across restarts.
+- Restored and checked emulator Wi-Fi and mobile data enabled, their initial
+  states. No Mac network setting, battery control or device configuration changed.
+
+A private test-helper assertion stopped the first sequence after force-stop;
+its cleanup restored networking. The restart/recovery sequence was then continued
+and verified separately. Private UI captures and samples remain outside git.
+Rendered offline and connected states were inspected. No app code changed, so
+automated app tests were not rerun for this evidence-only update. Physical Android,
+native iOS (Xcode unavailable), charging, capacity, source timing, full backoff cap,
+actual meter/device stale behavior and household AC topology remain open in #53
+and #42.
+
+On the owner's requested recheck at 19:06:27, the API reported battery 36.8%,
+discharging, pack DC 2,451 W, inverter/total AC -2,240/-2,238 W and P1 export
+1,761 W (import zero; meter time 19:06:26). At 19:07:53 it reported 35.9%,
+pack DC 2,422 W and export 1,878 W (meter time 19:07:52). The agent visually
+verified Solar Overview showing export 1.881 kW from meter time 19:07:27 and
+battery 36%, discharging, with subsequent automatic battery updates. This verifies
+that both app cards tracked the changed local readings after recovery. The later
+export does not establish agreement with the earlier 18:59 vendor snapshot, and
+these observations still do not authorize a household-balance calculation.
