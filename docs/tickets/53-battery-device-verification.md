@@ -10,12 +10,21 @@ Preserve ticket #6's outstanding scope: prior-chat/device evidence, exact model,
 
 Use home-network-only HTTP and preserve saved connections and cloud cooldowns. Enter addresses/credentials only through Settings; do not upload private screenshots, raw responses or identifiers. Use --no-uninstall for Flutter integration tests and --keep-app-running for flutter drive. Distinguish agent-run checks from owner-reported evidence. Native iOS checks may remain deferred without blocking Android work.
 
+Evidence from 2026-10-06 (Europe/Amsterdam): the agent's read-only Mac probe at 15:37:50 returned SOC 100%, idle, pack DC 0 W, inverter AC 0 W, total AC 0 W, daily charged 7.15 kWh and discharged 1.11 kWh. Owner-supplied INDEVOLT screenshots, reported as approximately 15:40 and displaying 15:39, show 100%, Standby, battery 0 W and the same charge/discharge counters. These nearby observations support the idle mapping; they are not simultaneous samples or evidence for charging/discharging signs. The screenshots identify PowerFlex 2000Eco, Key Load bypass and no cluster. The system-config response identifies CMS-SF2000 with firmware V1.4.0E_R00D.0B2_M4801_0000003E. A badge of 2 and two nonempty module identifier slots are consistent, but module models and usable capacity remain unverified. Field 142 returned 6.05 kWh while the app displayed 6.04 kWh; do not equate either with verified usable capacity.
+
+The same-day P1 probe returned a source timestamp about one second before receipt and grid export, but it was not synchronized with the screenshot's grid/solar/load values. This does not verify a household balance or sustained update cadence. A planned longer sampling run has no retained result and is not counted as completed. Full dated evidence and limitations are in docs/battery-check.md.
+
+On 2026-10-07, new read-only probes could not reach either local device. The owner confirmed the Mac was on another network. This is a home-network access limitation, not evidence of a device or app defect. Yesterday's screenshots remain historical evidence and must not be compared with today's readings. Resume fresh device probes and mobile connection/restart/offline/recovery checks when home connectivity is available. No physical Android device was connected; Xcode was unavailable for native iOS checks. No battery control or network-setting changes were made during these probes.
+
 ## Todo
 
-- [ ] Verify exact model, firmware, installed modules, usable versus rated capacity and field scaling using device evidence.
-- [ ] Compare live SOC and charge/discharge/idle states against the INDEVOLT app, including sign conventions and inconsistent readings.
+- [x] Record commercial model and reported firmware from dated owner screenshots and agent-run device probes.
+- [ ] Verify installed module models, usable versus rated capacity and field scaling using device evidence.
+- [x] Compare idle SOC/state/power and charge/discharge counters with nearby owner-supplied app screenshots from 2026-10-06.
+- [ ] Compare charging/discharging states and synchronized live readings against the INDEVOLT app, including sign conventions and inconsistent readings.
 - [ ] Verify pack DC versus inverter/total AC and bypass boundaries; record what remains unsuitable for household balance in #43.
 - [ ] Establish source timestamp availability, update cadence and stale-device behavior; verify daily charge/discharge counter units, completeness and reset behavior.
 - [ ] Verify physical Android live connection, saved readings after restart, off-network failure/backoff and recovery on returning home without resetting solar waits.
 - [ ] Verify iOS local-network permission/HTTP access, secure persistence, foreground/background refresh and Settings/Details on a simulator or device.
-- [ ] Record evidence and remaining limitations in docs/battery-check.md and this ticket without private data; update normalization only when supported by verified findings.
+- [x] Record the 2026-10-06 evidence and current limitations in docs/battery-check.md and this ticket without private data.
+- [ ] Record remaining verification results; update normalization only when supported by verified findings.
