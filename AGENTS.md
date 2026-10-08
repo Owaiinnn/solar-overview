@@ -30,8 +30,17 @@ to Flutter: explain handoffs plainly and prefer one copy-paste launch command.
   Preserve unrelated local changes; do not switch away from unfinished work.
 - Keep commits small and logical. Use a PR; do not push directly to `main`,
   bypass checks, or merge without the owner's explicit request. Preserve logical
-  commits with rebase merging when requested. GitHub auto-deletes merged branches;
-  local branch cleanup is separate.
+  commits with rebase merging when requested. GitHub auto-deletes merged branches.
+- After every PR you merge, finish local cleanup: preserve unrelated uncommitted
+  work, switch the primary checkout to `main`, run `git pull --ff-only origin main`,
+  and delete the merged local branch. For a branch checked out in a worktree,
+  remove the worktree only when no local work or needed files would be lost;
+  otherwise detach it before deleting the branch. Prefer `git branch -d`; after
+  a rebase or squash merge, use `-D` only after verifying the PR is merged and
+  every local change is included in `main` or otherwise preserved. Never discard
+  unmerged commits or local edits to complete cleanup. Verify the primary checkout
+  is on updated `main` and the merged local branch is gone before handing off;
+  report any blocker explicitly.
 - At handoff, record implemented scope, tests actually run, remaining work and
   blockers in the ticket/local copy. Distinguish user-reported testing from tests
   run by the agent.
