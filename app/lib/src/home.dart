@@ -141,7 +141,10 @@ class HomePage extends StatelessWidget {
                       Text(
                         coverage,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: colors.onSurface,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -154,7 +157,12 @@ class HomePage extends StatelessWidget {
                       ),
                       Expanded(
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: 80),
+                          constraints: BoxConstraints(
+                            minHeight:
+                                total.presentation == SolarProductionState.zero
+                                ? 280
+                                : 80,
+                          ),
                           child: SolarScene(
                             active: active,
                             production: total.presentation,
@@ -174,6 +182,9 @@ class HomePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          animationDuration: Duration.zero,
+                        ),
                         onPressed: openDetails,
                         icon: const Icon(Icons.arrow_forward_rounded),
                         label: const Padding(

@@ -16,7 +16,10 @@ Complete eligible zero makes Home, navigation and native system bars muted dark
 green with light text and coordinated badges/buttons. Other production states use
 ivory. Details and other tabs keep their light presentation. Either solar source
 can update the theme; changing theme never fetches data. Theme colors change
-together without an animation that could briefly reduce text contrast.
+together without an animation that could briefly reduce text contrast. The Home
+Details button also disables its own implicit style animation so returning from
+another tab cannot briefly show the light-theme text color on its dark-theme fill.
+The source-coverage subtitle uses an explicit theme foreground for the same reason.
 
 - Two eligible, aligned readings: combined power and named source coverage.
 - One eligible reading: explicitly named partial subtotal, never a whole-system total.
@@ -52,6 +55,13 @@ Battery/grid layers remain owned by [#35](tickets/35-home-battery-grid.md). They
 can use the same house independently of the solar theme; zero solar does not mean
 zero grid exchange or an idle battery. Those layers are not implemented yet, so
 combined layer walkthroughs remain in #35. No duplicate house painter is needed.
+
+The zero scene reserves a taller sky above the original house geometry; all stars
+remain above the highest roof edge, including while loading. Its seven connected
+stars form a stylized Big Dipper, part of Ursa Major, with a few smaller background
+stars. The [NASA pattern reference](https://science.nasa.gov/image-article/apod-2017-november-21-big-dipper-over-pyramid-mountain/)
+guides the familiar handle/bowl arrangement; no source image or asset is included.
+Placement is decorative, not a live sky map or an astronomical orientation claim.
 
 ## Asset and runtime choice
 
@@ -122,7 +132,8 @@ and inspect both the mask/small-size sheet and native Home loading captures belo
 One `AnimationController` (five seconds for the sun, twelve seconds for the zero
 scene, 1.5 seconds while loading) repaints a `RepaintBoundary`; it does not rebuild
 or lay out Home on each frame. The scene uses simple paths, lines and translucent
-circles without image decoding, blur filters or saveLayer effects. The static house
+circles and radial-gradient halos without image decoding, blur filters or saveLayer
+effects. The static house
 is repainted with the small scene each frame rather than adding a separate cache or
 animation framework. Home performs intrinsic sizing on layout to give the scene the
 remaining space; at larger text sizes the whole page scrolls without shrinking text.
@@ -133,8 +144,9 @@ preferences produce a static scene and reset its phase. Resuming restores the lo
 Individual drawing elements are excluded from semantics; the complete-zero scene
 adds one decorative-scene explanation. Readable labels carry every production and
 source state, independently of color or motion. Star brightness varies gently on
-six/twelve-second cycles with different phase offsets; window variation is subtle
-and periodic. Reduced motion keeps the stars and warm panes visible at phase zero.
+four/six-second cycles with different phase offsets, varying brightness,
+radius and ray length. Window color and soft radial halos breathe over twelve
+seconds. Reduced motion keeps the stars and warm panes visible at phase zero.
 
 `integration_test/home_scene_test.dart` measures steady-state build/raster times for
 12 seconds after a two-second warm-up for each positive and zero theme. It draws
