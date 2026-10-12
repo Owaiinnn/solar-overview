@@ -28,9 +28,15 @@ void main() {
     await tester.tap(find.text('View details'));
     await tester.pumpAndSettle();
     expect(find.text('Your solar readings'), findsOneWidget);
+    await binding.takeScreenshot('details');
     await tester.tap(find.byTooltip('Back to Home'));
     await tester.pump();
     expect(scene(tester).production, SolarProductionState.zero);
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    await binding.takeScreenshot('settings');
+    await tester.tap(find.text('Home'));
+    await tester.pump();
     edge.busy = true;
     edge.updateFreshness();
     await tester.pump();

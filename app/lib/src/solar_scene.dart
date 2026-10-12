@@ -168,12 +168,6 @@ class SolarScenePainter extends CustomPainter {
         ? const Color(0xFFE9B851)
         : const Color(0xFFAFBCAB);
     if (zero) {
-      final sky = RRect.fromRectAndRadius(
-        const Rect.fromLTRB(12, 6, 348, 248),
-        const Radius.circular(90),
-      );
-      fill(const Color(0xFF18352F));
-      canvas.drawRRect(sky, paint);
       const stars = [
         Offset(51, 57),
         Offset(81, 30),
@@ -216,8 +210,6 @@ class SolarScenePainter extends CustomPainter {
         }
       }
     } else {
-      fill(const Color(0xFFEAF0E5));
-      canvas.drawCircle(const Offset(167, 142), 94, paint);
       final pulse = .5 + .5 * math.sin(phase.value * math.pi * 2);
       fill(sunColor.withValues(alpha: .09 + pulse * .04));
       canvas.drawCircle(const Offset(282, 46), 37 + pulse * 3, paint);

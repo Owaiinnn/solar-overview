@@ -153,7 +153,7 @@ void main() {
       expect(animation.value, paused);
       await tester.binding.handlePopRoute();
       await tester.pump();
-      expect(find.text('Your solar home'), findsOneWidget);
+      expect(find.text('Combined solar production'), findsOneWidget);
       await tester.pump(const Duration(seconds: 1));
       expect(animation.value, isNot(paused));
       for (final tab in ['Settings', 'History', 'Appliances']) {

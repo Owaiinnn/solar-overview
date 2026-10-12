@@ -42,6 +42,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: Listenable.merge([controller, solax]),
     builder: (context, _) {
+      final colors = Theme.of(context).colorScheme;
       final total = ProductionTotal(controller, solax);
       final watts = total.watts;
       final loading =
@@ -86,12 +87,12 @@ class HomePage extends StatelessWidget {
         builder: (context, constraints) {
           return SingleChildScrollView(
             key: const PageStorageKey('home-scroll'),
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
             child: Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
                   maxWidth: 520,
-                  minHeight: (constraints.maxHeight - 24).clamp(
+                  minHeight: (constraints.maxHeight - 40).clamp(
                     0.0,
                     double.infinity,
                   ),
@@ -131,7 +132,9 @@ class HomePage extends StatelessWidget {
                           height: 1.15,
                           letterSpacing: -1.5,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF174C39),
+                          color: colors.brightness == Brightness.dark
+                              ? colors.onSurface
+                              : const Color(0xFF174C39),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -144,7 +147,10 @@ class HomePage extends StatelessWidget {
                       Text(
                         message,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 12),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colors.onSurfaceVariant,
+                        ),
                       ),
                       Expanded(
                         child: ConstrainedBox(
@@ -154,14 +160,6 @@ class HomePage extends StatelessWidget {
                             production: total.presentation,
                             loading: loading,
                           ),
-                        ),
-                      ),
-                      const Text(
-                        'Illustrative scene · not live weather or flow',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF52645B),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -203,7 +201,7 @@ class _SourceStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DecoratedBox(
     decoration: BoxDecoration(
-      color: const Color(0xFFE7EDE5),
+      color: Theme.of(context).colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(14),
     ),
     child: Padding(
@@ -211,7 +209,10 @@ class _SourceStatus extends StatelessWidget {
       child: Text(
         '$name · $status',
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 12, color: Color(0xFF294B3C)),
+        style: TextStyle(
+          fontSize: 12,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
       ),
     ),
   );
