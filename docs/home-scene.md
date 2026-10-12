@@ -12,21 +12,37 @@ counters and battery flows never enter this subtotal.
 - Two eligible, aligned readings: combined power and named source coverage.
 - One eligible reading: explicitly named partial subtotal, never a whole-system total.
 - Positive eligible power: warm sun and three staggered rays that reach the panels.
-- Valid zero: `0.00 kW`, explicit no-production text, muted sun and no travelling rays.
-  Zero does not establish nighttime; there is no inferred day/night or weather state.
+- Complete eligible zero: `0.00 kW`, explicit no-production text, a dark green sky,
+  warm window panes and softly staggered stars. Both sources must be eligible,
+  time-compatible and zero, even during daytime. No sun or travelling rays appear.
+  This decorative theme does not establish nighttime, weather or household use.
+- Partial zero: keep the muted sun and the named source qualification. A missing
+  second source cannot establish whole-system zero.
 - Loading: `Loading…`, source-checking text and a gentle 1.5-second house bounce
   with a responsive contact shadow. An already eligible source remains visible.
   The bounce ends when opening/refresh finishes, including failures; no minimum
-  wait or extra provider request is introduced.
+  wait or extra provider request is introduced. The eligible production state is
+  retained while refreshing: a complete cached zero stays dark, and a partial
+  positive retains the warm sun. Loading suspends rays and ambient twinkles/window
+  variation while the house bounces. Loading without eligible data is unavailable,
+  never zero. A failed refresh immediately re-evaluates source eligibility.
 - Stale/missing readings: unavailable or an eligible partial subtotal; per-source badges
   explain stale/unavailable status. Missing is never rendered as zero.
 - Failed requests/offline/storage or authentication problems: the affected source is
   marked as needing attention and excluded. Details retains the actual error and cache.
 - More than five minutes of timestamp skew: the total is withheld with an explanation.
 
-A low-amplitude sun halo continues in quiet states. The caption explicitly describes
-an illustration; it is neither measured energy flow nor live weather. No battery,
-household flow, wiring topology, irradiance or API update rate is implied.
+A low-amplitude sun halo continues in nonzero/unknown presentations. The zero
+scene has an accessibility label explaining that window lighting and sky are
+illustrative. Production and source labels remain readable independently of the
+artwork. No battery, household flow, wiring topology, irradiance or API update rate
+is implied. `ProductionTotal.presentation` resolves positive, complete zero,
+partial zero and unavailable before the painter receives its typed input.
+
+Battery/grid layers remain owned by [#35](tickets/35-home-battery-grid.md). They
+can use the same house independently of the solar theme; zero solar does not mean
+zero grid exchange or an idle battery. Those layers are not implemented yet, so
+combined layer walkthroughs remain in #35. No duplicate house painter is needed.
 
 ## Asset and runtime choice
 
@@ -95,7 +111,8 @@ and inspect both the mask/small-size sheet and native Home loading captures belo
 
 ## Rendering and accessibility
 
-One `AnimationController` (five seconds normally, 1.5 seconds while loading) repaints a `RepaintBoundary`; it does not rebuild
+One `AnimationController` (five seconds for the sun, twelve seconds for the zero
+scene, 1.5 seconds while loading) repaints a `RepaintBoundary`; it does not rebuild
 or lay out Home on each frame. The scene uses simple paths, lines and translucent
 circles without image decoding, blur filters or saveLayer effects. The static house
 is repainted with the small scene each frame rather than adding a separate cache or
@@ -105,11 +122,15 @@ remaining space; at larger text sizes the whole page scrolls without shrinking t
 The controller stops in Details, another tab, a disabled `TickerMode`, or any
 non-resumed app lifecycle state. Disabled-animation and accessible-navigation
 preferences produce a static scene and reset its phase. Resuming restores the loop.
-Artwork is excluded from semantics; readable labels carry every production and
-source state, independently of color or motion.
+Individual drawing elements are excluded from semantics; the complete-zero scene
+adds one decorative-scene explanation. Readable labels carry every production and
+source state, independently of color or motion. Star brightness varies gently on
+six/twelve-second cycles with different phase offsets; window variation is subtle
+and periodic. Reduced motion keeps the stars and warm panes visible at phase zero.
 
 `integration_test/home_scene_test.dart` measures steady-state build/raster times for
-12 seconds after a two-second warm-up. It draws only the scene with synthetic test
+12 seconds after a two-second warm-up for each positive and zero theme. It draws
+only the scene with synthetic test
 state, never opens secure storage, and never contacts a provider. Run it in profile
 mode on Android using:
 
@@ -148,3 +169,21 @@ The contact shadow changes with the loading lift. The entrance hedge stays insid
 the same house transform; the backdrop is abstract and adds no other vegetation.
 Three staggered rays reach the panel surface each loop when eligible power is
 positive. This timing is decorative and never represents a measured flow rate.
+
+## Zero-production visual check
+
+`integration_test/zero_scene_test.dart` uses in-memory synthetic readings to check
+complete zero, a later twinkle frame, zero while refreshing, positive production,
+partial zero after failure, and Home/Details navigation. It never opens real secure
+storage or contacts providers. Run on Android with:
+
+```sh
+cd app
+flutter drive --keep-app-running -d DEVICE_ID --driver integration_test/home_visual_driver.dart --target integration_test/zero_scene_test.dart
+```
+
+Screenshots stay in ignored `app/build/home-preview/`. The ordinary `lib/main.dart`
+entry point has no mock switch. Rebuild that target to return to live readings;
+keep the installed app/data when switching targets. A separately ignored local
+preview entry point can keep synthetic zero visible for owner review without
+changing saved connections, caches or provider waits.

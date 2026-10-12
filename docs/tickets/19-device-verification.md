@@ -27,6 +27,13 @@ Physical Android launcher/theme masks and native iOS icon/Home appearance still
 need verification. Inspect the revised artwork rather than the superseded #15
 geometry; emulator and generated-export checks do not establish physical results.
 
+Zero-production scene follow-up from #46 (2026-10-12): Android emulator visual
+and profile checks passed with synthetic readings. Physical Android and native
+iOS still need complete-zero versus positive/partial-zero appearance, warm windows
+and star motion, reduced motion, Home/Details navigation and background/resume
+checks. These are decorative solar states, independent of future #35 battery/grid
+layers; emulator timings are not physical-device performance evidence.
+
 ## Todo
 
 - [x] Confirm a real SolarEdge reading on the Android emulator with the updated Home/Details app (agent-run #28 / PR #33, 2026-10-02).
@@ -41,3 +48,4 @@ geometry; emulator and generated-export checks do not establish physical results
 
 - [ ] Verify the #38 revised house/hedge icon on a physical Android launcher, including a supported themed-icon mask, and inspect its Home scene.
 - [ ] Verify the #38 revised icon and Home scene on native iOS once full Xcode and an iOS simulator or device are available.
+- [ ] Verify #46's zero-production scene, positive/partial-zero transitions, reduced motion, navigation and lifecycle behavior on physical Android and native iOS; record physical rendering cost separately from emulator results.
