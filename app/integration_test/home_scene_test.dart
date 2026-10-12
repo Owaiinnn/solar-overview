@@ -20,10 +20,13 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             home: Scaffold(
+              backgroundColor: production == SolarProductionState.zero
+                  ? const Color(0xFF18352F)
+                  : const Color(0xFFF5F7F3),
               body: Center(
                 child: SizedBox(
                   width: 360,
-                  height: 260,
+                  height: production == SolarProductionState.zero ? 360 : 260,
                   child: SolarScene(active: true, production: production),
                 ),
               ),

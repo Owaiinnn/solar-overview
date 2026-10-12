@@ -37,6 +37,11 @@ void main() {
     await binding.takeScreenshot('settings');
     await tester.tap(find.text('Home'));
     await tester.pump();
+    await tester.tap(find.text('Appliances'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Home'));
+    await tester.pump();
+    await binding.takeScreenshot('home-return');
     edge.busy = true;
     edge.updateFreshness();
     await tester.pump();

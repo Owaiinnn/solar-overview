@@ -46,6 +46,31 @@ void main() {
     await tester.pump();
     expect(brightness(), Brightness.dark);
     expect(find.byType(AppBar), findsNothing);
+    await tester.tap(find.text('Appliances'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Home'));
+    await tester.pump();
+    final label = find.text('View details');
+    final expectedColor = Theme.of(tester.element(label)).colorScheme.onPrimary;
+    for (final elapsed in [
+      Duration.zero,
+      const Duration(milliseconds: 16),
+      const Duration(milliseconds: 100),
+    ]) {
+      await tester.pump(elapsed);
+      final rendered = tester.widget<RichText>(
+        find.descendant(of: label, matching: find.byType(RichText)),
+      );
+      expect(rendered.text.style?.color, expectedColor);
+      final coverage = find.text('SolarEdge + SolaX · 2 of 2 sources');
+      final renderedCoverage = tester.widget<RichText>(
+        find.descendant(of: coverage, matching: find.byType(RichText)),
+      );
+      expect(
+        renderedCoverage.text.style?.color,
+        Theme.of(tester.element(coverage)).colorScheme.onSurface,
+      );
+    }
     await tester.pumpWidget(const SizedBox());
   });
 

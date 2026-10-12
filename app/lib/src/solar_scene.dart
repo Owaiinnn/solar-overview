@@ -123,11 +123,13 @@ class SolarScenePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final scale = math.min(size.width / 360, size.height / 260);
+    final zero = production == SolarProductionState.zero;
+    final sceneHeight = zero ? 360.0 : 260.0;
+    final scale = math.min(size.width / 360, size.height / sceneHeight);
     canvas.save();
     canvas.translate(
       (size.width - 360 * scale) / 2,
-      (size.height - 260 * scale) / 2,
+      (size.height - sceneHeight * scale) / 2,
     );
     canvas.scale(scale);
     final paint = Paint()..isAntiAlias = true;
@@ -151,61 +153,74 @@ class SolarScenePainter extends CustomPainter {
       canvas.drawLine(a, b, paint);
     }
 
-    final zero = production == SolarProductionState.zero;
     final green = zero ? const Color(0xFF345D50) : const Color(0xFF22634A);
     final dark = zero ? const Color(0xFF183D34) : const Color(0xFF174C39);
     final cream = zero ? const Color(0xFF81998A) : const Color(0xFFFFF2D8);
     final side = zero ? const Color(0xFF536F60) : const Color(0xFFD7E2CB);
     final ambient = loading ? 0.0 : phase.value;
+    final warmth = .5 + .5 * math.sin(ambient * math.pi * 2);
     final window = zero
-        ? Color.lerp(
-            const Color(0xFFFFD78B),
-            const Color(0xFFFFE8B5),
-            .5 + .12 * math.sin(ambient * math.pi * 2),
-          )!
+        ? Color.lerp(const Color(0xFFFFCB70), const Color(0xFFFFEDBD), warmth)!
         : green;
     final sunColor = production == SolarProductionState.positive
         ? const Color(0xFFE9B851)
         : const Color(0xFFAFBCAB);
     if (zero) {
+      const dipper = [
+        Offset(85, 44),
+        Offset(116, 27),
+        Offset(147, 31),
+        Offset(175, 43),
+        Offset(184, 72),
+        Offset(227, 75),
+        Offset(244, 39),
+      ];
+      for (var i = 0; i < dipper.length - 1; i++) {
+        line(dipper[i], dipper[i + 1], const Color(0x33FFEAC3), .65);
+      }
+      line(dipper.last, dipper[3], const Color(0x33FFEAC3), .65);
       const stars = [
-        Offset(51, 57),
-        Offset(81, 30),
-        Offset(121, 32),
-        Offset(172, 24),
-        Offset(221, 24),
-        Offset(267, 33),
-        Offset(309, 65),
-        Offset(324, 103),
-        Offset(42, 118),
-        Offset(70, 84),
-        Offset(305, 154),
-        Offset(46, 177),
+        ...dipper,
+        Offset(33, 30),
+        Offset(57, 76),
+        Offset(151, 88),
+        Offset(205, 14),
+        Offset(284, 24),
+        Offset(318, 69),
       ];
       for (var i = 0; i < stars.length; i++) {
-        final twinkle =
-            .64 +
-            .16 *
-                math.sin(ambient * math.pi * 2 * (i.isEven ? 1 : 2) + i * 2.4);
-        final radius = i % 3 == 0 ? 1.8 : 1.1;
-        fill(const Color(0xFFFFEAC3).withValues(alpha: twinkle * .08));
-        canvas.drawCircle(stars[i], radius * 3, paint);
+        final pulse =
+            .5 +
+            .5 * math.sin(ambient * math.pi * 2 * (i.isEven ? 2 : 3) + i * 2.4);
+        final twinkle = .3 + .7 * pulse;
+        final radius = (i < dipper.length ? 1.5 : .8) + pulse * .75;
+        final halo = radius * (3.5 + pulse);
+        paint
+          ..style = PaintingStyle.fill
+          ..shader = RadialGradient(
+            colors: [
+              const Color(0xFFFFEAC3).withValues(alpha: .24 * pulse + .05),
+              const Color(0x00FFEAC3),
+            ],
+          ).createShader(Rect.fromCircle(center: stars[i], radius: halo));
+        canvas.drawCircle(stars[i], halo, paint);
+        paint.shader = null;
         fill(const Color(0xFFFFEAC3).withValues(alpha: twinkle));
         canvas.drawCircle(stars[i], radius, paint);
-        if (i % 3 == 0) {
-          final color = const Color(0xFFFFEAC3)
-              .withValues(alpha: twinkle * .55);
+        if (i < dipper.length || i.isEven) {
+          final color = const Color(0xFFFFEAC3).withValues(alpha: twinkle * .7);
+          final reach = 2.5 + pulse * 2;
           line(
-            stars[i] - const Offset(3, 0),
-            stars[i] + const Offset(3, 0),
+            stars[i] - Offset(reach, 0),
+            stars[i] + Offset(reach, 0),
             color,
-            .8,
+            .7,
           );
           line(
-            stars[i] - const Offset(0, 3),
-            stars[i] + const Offset(0, 3),
+            stars[i] - Offset(0, reach),
+            stars[i] + Offset(0, reach),
             color,
-            .8,
+            .7,
           );
         }
       }
@@ -228,6 +243,7 @@ class SolarScenePainter extends CustomPainter {
         );
       }
     }
+    if (zero) canvas.translate(0, 80);
     fill(green.withValues(alpha: .10 - houseLift * .003));
     canvas.drawOval(
       Rect.fromCenter(
@@ -288,23 +304,34 @@ class SolarScenePainter extends CustomPainter {
     line(const Offset(53, 22.5), const Offset(55, 22.5), dark, 1.8);
     line(const Offset(30.5, 55), const Offset(34, 55), dark, 1.8);
     line(const Offset(74, 55), const Offset(77.5, 55), dark, 1.8);
-    fill(window);
-    canvas.drawRect(const Rect.fromLTRB(52.7, 29.5, 55.3, 35.5), paint);
+    void litWindow(Rect bounds) {
+      if (zero) {
+        final glow = bounds.inflate(4 + warmth * 2);
+        paint
+          ..style = PaintingStyle.fill
+          ..shader = RadialGradient(
+            colors: [
+              const Color(0xFFFFD483).withValues(alpha: .34 + warmth * .22),
+              const Color(0x00FFD483),
+            ],
+          ).createShader(glow);
+        canvas.drawOval(glow, paint);
+        paint.shader = null;
+      }
+      fill(window);
+      canvas.drawRect(bounds, paint);
+    }
+
+    litWindow(const Rect.fromLTRB(52.7, 29.5, 55.3, 35.5));
     line(const Offset(52.2, 35.8), const Offset(55.8, 35.8), dark, .5);
-    fill(window);
-    canvas.drawRect(const Rect.fromLTRB(45, 41, 63, 49.5), paint);
+    litWindow(const Rect.fromLTRB(45, 41, 63, 49.5));
     for (final x in [48.5, 59.5]) {
       line(Offset(x, 41), Offset(x, 49.5), cream, .8);
     }
     line(const Offset(44.5, 50), const Offset(63.5, 50), dark, .7);
     fill(side);
     canvas.drawRect(const Rect.fromLTRB(34.5, 59.5, 55, 78), paint);
-    polygon([
-      const Offset(34.5, 59.5),
-      const Offset(55, 59.5),
-      const Offset(55, 71.5),
-      const Offset(34.5, 71.5),
-    ], window);
+    litWindow(const Rect.fromLTRB(34.5, 59.5, 55, 71.5));
     for (final x in [39.0, 50.5]) {
       line(Offset(x, 59.5), Offset(x, 71.5), cream, .85);
     }
@@ -322,8 +349,12 @@ class SolarScenePainter extends CustomPainter {
     for (final x in [65.0, 71.5]) {
       line(Offset(x, 61), Offset(x, 77.5), cream, .65);
     }
-    fill(zero ? window : const Color(0xFF82A997));
-    canvas.drawRect(const Rect.fromLTRB(67.5, 63, 69, 74.5), paint);
+    if (zero) {
+      litWindow(const Rect.fromLTRB(67.5, 63, 69, 74.5));
+    } else {
+      fill(const Color(0xFF82A997));
+      canvas.drawRect(const Rect.fromLTRB(67.5, 63, 69, 74.5), paint);
+    }
     for (final y in [65.7, 68.7, 71.7]) {
       line(Offset(67.5, y), Offset(69, y), dark, .5);
     }

@@ -71,8 +71,8 @@ Remaining integration checks: battery/grid Home layers do not yet exist; their
 composition and scenario matrix remain explicitly tracked in open #35. This
 scene takes independent solar state and makes no battery/grid/household claim.
 Physical Android/native iOS visual verification remains in #19; no physical-device
-or live home-network checks were performed for this ticket. The owner reviewed the first preview and requested the refinement below; final
-visual acceptance has not yet been reported. Keep #46 open until the implementation PR is
+or live home-network checks were performed for this ticket. The owner accepted the full-screen visual direction and requested the subsequent
+star/glow refinement below; final acceptance of that refinement is pending. Keep #46 open until the implementation PR is
 merged; archive only after its GitHub closure is verified.
 
 Owner visual refinement (2026-10-12): remove the redundant “Your solar home”
@@ -100,6 +100,41 @@ physical-device/native iOS checks were performed. The earlier painter profile
 measurements above describe the initial implementation, not a new full-screen
 performance benchmark.
 
+Further owner refinement (2026-10-12): move all stars above the house, add a
+recognizable Ursa Major motif, strengthen the twinkle and give the windows more
+visible glowing light. The zero scene now reserves extra sky above the unchanged
+house geometry. Seven brighter stars and faint connecting lines form the Big
+Dipper; six smaller background stars also stay above the roof, including during
+the loading bounce. Four/six-second staggered star cycles vary brightness, size
+and rays; warm window colors and radial halos breathe over twelve seconds. Reduced
+motion keeps the stars and glow static. No blur layers, image assets or new
+packages are introduced.
+
+The owner also reported white “View details” lettering briefly appearing on return
+from Appliances before changing to dark text. Disable the Home button's implicit
+style animation so fill and foreground change together with the page theme. The
+existing navigation regression test now checks the rendered label color on the
+first frame and at 16/116 ms after Appliances-to-Home navigation. Android capture
+also exposed inherited text-style interpolation in the source-coverage subtitle;
+that subtitle now receives its theme foreground explicitly, and the same
+first-frame regression test covers it.
+
+Agent verification of the star/glow refinement: formatting, analysis and all 209
+unit/widget tests passed, including reduced motion, small-screen/large-text layout
+and the initial-frame foreground checks. Android visual integration passed for
+zero, a later twinkle frame, loading, positive, partial zero, Details, Settings and
+Appliances-to-Home. The agent inspected the constellation placement and visibly
+varying window halos. The first emulator launch disconnected; cold booting the
+same AVD without its snapshot restored access and preserved app data.
+
+A fresh profile-mode run after that cold boot measured 720 positive-theme frames:
+build p50/p95 0.479/0.985 ms, raster 2.069/4.016 ms, no frames above 16.67 ms in
+either phase. The taller zero scene with gradients measured 715 frames: build
+0.545/1.035 ms, raster 2.229/16.346 ms, 23 frames above 16.67 ms. Each measurement
+covered 12 seconds after a two-second warm-up. These are emulator observations,
+not physical-device FPS guarantees or a controlled comparison to the earlier
+emulator session. Native iOS/physical Android checks remain in #19.
+
 ## Todo
 
 - [x] Introduce explicit eligible-positive, eligible-zero and unavailable/partial production presentation with documented loading/transition precedence.
@@ -113,3 +148,6 @@ performance benchmark.
 - [x] Remove the redundant Home header while preserving Details navigation and other tab titles.
 - [x] Blend both scenes into Home: full-screen muted dark-green zero theme with coordinated readable controls, and ivory positive/partial/unavailable presentation, without backdrop shapes.
 - [x] Verify the revised dark/light theme changes on either source update, Home/Details/Settings navigation, small/large-text layouts and native system-bar contrast; refresh the zero preview for owner review.
+- [x] Place every star above the roof with a recognizable Big Dipper pattern, stronger smooth twinkle and brighter window halos; retain reduced motion and loading clearance.
+- [x] Eliminate the transient white Details-button text on Appliances-to-Home navigation and verify the initial rendered frames.
+- [x] Inspect the revised star/glow layout and navigation on Android, record rendering costs and refresh the owner's zero preview.
