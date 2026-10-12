@@ -30,7 +30,7 @@ class _SolarSceneState extends State<SolarScene>
   Duration get _duration => widget.loading
       ? const Duration(milliseconds: 1500)
       : widget.production == SolarProductionState.zero
-      ? const Duration(seconds: 12)
+      ? const Duration(seconds: 60)
       : const Duration(seconds: 5);
 
   @override
@@ -121,10 +121,17 @@ class SolarScenePainter extends CustomPainter {
       ? 10 * math.pow(math.sin(phase.value * math.pi), 2).toDouble()
       : 0;
 
+  double? get shootingStarProgress {
+    if (production != SolarProductionState.zero || loading) return null;
+    final seconds = (phase.value * 60) % 30;
+    if (seconds < 28.5) return null;
+    return (seconds - 28.5) / 1.5;
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     final zero = production == SolarProductionState.zero;
-    final sceneHeight = zero ? 360.0 : 260.0;
+    final sceneHeight = zero ? 420.0 : 260.0;
     final scale = math.min(size.width / 360, size.height / sceneHeight);
     canvas.save();
     canvas.translate(
@@ -157,7 +164,11 @@ class SolarScenePainter extends CustomPainter {
     final dark = zero ? const Color(0xFF183D34) : const Color(0xFF174C39);
     final cream = zero ? const Color(0xFF81998A) : const Color(0xFFFFF2D8);
     final side = zero ? const Color(0xFF536F60) : const Color(0xFFD7E2CB);
-    final ambient = loading ? 0.0 : phase.value;
+    final ambient = loading
+        ? 0.0
+        : zero
+        ? (phase.value * 5) % 1
+        : phase.value;
     final warmth = .5 + .5 * math.sin(ambient * math.pi * 2);
     final window = zero
         ? Color.lerp(const Color(0xFFFFCB70), const Color(0xFFFFEDBD), warmth)!
@@ -187,6 +198,16 @@ class SolarScenePainter extends CustomPainter {
         Offset(205, 14),
         Offset(284, 24),
         Offset(318, 69),
+        Offset(20, 116),
+        Offset(66, 138),
+        Offset(110, 110),
+        Offset(164, 146),
+        Offset(210, 111),
+        Offset(251, 132),
+        Offset(299, 117),
+        Offset(335, 148),
+        Offset(274, 83),
+        Offset(98, 157),
       ];
       for (var i = 0; i < stars.length; i++) {
         final pulse =
@@ -224,6 +245,32 @@ class SolarScenePainter extends CustomPainter {
           );
         }
       }
+      final shooting = shootingStarProgress;
+      if (shooting != null && shooting > 0) {
+        const start = Offset(304, 12);
+        const end = Offset(190, 129);
+        final tip = Offset.lerp(start, end, shooting)!;
+        final tail = Offset.lerp(start, end, math.max(0, shooting - .3))!;
+        final brightness = math.sin(shooting * math.pi);
+        paint
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2
+          ..strokeCap = StrokeCap.round
+          ..shader = LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              const Color(0x00FFF1CD),
+              const Color(0xFFFFF1CD).withValues(alpha: brightness * .85),
+            ],
+          ).createShader(Rect.fromPoints(tail, tip));
+        canvas.drawLine(tail, tip, paint);
+        paint.shader = null;
+        fill(const Color(0xFFFFF1CD).withValues(alpha: brightness * .12));
+        canvas.drawCircle(tip, 6, paint);
+        fill(const Color(0xFFFFF7E5).withValues(alpha: brightness));
+        canvas.drawCircle(tip, 1.8, paint);
+      }
     } else {
       final pulse = .5 + .5 * math.sin(phase.value * math.pi * 2);
       fill(sunColor.withValues(alpha: .09 + pulse * .04));
@@ -243,7 +290,7 @@ class SolarScenePainter extends CustomPainter {
         );
       }
     }
-    if (zero) canvas.translate(0, 80);
+    if (zero) canvas.translate(0, 150);
     fill(green.withValues(alpha: .10 - houseLift * .003));
     canvas.drawOval(
       Rect.fromCenter(

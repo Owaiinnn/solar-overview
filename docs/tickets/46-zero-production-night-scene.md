@@ -135,6 +135,39 @@ covered 12 seconds after a two-second warm-up. These are emulator observations,
 not physical-device FPS guarantees or a controlled comparison to the earlier
 emulator session. Native iOS/physical Android checks remain in #19.
 
+Owner follow-up (2026-10-12): add a falling/shooting star roughly every thirty
+seconds and move the house lower to allow more stars. The zero scene now uses a
+360×420 design area, a lower house and ten additional background stars (23 stars
+including the Big Dipper). Every star and the shooting-star path stay above the
+roof, including during the loading bounce. A 1.5-second shooting-star pass starts
+at 28.5 seconds, then repeats every thirty seconds of active viewing, using a
+fading diagonal trail and soft head glow.
+
+The single existing animation controller now has a sixty-second zero-scene master
+cycle; modulo timing preserves the existing ambient star/window speeds. No new
+timer, ticker, dependency or request is added. Offscreen/background pauses preserve
+phase. Loading or a production-state change resets the cycle, and reduced motion
+hides the shooting star. A widget test covers the first and next pass, hidden
+intervals, pause/resume, reduced motion, loading and nonzero production.
+
+Agent verification of the shooting-star follow-up: dependency resolution,
+formatting, static analysis and all 210 unit/widget tests passed, including timing,
+reduced motion, navigation, first-frame text colors and small-phone/large-text
+layout. The first Android capture attempt failed with missing integration-test
+plugin registration. Rerunning Flutter drive with dependency/plugin generation
+restored the plugin; the complete 34-second native walkthrough passed. The agent
+inspected the expanded sky, lower house and an actual timed shooting-star capture,
+then rebuilt the local mock-zero preview. No additional rendering-cost benchmark
+was run for this follow-up; earlier profile measurements above remain historical.
+Separate APK-helper changes in the workspace were preserved untouched.
+
+GitHub publishing remains pending: automatic approval review rejected pushing
+commit 684738b and publishing its updated issue/PR text because explicit permission
+to export that payload to GitHub was not established. These subsequent edits and
+notes are also retained locally until publishing is explicitly approved. The
+existing remote PR does not yet contain the constellation/glow refinement or this
+shooting-star follow-up.
+
 ## Todo
 
 - [x] Introduce explicit eligible-positive, eligible-zero and unavailable/partial production presentation with documented loading/transition precedence.
@@ -151,3 +184,5 @@ emulator session. Native iOS/physical Android checks remain in #19.
 - [x] Place every star above the roof with a recognizable Big Dipper pattern, stronger smooth twinkle and brighter window halos; retain reduced motion and loading clearance.
 - [x] Eliminate the transient white Details-button text on Appliances-to-Home navigation and verify the initial rendered frames.
 - [x] Inspect the revised star/glow layout and navigation on Android, record rendering costs and refresh the owner's zero preview.
+- [x] Lower the house, expand the overhead star field and add a brief shooting star every thirty active seconds with lifecycle/reduced-motion guards.
+- [x] Verify shooting-star timing, expanded small-screen layout and actual Android rendering; refresh the local zero preview and record results.

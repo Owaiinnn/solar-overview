@@ -24,6 +24,14 @@ void main() {
     await binding.takeScreenshot('zero');
     await Future<void>.delayed(const Duration(seconds: 3));
     await binding.takeScreenshot('zero-twinkle');
+    final deadline = DateTime.now().add(const Duration(seconds: 31));
+    while (DateTime.now().isBefore(deadline)) {
+      final progress = scene(tester).shootingStarProgress;
+      if (progress != null && progress > .3 && progress < .6) break;
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+    expect(scene(tester).shootingStarProgress, isNotNull);
+    await binding.takeScreenshot('shooting-star');
     await tester.ensureVisible(find.text('View details'));
     await tester.tap(find.text('View details'));
     await tester.pumpAndSettle();
