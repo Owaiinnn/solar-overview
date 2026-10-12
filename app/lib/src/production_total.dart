@@ -2,6 +2,8 @@ import 'connection_controller.dart';
 import 'solar_freshness.dart';
 import 'solax_controller.dart';
 
+enum SolarProductionState { positive, zero, partialZero, unavailable }
+
 class ProductionTotal {
   ProductionTotal(ConnectionController solarEdge, SolaxController? solax) {
     final edge = solarEdge.overview;
@@ -31,6 +33,15 @@ class ProductionTotal {
   final List<DateTime> _times = [];
   static bool _valid(double? value) =>
       value != null && value.isFinite && value >= 0;
+
+  SolarProductionState get presentation {
+    final power = watts;
+    if (power == null) return SolarProductionState.unavailable;
+    if (power > 0) return SolarProductionState.positive;
+    return partial
+        ? SolarProductionState.partialZero
+        : SolarProductionState.zero;
+  }
 
   bool get partial => sources.length == 1;
   String get title =>

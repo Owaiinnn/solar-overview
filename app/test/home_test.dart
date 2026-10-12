@@ -5,6 +5,7 @@ import 'package:solar_overview/src/home.dart';
 import 'package:solar_overview/src/connection_controller.dart';
 
 import 'package:solar_overview/src/solar_scene.dart';
+import 'package:solar_overview/src/production_total.dart';
 import 'package:solar_overview/src/solaredge.dart';
 
 import 'fakes.dart';
@@ -107,14 +108,14 @@ void main() {
         if (state == 'zero') {
           expect(find.text('0.00 kW'), findsOneWidget);
           expect(find.text('No production reported.'), findsOneWidget);
-          expect(scene(tester).producing, isFalse);
+          expect(scene(tester).production, SolarProductionState.zero);
         } else if (state == 'skew') {
           expect(find.text('Unavailable'), findsOneWidget);
           expect(
             find.textContaining('Source times are over 5 minutes'),
             findsOneWidget,
           );
-          expect(scene(tester).producing, isFalse);
+          expect(scene(tester).production, SolarProductionState.unavailable);
         } else {
           expect(find.text('1.00 kW'), findsOneWidget);
           expect(find.text('SolarEdge only · 1 of 2 sources'), findsOneWidget);
@@ -174,7 +175,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 700));
       expect(animation.value, isNot(background));
       expect(find.text('Unavailable'), findsOneWidget);
-      expect(scene(tester).producing, isFalse);
+      expect(scene(tester).production, SolarProductionState.unavailable);
       expect(source.readingCalls, 0);
       expect(source.authCalls, 0);
       await tester.pumpWidget(const SizedBox());
@@ -188,7 +189,10 @@ void main() {
       MaterialApp(
         home: MediaQuery(
           data: MediaQueryData(disableAnimations: reduced),
-          child: const SolarScene(active: true, producing: true),
+          child: const SolarScene(
+            active: true,
+            production: SolarProductionState.positive,
+          ),
         ),
       ),
     );
@@ -216,7 +220,7 @@ void main() {
     expect(find.text('Loading…'), findsOneWidget);
     expect(find.text('Unavailable'), findsNothing);
     expect(scene(tester).loading, isTrue);
-    expect(scene(tester).producing, isFalse);
+    expect(scene(tester).production, SolarProductionState.unavailable);
     await edge.initialize();
     await tester.pump();
     expect(find.text('SolarEdge · Not connected'), findsOneWidget);
@@ -234,7 +238,10 @@ void main() {
       MaterialApp(
         home: TickerMode(
           enabled: enabled,
-          child: const SolarScene(active: true, producing: false),
+          child: const SolarScene(
+            active: true,
+            production: SolarProductionState.unavailable,
+          ),
         ),
       ),
     );
@@ -333,7 +340,7 @@ void main() {
           data: MediaQueryData(disableAnimations: reduced),
           child: const SolarScene(
             active: true,
-            producing: false,
+            production: SolarProductionState.unavailable,
             loading: true,
           ),
         ),

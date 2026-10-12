@@ -151,7 +151,7 @@ class HomePage extends StatelessWidget {
                           constraints: const BoxConstraints(minHeight: 80),
                           child: SolarScene(
                             active: active,
-                            producing: watts != null && watts > 0,
+                            production: total.presentation,
                             loading: loading,
                           ),
                         ),
