@@ -11,6 +11,55 @@ import 'overview_test.dart' show edgeController, solaxController;
 import 'solax_fakes.dart';
 
 void main() {
+  testWidgets(
+    'shooting stars repeat every thirty active seconds and respect motion state',
+    (tester) async {
+      Future<void> show({
+        bool active = true,
+        bool reduced = false,
+        bool loading = false,
+        SolarProductionState production = SolarProductionState.zero,
+      }) => tester.pumpWidget(
+        MaterialApp(
+          home: MediaQuery(
+            data: MediaQueryData(disableAnimations: reduced),
+            child: SolarScene(
+              active: active,
+              production: production,
+              loading: loading,
+            ),
+          ),
+        ),
+      );
+      await show();
+      await tester.pump(const Duration(seconds: 28));
+      expect(scene(tester).shootingStarProgress, isNull);
+      await tester.pump(const Duration(seconds: 1));
+      expect(scene(tester).shootingStarProgress, closeTo(1 / 3, .001));
+      await show(active: false);
+      await tester.pump(const Duration(seconds: 31));
+      expect(scene(tester).shootingStarProgress, closeTo(1 / 3, .001));
+      await show();
+      await tester.pump(const Duration(seconds: 1));
+      expect(scene(tester).shootingStarProgress, isNull);
+      await tester.pump(const Duration(seconds: 29));
+      expect(scene(tester).shootingStarProgress, closeTo(1 / 3, .001));
+      await tester.pump(const Duration(seconds: 1));
+      expect(scene(tester).shootingStarProgress, isNull);
+      await show(reduced: true);
+      await tester.pump(const Duration(seconds: 59));
+      expect(scene(tester).shootingStarProgress, isNull);
+      expect(scene(tester).phase.value, 0);
+      await show(loading: true);
+      await tester.pump(const Duration(seconds: 29));
+      expect(scene(tester).shootingStarProgress, isNull);
+      await show(production: SolarProductionState.positive);
+      await tester.pump(const Duration(seconds: 29));
+      expect(scene(tester).shootingStarProgress, isNull);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+
   testWidgets('Home theme follows both sources and stays scoped to Home', (
     tester,
   ) async {
@@ -212,7 +261,7 @@ void main() {
       );
       final phase = scene(tester).phase;
       await tester.pump(const Duration(seconds: 3));
-      expect(phase.value, closeTo(.25, .01));
+      expect(phase.value, closeTo(.05, .01));
       await tester.ensureVisible(find.text('View details'));
       await tester.tap(find.text('View details'));
       await tester.pumpAndSettle();

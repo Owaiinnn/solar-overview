@@ -160,7 +160,7 @@ class HomePage extends StatelessWidget {
                           constraints: BoxConstraints(
                             minHeight:
                                 total.presentation == SolarProductionState.zero
-                                ? 280
+                                ? 340
                                 : 80,
                           ),
                           child: SolarScene(

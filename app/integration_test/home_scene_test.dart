@@ -26,7 +26,7 @@ void main() {
               body: Center(
                 child: SizedBox(
                   width: 360,
-                  height: production == SolarProductionState.zero ? 360 : 260,
+                  height: production == SolarProductionState.zero ? 420 : 260,
                   child: SolarScene(active: true, production: production),
                 ),
               ),
