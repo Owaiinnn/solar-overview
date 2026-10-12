@@ -11,6 +11,44 @@ import 'overview_test.dart' show edgeController, solaxController;
 import 'solax_fakes.dart';
 
 void main() {
+  testWidgets('Home theme follows both sources and stays scoped to Home', (
+    tester,
+  ) async {
+    final edge = await edgeController(power: 0);
+    final solax = await solaxController(power: 0);
+    Brightness brightness() =>
+        Theme.of(tester.element(find.byType(NavigationBar))).brightness;
+    await tester.pumpWidget(SolarApp(controller: edge, solax: solax));
+    expect(brightness(), Brightness.dark);
+    expect(find.byType(AppBar), findsNothing);
+    solax.error = 'Network unavailable';
+    solax.updateFreshness();
+    await tester.pump();
+    expect(brightness(), Brightness.light);
+    expect(scene(tester).production, SolarProductionState.partialZero);
+    solax.error = null;
+    solax.updateFreshness();
+    await tester.pump();
+    expect(brightness(), Brightness.dark);
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    expect(brightness(), Brightness.light);
+    expect(find.byType(AppBar), findsOneWidget);
+    await tester.tap(find.text('Home'));
+    await tester.pump();
+    expect(brightness(), Brightness.dark);
+    await tester.ensureVisible(find.text('View details'));
+    await tester.tap(find.text('View details'));
+    await tester.pumpAndSettle();
+    expect(brightness(), Brightness.light);
+    expect(find.byTooltip('Back to Home'), findsOneWidget);
+    await tester.tap(find.byTooltip('Back to Home'));
+    await tester.pump();
+    expect(brightness(), Brightness.dark);
+    expect(find.byType(AppBar), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   for (final problem in [
     'missing',
     'stale',

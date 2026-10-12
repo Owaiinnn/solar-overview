@@ -64,16 +64,41 @@ At the owner's request while away from home, a separately ignored local entry
 point supplies synthetic zero readings in memory and displays a ZERO PREVIEW
 banner. Direct ADB checks verified Details navigation and a full process restart
 back to zero-production Home. It never opens secure storage or contacts a provider. The normal main
-entry point remains live. The owner's existing uncommitted caption removal is
-preserved separately from this ticket's changes.
+entry point remains live. At the first handoff the owner's caption removal remained uncommitted; the
+subsequent visual refinement below includes it in the ticket changes.
 
 Remaining integration checks: battery/grid Home layers do not yet exist; their
 composition and scenario matrix remain explicitly tracked in open #35. This
 scene takes independent solar state and makes no battery/grid/household claim.
 Physical Android/native iOS visual verification remains in #19; no physical-device
-or live home-network checks were performed for this ticket. No owner visual
-acceptance has yet been reported. Keep #46 open until the implementation PR is
+or live home-network checks were performed for this ticket. The owner reviewed the first preview and requested the refinement below; final
+visual acceptance has not yet been reported. Keep #46 open until the implementation PR is
 merged; archive only after its GitHub closure is verified.
+
+Owner visual refinement (2026-10-12): remove the redundant “Your solar home”
+header from Home, retaining the Details title/back button and other tab headings.
+The owner disliked the bounded dark shape and chose a full-screen muted dark-green
+Home theme with matching text and controls. Remove the scene backdrop in both
+zero and producing states: stars and the house sit directly on the green screen;
+the positive house/sun sit directly on ivory. Theme the source badges, Details
+button, bottom navigation and native status/navigation bar icon contrast together.
+Only complete eligible zero selects the dark Home theme. Details/Settings and
+other tabs retain their light presentation. Preserve the existing house geometry,
+loading/lifecycle/accessibility behavior and no-production eligibility rules.
+Include the owner's existing caption removal so the committed layout matches the
+reviewed preview. This supersedes the initial bounded-background design.
+
+Agent verification of the refinement: dependency resolution, formatting, static
+analysis and all 209 tests passed, including a new regression check for theme
+updates driven by SolaX and light/dark navigation isolation. Repeated Android API
+36 visual integration passed for complete zero, twinkle, loading, positive,
+partial-zero, Details and Settings; the agent inspected those captures. The
+refreshed local ZERO PREVIEW was also inspected through ADB, confirming a seamless
+green background and light native status/navigation bar icons. Existing small
+phone/large-text and reduced-motion tests passed. No home-network readings or
+physical-device/native iOS checks were performed. The earlier painter profile
+measurements above describe the initial implementation, not a new full-screen
+performance benchmark.
 
 ## Todo
 
@@ -85,3 +110,6 @@ merged; archive only after its GitHub closure is verified.
 - [x] Preserve static reduced motion, text semantics, lifecycle suspension and loading behavior; add no network requests.
 - [x] Test positive/zero transitions, partial-zero versus complete-zero, stale/missing/skewed readings, refresh failure and reduced motion using synthetic fixtures.
 - [x] Run Flutter checks and an Android visual walkthrough of dark/positive/loading states and available battery/grid combinations; record rendering cost and any deferred checks.
+- [x] Remove the redundant Home header while preserving Details navigation and other tab titles.
+- [x] Blend both scenes into Home: full-screen muted dark-green zero theme with coordinated readable controls, and ivory positive/partial/unavailable presentation, without backdrop shapes.
+- [x] Verify the revised dark/light theme changes on either source update, Home/Details/Settings navigation, small/large-text layouts and native system-bar contrast; refresh the zero preview for owner review.

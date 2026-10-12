@@ -9,6 +9,15 @@ counters and battery flows never enter this subtotal.
 
 ## Presentation
 
+Home starts directly with production, without a redundant app-bar title. The
+Details screen retains its title/back button; other tabs retain their headings.
+Both house variants sit directly on the page without a circular or boxed backdrop.
+Complete eligible zero makes Home, navigation and native system bars muted dark
+green with light text and coordinated badges/buttons. Other production states use
+ivory. Details and other tabs keep their light presentation. Either solar source
+can update the theme; changing theme never fetches data. Theme colors change
+together without an animation that could briefly reduce text contrast.
+
 - Two eligible, aligned readings: combined power and named source coverage.
 - One eligible reading: explicitly named partial subtotal, never a whole-system total.
 - Positive eligible power: warm sun and three staggered rays that reach the panels.
@@ -100,8 +109,7 @@ The icon uses a closed scalloped outline so the hedge survives monochrome output
 The scene fills the same silhouette and adds sparse foliage marks, door glazing
 crossbars and a handle at its larger display size. All house parts, including the
 hedge, are drawn inside the same loading translation. The old flanking garden
-plants and lawn-shaped oval are removed; only the abstract backdrop and animated
-contact shadow remain. Open space around the house is available for future energy
+plants and lawn-shaped oval are removed; only the animated contact shadow remains. Open space around the house is available for future energy
 indicators. Roof/panels remain schematic and do not establish real placement.
 
 When editing geometry, update `house.svg`, the matching drawing in
@@ -166,7 +174,7 @@ As with the scene benchmark, keep the app installed, then rebuild the normal
 
 The house rests on the ground at phase zero, including reduced-motion mode.
 The contact shadow changes with the loading lift. The entrance hedge stays inside
-the same house transform; the backdrop is abstract and adds no other vegetation.
+the same house transform; the background belongs to Home and adds no other vegetation.
 Three staggered rays reach the panel surface each loop when eligible power is
 positive. This timing is decorative and never represents a measured flow rate.
 
@@ -174,7 +182,7 @@ positive. This timing is decorative and never represents a measured flow rate.
 
 `integration_test/zero_scene_test.dart` uses in-memory synthetic readings to check
 complete zero, a later twinkle frame, zero while refreshing, positive production,
-partial zero after failure, and Home/Details navigation. It never opens real secure
+partial zero after failure, and Home/Details/Settings navigation. It never opens real secure
 storage or contacts providers. Run on Android with:
 
 ```sh
