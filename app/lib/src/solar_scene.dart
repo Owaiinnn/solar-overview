@@ -2,15 +2,17 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'production_total.dart';
+
 class SolarScene extends StatefulWidget {
   const SolarScene({
     super.key,
     required this.active,
-    required this.producing,
+    required this.production,
     this.loading = false,
   });
   final bool active;
-  final bool producing;
+  final SolarProductionState production;
   final bool loading;
 
   @override
@@ -21,11 +23,15 @@ class _SolarSceneState extends State<SolarScene>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _motion = AnimationController(
     vsync: this,
-    duration: widget.loading
-        ? const Duration(milliseconds: 1500)
-        : const Duration(seconds: 5),
+    duration: _duration,
   );
   bool _foreground = true;
+
+  Duration get _duration => widget.loading
+      ? const Duration(milliseconds: 1500)
+      : widget.production == SolarProductionState.zero
+      ? const Duration(seconds: 12)
+      : const Duration(seconds: 5);
 
   @override
   void initState() {
@@ -44,11 +50,10 @@ class _SolarSceneState extends State<SolarScene>
   @override
   void didUpdateWidget(SolarScene oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.loading != widget.loading) {
+    if (oldWidget.loading != widget.loading ||
+        oldWidget.production != widget.production) {
       _motion.stop();
-      _motion.duration = widget.loading
-          ? const Duration(milliseconds: 1500)
-          : const Duration(seconds: 5);
+      _motion.duration = _duration;
       _motion.value = 0;
     }
     _syncMotion();
@@ -83,12 +88,17 @@ class _SolarSceneState extends State<SolarScene>
   }
 
   @override
-  Widget build(BuildContext context) => ExcludeSemantics(
+  Widget build(BuildContext context) => Semantics(
+    label: widget.production == SolarProductionState.zero
+        ? 'Decorative zero-production scene. '
+              'Window light does not indicate household consumption or live weather.'
+        : null,
+    excludeSemantics: true,
     child: RepaintBoundary(
       child: CustomPaint(
         painter: SolarScenePainter(
           _motion,
-          producing: widget.producing,
+          production: widget.production,
           loading: widget.loading,
         ),
         size: Size.infinite,
@@ -98,10 +108,13 @@ class _SolarSceneState extends State<SolarScene>
 }
 
 class SolarScenePainter extends CustomPainter {
-  SolarScenePainter(this.phase, {required this.producing, this.loading = false})
-    : super(repaint: phase);
+  SolarScenePainter(
+    this.phase, {
+    required this.production,
+    this.loading = false,
+  }) : super(repaint: phase);
   final Animation<double> phase;
-  final bool producing;
+  final SolarProductionState production;
   final bool loading;
 
   double get houseLift => loading
@@ -138,30 +151,90 @@ class SolarScenePainter extends CustomPainter {
       canvas.drawLine(a, b, paint);
     }
 
-    const green = Color(0xFF22634A);
-    const dark = Color(0xFF174C39);
-    const cream = Color(0xFFFFF2D8);
-    fill(const Color(0xFFEAF0E5));
-    canvas.drawCircle(const Offset(167, 142), 94, paint);
-    final pulse = .5 + .5 * math.sin(phase.value * math.pi * 2);
-    final sunColor = producing
+    final zero = production == SolarProductionState.zero;
+    final green = zero ? const Color(0xFF345D50) : const Color(0xFF22634A);
+    final dark = zero ? const Color(0xFF183D34) : const Color(0xFF174C39);
+    final cream = zero ? const Color(0xFF81998A) : const Color(0xFFFFF2D8);
+    final side = zero ? const Color(0xFF536F60) : const Color(0xFFD7E2CB);
+    final ambient = loading ? 0.0 : phase.value;
+    final window = zero
+        ? Color.lerp(
+            const Color(0xFFFFD78B),
+            const Color(0xFFFFE8B5),
+            .5 + .12 * math.sin(ambient * math.pi * 2),
+          )!
+        : green;
+    final sunColor = production == SolarProductionState.positive
         ? const Color(0xFFE9B851)
         : const Color(0xFFAFBCAB);
-    fill(sunColor.withValues(alpha: .09 + pulse * .04));
-    canvas.drawCircle(const Offset(282, 46), 37 + pulse * 3, paint);
-    fill(sunColor.withValues(alpha: .18));
-    canvas.drawCircle(const Offset(282, 46), 28, paint);
-    fill(sunColor);
-    canvas.drawCircle(const Offset(282, 46), 19, paint);
-    for (var i = 0; i < 8; i++) {
-      final angle = i * math.pi / 4;
-      final direction = Offset(math.cos(angle), math.sin(angle));
-      line(
-        const Offset(282, 46) + direction * 25,
-        const Offset(282, 46) + direction * 30,
-        sunColor.withValues(alpha: .7),
-        2,
+    if (zero) {
+      final sky = RRect.fromRectAndRadius(
+        const Rect.fromLTRB(12, 6, 348, 248),
+        const Radius.circular(90),
       );
+      fill(const Color(0xFF18352F));
+      canvas.drawRRect(sky, paint);
+      const stars = [
+        Offset(51, 57),
+        Offset(81, 30),
+        Offset(121, 32),
+        Offset(172, 24),
+        Offset(221, 24),
+        Offset(267, 33),
+        Offset(309, 65),
+        Offset(324, 103),
+        Offset(42, 118),
+        Offset(70, 84),
+        Offset(305, 154),
+        Offset(46, 177),
+      ];
+      for (var i = 0; i < stars.length; i++) {
+        final twinkle =
+            .64 +
+            .16 *
+                math.sin(ambient * math.pi * 2 * (i.isEven ? 1 : 2) + i * 2.4);
+        final radius = i % 3 == 0 ? 1.8 : 1.1;
+        fill(const Color(0xFFFFEAC3).withValues(alpha: twinkle * .08));
+        canvas.drawCircle(stars[i], radius * 3, paint);
+        fill(const Color(0xFFFFEAC3).withValues(alpha: twinkle));
+        canvas.drawCircle(stars[i], radius, paint);
+        if (i % 3 == 0) {
+          final color = const Color(0xFFFFEAC3)
+              .withValues(alpha: twinkle * .55);
+          line(
+            stars[i] - const Offset(3, 0),
+            stars[i] + const Offset(3, 0),
+            color,
+            .8,
+          );
+          line(
+            stars[i] - const Offset(0, 3),
+            stars[i] + const Offset(0, 3),
+            color,
+            .8,
+          );
+        }
+      }
+    } else {
+      fill(const Color(0xFFEAF0E5));
+      canvas.drawCircle(const Offset(167, 142), 94, paint);
+      final pulse = .5 + .5 * math.sin(phase.value * math.pi * 2);
+      fill(sunColor.withValues(alpha: .09 + pulse * .04));
+      canvas.drawCircle(const Offset(282, 46), 37 + pulse * 3, paint);
+      fill(sunColor.withValues(alpha: .18));
+      canvas.drawCircle(const Offset(282, 46), 28, paint);
+      fill(sunColor);
+      canvas.drawCircle(const Offset(282, 46), 19, paint);
+      for (var i = 0; i < 8; i++) {
+        final angle = i * math.pi / 4;
+        final direction = Offset(math.cos(angle), math.sin(angle));
+        line(
+          const Offset(282, 46) + direction * 25,
+          const Offset(282, 46) + direction * 30,
+          sunColor.withValues(alpha: .7),
+          2,
+        );
+      }
     }
     fill(green.withValues(alpha: .10 - houseLift * .003));
     canvas.drawOval(
@@ -181,7 +254,7 @@ class SolarScenePainter extends CustomPainter {
       const Offset(99, 48),
       const Offset(99, 71),
       const Offset(75, 78),
-    ], const Color(0xFFD7E2CB));
+    ], side);
     polygon([
       const Offset(54, 23),
       const Offset(78, 16),
@@ -223,23 +296,23 @@ class SolarScenePainter extends CustomPainter {
     line(const Offset(53, 22.5), const Offset(55, 22.5), dark, 1.8);
     line(const Offset(30.5, 55), const Offset(34, 55), dark, 1.8);
     line(const Offset(74, 55), const Offset(77.5, 55), dark, 1.8);
-    fill(green);
+    fill(window);
     canvas.drawRect(const Rect.fromLTRB(52.7, 29.5, 55.3, 35.5), paint);
     line(const Offset(52.2, 35.8), const Offset(55.8, 35.8), dark, .5);
-    fill(green);
+    fill(window);
     canvas.drawRect(const Rect.fromLTRB(45, 41, 63, 49.5), paint);
     for (final x in [48.5, 59.5]) {
       line(Offset(x, 41), Offset(x, 49.5), cream, .8);
     }
     line(const Offset(44.5, 50), const Offset(63.5, 50), dark, .7);
-    fill(const Color(0xFFD7E2CB));
+    fill(side);
     canvas.drawRect(const Rect.fromLTRB(34.5, 59.5, 55, 78), paint);
     polygon([
       const Offset(34.5, 59.5),
       const Offset(55, 59.5),
       const Offset(55, 71.5),
       const Offset(34.5, 71.5),
-    ], green);
+    ], window);
     for (final x in [39.0, 50.5]) {
       line(Offset(x, 59.5), Offset(x, 71.5), cream, .85);
     }
@@ -257,7 +330,7 @@ class SolarScenePainter extends CustomPainter {
     for (final x in [65.0, 71.5]) {
       line(Offset(x, 61), Offset(x, 77.5), cream, .65);
     }
-    fill(const Color(0xFF82A997));
+    fill(zero ? window : const Color(0xFF82A997));
     canvas.drawRect(const Rect.fromLTRB(67.5, 63, 69, 74.5), paint);
     for (final y in [65.7, 68.7, 71.7]) {
       line(Offset(67.5, y), Offset(69, y), dark, .5);
@@ -292,7 +365,7 @@ class SolarScenePainter extends CustomPainter {
       );
     }
     canvas.restore();
-    if (producing && !loading) {
+    if (production == SolarProductionState.positive && !loading) {
       for (var i = 0; i < 3; i++) {
         final t = (phase.value + i / 3) % 1;
         final start = Offset(267 + i * 6.0, 68);
@@ -313,7 +386,7 @@ class SolarScenePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(SolarScenePainter oldDelegate) =>
-      oldDelegate.producing != producing ||
+      oldDelegate.production != production ||
       oldDelegate.loading != loading ||
       oldDelegate.phase != phase;
 }

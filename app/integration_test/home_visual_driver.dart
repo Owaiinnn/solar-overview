@@ -8,7 +8,7 @@ Future<void> main() => integrationDriver(
     await directory.create(recursive: true);
     var index = 0;
     for (final capture in data?['screenshots'] as List<dynamic>? ?? []) {
-      await File('${directory.path}/loading-${index++}.png')
+      await File('${directory.path}/scene-${index++}.png')
           .writeAsBytes(List<int>.from(capture['bytes'] as List));
     }
   },
