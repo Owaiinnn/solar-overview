@@ -32,6 +32,22 @@ void main() {
     }
     expect(scene(tester).shootingStarProgress, isNotNull);
     await binding.takeScreenshot('shooting-star');
+    final firstPath = scene(tester).shootingStarPath;
+    final secondDeadline = DateTime.now().add(const Duration(seconds: 32));
+    while (DateTime.now().isBefore(secondDeadline)) {
+      final painter = scene(tester);
+      final progress = painter.shootingStarProgress;
+      if (painter.shootingStarPath != firstPath &&
+          progress != null &&
+          progress > .3 &&
+          progress < .6) {
+        break;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+    expect(scene(tester).shootingStarPath, isNot(firstPath));
+    expect(scene(tester).shootingStarProgress, isNotNull);
+    await binding.takeScreenshot('shooting-star-second-path');
     await tester.ensureVisible(find.text('View details'));
     await tester.tap(find.text('View details'));
     await tester.pumpAndSettle();

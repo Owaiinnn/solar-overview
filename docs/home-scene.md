@@ -65,8 +65,10 @@ guides the familiar handle/bowl arrangement; no source image or asset is include
 Placement is decorative, not a live sky map or an astronomical orientation claim.
 A shooting star crosses only the sky for 1.5 seconds every thirty seconds of active
 zero-scene viewing, first appearing at 28.5 seconds. It has a fading trail and soft
-head glow. The existing controller supplies this timing: ambient lighting keeps
-its four/six/twelve-second periods inside a sixty-second master loop, with no new
+head glow. Six paths alternate between left and right parts of the sky, each with
+a different starting point and endpoint above the roof; the sequence repeats every
+three minutes. The existing controller supplies this timing: ambient lighting keeps
+its four/six/twelve-second periods inside a three-minute master loop, with no new
 timer or ticker. Navigation/background pauses preserve the phase. Loading or a
 production-state change resets the cycle; reduced motion leaves no shooting star.
 The expanded scene has a 360×420 design area and scrollable minimum height so the

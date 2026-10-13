@@ -30,7 +30,7 @@ class _SolarSceneState extends State<SolarScene>
   Duration get _duration => widget.loading
       ? const Duration(milliseconds: 1500)
       : widget.production == SolarProductionState.zero
-      ? const Duration(seconds: 60)
+      ? const Duration(seconds: 180)
       : const Duration(seconds: 5);
 
   @override
@@ -121,9 +121,21 @@ class SolarScenePainter extends CustomPainter {
       ? 10 * math.pow(math.sin(phase.value * math.pi), 2).toDouble()
       : 0;
 
+  static const _shootingStarPaths = [
+    (start: Offset(304, 12), end: Offset(190, 129)),
+    (start: Offset(42, 18), end: Offset(154, 123)),
+    (start: Offset(232, 10), end: Offset(116, 142)),
+    (start: Offset(126, 16), end: Offset(266, 126)),
+    (start: Offset(334, 49), end: Offset(226, 158)),
+    (start: Offset(24, 61), end: Offset(119, 156)),
+  ];
+
+  ({Offset start, Offset end}) get shootingStarPath =>
+      _shootingStarPaths[(phase.value * 6).floor() % _shootingStarPaths.length];
+
   double? get shootingStarProgress {
     if (production != SolarProductionState.zero || loading) return null;
-    final seconds = (phase.value * 60) % 30;
+    final seconds = (phase.value * 180) % 30;
     if (seconds < 28.5) return null;
     return (seconds - 28.5) / 1.5;
   }
@@ -167,7 +179,7 @@ class SolarScenePainter extends CustomPainter {
     final ambient = loading
         ? 0.0
         : zero
-        ? (phase.value * 5) % 1
+        ? (phase.value * 15) % 1
         : phase.value;
     final warmth = .5 + .5 * math.sin(ambient * math.pi * 2);
     final window = zero
@@ -247,8 +259,7 @@ class SolarScenePainter extends CustomPainter {
       }
       final shooting = shootingStarProgress;
       if (shooting != null && shooting > 0) {
-        const start = Offset(304, 12);
-        const end = Offset(190, 129);
+        final (:start, :end) = shootingStarPath;
         final tip = Offset.lerp(start, end, shooting)!;
         final tail = Offset.lerp(start, end, math.max(0, shooting - .3))!;
         final brightness = math.sin(shooting * math.pi);
@@ -257,8 +268,10 @@ class SolarScenePainter extends CustomPainter {
           ..strokeWidth = 2
           ..strokeCap = StrokeCap.round
           ..shader = LinearGradient(
-            begin: Alignment.topRight,
-            end: Alignment.bottomLeft,
+            begin: start.dx > end.dx ? Alignment.topRight : Alignment.topLeft,
+            end: start.dx > end.dx
+                ? Alignment.bottomLeft
+                : Alignment.bottomRight,
             colors: [
               const Color(0x00FFF1CD),
               const Color(0xFFFFF1CD).withValues(alpha: brightness * .85),
