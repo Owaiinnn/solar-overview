@@ -22,7 +22,7 @@ timezone selection, P1 IP and battery IP, with optional source sections. Save
 works offline and preserves request cooldowns; it does not invent readings or
 assert that credentials were tested. Normal refresh validates connections later.
 Per-source save failures retain successful saves and report each outcome. Existing
-connections cannot be overwritten. See [connection setup](../connection-setup.md)
+connections cannot be overwritten. See [connection setup](https://github.com/Owaiinnn/solar-overview/blob/main/docs/connection-setup.md)
 for the schema, plugin choice and native-test procedure.
 
 Agent verification (2026-10-13): `flutter pub get`, formatting, `flutter analyze`
@@ -35,6 +35,12 @@ Only synthetic data was imported; real connection keys were preserved. iOS and
 physical-phone checks have not been run. Screenshots and JSON fixtures stay out
 of version control.
 
+Closure (2026-10-13): PR #59 passed both GitHub CI runs and was rebase-merged
+with the owner's approval. This issue was verified closed on GitHub. Physical
+Android/native iOS checks remain in open #19; scene composition follow-up remains
+in open #35. The normal app was restored and the local forced-zero preview removed.
+The completed local ticket is archived here after verified closure.
+
 ## Todo
 
 - [x] Show JSON/file/manual setup only for an initialized, empty installation; preserve storage recovery.
@@ -46,4 +52,4 @@ of version control.
 - [x] Test parsing, offline/no-network persistence, cooldowns, restart, rejection of replacements, partial storage failure, paste/file/cancel/manual flows and large text.
 - [x] Verify all four native secure stores and the actual Android file picker using synthetic data and isolated storage keys.
 - [x] Carry native iOS file selection and physical-device layout verification into open follow-up #19.
-- [ ] Publish the issue/PR updates and pass remote CI before merging.
+- [x] Publish the issue/PR updates, pass remote CI, merge PR #59 and verify issue closure.
