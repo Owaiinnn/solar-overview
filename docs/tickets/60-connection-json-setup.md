@@ -5,10 +5,10 @@ including when away from the home network.
 
 ## Description
 
-Owner-requested on 2026-10-13 during the ongoing Home-scene work. This local ticket
-has no GitHub issue number yet: remote publication remains blocked pending the
-explicit approval requested after automatic review rejected the earlier push.
-Keep this scope in a separate logical commit from #46's meteor refinement.
+Owner-requested on 2026-10-13 during the ongoing Home-scene work. The owner
+authorized publication and merging with #46 in PR #59. JSON setup is isolated
+in its own logical implementation commit. Physical Android/native iOS follow-up
+is carried forward in #19.
 
 Implemented: first-time setup at Home → Details only when every available
 controller has initialized, none is connected, and storage is healthy. Load a JSON
@@ -45,5 +45,5 @@ of version control.
 - [x] Include a copyable placeholder template and developer schema documentation.
 - [x] Test parsing, offline/no-network persistence, cooldowns, restart, rejection of replacements, partial storage failure, paste/file/cancel/manual flows and large text.
 - [x] Verify all four native secure stores and the actual Android file picker using synthetic data and isolated storage keys.
-- [ ] Verify native iOS file selection and small-device layout on physical hardware.
-- [ ] Publish the issue/PR updates after explicit authorization and run remote CI.
+- [x] Carry native iOS file selection and physical-device layout verification into open follow-up #19.
+- [ ] Publish the issue/PR updates and pass remote CI before merging.
