@@ -34,6 +34,12 @@ and star motion, reduced motion, Home/Details navigation and background/resume
 checks. These are decorative solar states, independent of future #35 battery/grid
 layers; emulator timings are not physical-device performance evidence.
 
+JSON setup follow-up from #60 / PR #59 (2026-10-13): automated Android checks
+verified all four secure stores with isolated synthetic records and actual JSON
+file selection, review, save and configured Details. Native iOS file selection,
+secure import persistence, and physical-phone layout/accessibility remain pending.
+Use synthetic import files for these checks and preserve existing connections.
+
 ## Todo
 
 - [x] Confirm a real SolarEdge reading on the Android emulator with the updated Home/Details app (agent-run #28 / PR #33, 2026-10-02).
@@ -49,3 +55,5 @@ layers; emulator timings are not physical-device performance evidence.
 - [ ] Verify the #38 revised house/hedge icon on a physical Android launcher, including a supported themed-icon mask, and inspect its Home scene.
 - [ ] Verify the #38 revised icon and Home scene on native iOS once full Xcode and an iOS simulator or device are available.
 - [ ] Verify #46's zero-production scene, positive/partial-zero transitions, reduced motion, navigation and lifecycle behavior on physical Android and native iOS; record physical rendering cost separately from emulator results.
+
+- [ ] Verify #60 JSON file selection/cancellation, paste/manual setup, offline secure persistence and configured-only Details on native iOS and a physical Android phone, including small screens and large text.

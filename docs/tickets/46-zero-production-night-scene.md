@@ -72,7 +72,7 @@ composition and scenario matrix remain explicitly tracked in open #35. This
 scene takes independent solar state and makes no battery/grid/household claim.
 Physical Android/native iOS visual verification remains in #19; no physical-device
 or live home-network checks were performed for this ticket. The owner accepted the full-screen visual direction and requested the subsequent
-star/glow refinement below; final acceptance of that refinement is pending. Keep #46 open until the implementation PR is
+star/glow refinement below; the owner subsequently approved merging the completed refinements. Keep #46 open until the implementation PR is
 merged; archive only after its GitHub closure is verified.
 
 Owner visual refinement (2026-10-12): remove the redundant “Your solar home”
@@ -161,12 +161,9 @@ then rebuilt the local mock-zero preview. No additional rendering-cost benchmark
 was run for this follow-up; earlier profile measurements above remain historical.
 Separate APK-helper changes in the workspace were preserved untouched.
 
-GitHub publishing remains pending: automatic approval review rejected pushing
-commit 684738b and publishing its updated issue/PR text because explicit permission
-to export that payload to GitHub was not established. These subsequent edits and
-notes are also retained locally until publishing is explicitly approved. The
-existing remote PR does not yet contain the constellation/glow refinement or this
-shooting-star follow-up.
+Publication history: automatic review initially blocked GitHub publishing while
+explicit authorization was missing. The owner authorized publication and merging
+on 2026-10-13; the completed scene and JSON setup (#60) are included in PR #59.
 
 Owner follow-up (2026-10-13): rotate six distinct falling-star paths across the
 left and right sky, keeping one 1.5-second pass every thirty active seconds. A
@@ -174,14 +171,19 @@ three-minute master loop preserves the existing star/window pulse periods and
 lifecycle/reduced-motion behavior. Tests traverse the full six-pass cycle, assert
 unique paths and sky bounds, and verify the return to the first path. The sunny
 layout and full battery/grid combination plan are recorded in #35's local copy.
-Remote synchronization remains blocked by the previously reported publication
-approval requirement; no push or GitHub edit was retried.
+The owner subsequently authorized synchronizing these changes to GitHub.
 
 Agent verification (2026-10-13): formatting and analysis passed, and all 219
 unit/widget tests passed with the concurrent JSON setup work. The Android native
 scene walkthrough passed, including two successive timed meteors. Screenshots
 were inspected: the first crosses the upper right sky, the second the upper left;
 both trails stay above the house. No new performance benchmark was run.
+
+Owner follow-up (2026-10-13): remove the forced-zero display. Deleted the ignored
+mock entry point and its preview launcher, then restored the normal `lib/main.dart`
+Android app. The shipped app has no zero override; the theme follows eligible
+actual/saved readings, and missing data remains unavailable. Saved connections
+are preserved. The local preview files are not part of the PR.
 
 ## Todo
 
