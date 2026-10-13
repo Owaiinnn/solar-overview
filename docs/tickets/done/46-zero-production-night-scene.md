@@ -72,8 +72,7 @@ composition and scenario matrix remain explicitly tracked in open #35. This
 scene takes independent solar state and makes no battery/grid/household claim.
 Physical Android/native iOS visual verification remains in #19; no physical-device
 or live home-network checks were performed for this ticket. The owner accepted the full-screen visual direction and requested the subsequent
-star/glow refinement below; the owner subsequently approved merging the completed refinements. Keep #46 open until the implementation PR is
-merged; archive only after its GitHub closure is verified.
+star/glow refinement below; the owner subsequently approved merging the completed refinements. PR #59 is now merged and GitHub closure is verified; this ticket is archived below.
 
 Owner visual refinement (2026-10-12): remove the redundant “Your solar home”
 header from Home, retaining the Details title/back button and other tab headings.
@@ -184,6 +183,12 @@ mock entry point and its preview launcher, then restored the normal `lib/main.da
 Android app. The shipped app has no zero override; the theme follows eligible
 actual/saved readings, and missing data remains unavailable. Saved connections
 are preserved. The local preview files are not part of the PR.
+
+Closure (2026-10-13): PR #59 passed both GitHub CI runs and was rebase-merged
+with the owner's approval. This issue was verified closed on GitHub. Physical
+Android/native iOS checks remain in open #19; scene composition follow-up remains
+in open #35. The normal app was restored and the local forced-zero preview removed.
+The completed local ticket is archived here after verified closure.
 
 ## Todo
 
