@@ -17,8 +17,10 @@ class OverviewPage extends StatelessWidget {
     this.solax,
     this.p1,
     this.battery,
+    this.configuredOnly = false,
   });
 
+  final bool configuredOnly;
   final P1Controller? p1;
   final BatteryController? battery;
   final ConnectionController controller;
@@ -27,7 +29,7 @@ class OverviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: Listenable.merge([controller, solax]),
+    listenable: Listenable.merge([controller, solax, p1, battery]),
     builder: (context, _) => ListView(
       padding: const EdgeInsets.all(24),
       children: [
@@ -36,30 +38,54 @@ class OverviewPage extends StatelessWidget {
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         const SizedBox(height: 16),
-        _productionTotal(),
-        const SizedBox(height: 16),
-        _solarEdge(),
-        const SizedBox(height: 16),
-        _solax(),
-        const SizedBox(height: 16),
-        P1DetailsCard(controller: p1, openSettings: openSettings),
-        const SizedBox(height: 16),
-        BatteryDetailsCard(controller: battery, openSettings: openSettings),
-        const SizedBox(height: 16),
-        const _SourceCard(
-          title: 'Your other energy sources',
-          children: [
-            Text(
-              'Household consumption: unavailable — compatible measurements and meter coverage need verification.',
+        for (final card in <Widget>[
+          if (!configuredOnly ||
+              controller.connected ||
+              (solax?.connected ?? false))
+            _productionTotal(),
+          if (!configuredOnly ||
+              controller.connected ||
+              controller.storageUnavailable ||
+              !controller.initialized)
+            _solarEdge(),
+          if (!configuredOnly ||
+              (solax != null &&
+                  (solax!.connected ||
+                      solax!.storageUnavailable ||
+                      !solax!.initialized)))
+            _solax(),
+          if (!configuredOnly ||
+              (p1 != null &&
+                  (p1!.connected ||
+                      p1!.storageUnavailable ||
+                      !p1!.initialized)))
+            P1DetailsCard(controller: p1, openSettings: openSettings),
+          if (!configuredOnly ||
+              (battery != null &&
+                  (battery!.connected ||
+                      battery!.storageUnavailable ||
+                      !battery!.initialized)))
+            BatteryDetailsCard(controller: battery, openSettings: openSettings),
+          if (!configuredOnly)
+            const _SourceCard(
+              title: 'Your other energy sources',
+              children: [
+                Text(
+                  'Household consumption: unavailable — compatible measurements and meter coverage need verification.',
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Spare power for appliances is unavailable until household '
+                  'and relevant battery flows are measured.',
+                ),
+              ],
             ),
-            SizedBox(height: 8),
-            Text(
-              'Spare power for appliances is unavailable until household '
-              'and relevant battery flows are measured.',
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
+        ]) ...[card, const SizedBox(height: 16)],
+        if (configuredOnly)
+          TextButton(
+            onPressed: openSettings,
+            child: const Text('Manage connections'),
+          ),
         const Text(
           'Power (W / kW) is the rate of production. Energy '
           '(Wh / kWh) accumulates over time. 1 kW = 1,000 W; '

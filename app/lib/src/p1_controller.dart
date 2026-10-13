@@ -109,6 +109,26 @@ class P1Controller extends ChangeNotifier {
     if (connected && canRequest && !editingConnection) unawaited(refresh());
   }
 
+  Future<bool> importConnection(P1Address target) async {
+    if (!initialized || busy || storageUnavailable || connected || _disposed) {
+      return false;
+    }
+    busy = true;
+    error = null;
+    _notify();
+    final saved = await _write(
+      P1Record(
+        address: target,
+        nextAttempt: _record.nextAttempt,
+        failures: _record.failures,
+      ),
+    );
+    _saved = true;
+    busy = false;
+    _notify();
+    return saved;
+  }
+
   Future<bool> connect(String input) async {
     if (!canRequest || _disposed) return false;
     try {
