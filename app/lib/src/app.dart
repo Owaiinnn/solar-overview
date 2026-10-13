@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'battery_controller.dart';
 import 'connection_controller.dart';
 import 'home.dart';
-import 'overview.dart';
+import 'connection_setup.dart';
 import 'p1_controller.dart';
 import 'production_total.dart';
 import 'settings.dart';
@@ -219,7 +219,8 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
                                   openDetails: () =>
                                       setState(() => _showDetails = true),
                                 ),
-                                OverviewPage(
+                                ConnectionDetailsPage(
+                                  preview: widget.preview,
                                   p1: widget.p1,
                                   battery: widget.battery,
                                   controller: controller,

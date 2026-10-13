@@ -13,7 +13,7 @@ in the codebase. See the [project overview](../README.md) for the technology sta
 
 - Independent SolarEdge and SolaX connections, with setup, replacement and removal
   in Settings and credentials stored securely on the device.
-- Source cards showing power, energy, measurement time, connection status and
+- Details cards for configured sources showing power, energy, measurement time, connection status and
   saved or stale readings. SolaX details include both solar inputs, inverter
   temperature and lifetime energy.
 - Battery Details with reported percentage/state, pack DC power and qualified
@@ -30,6 +30,11 @@ consumption monitoring, and appliance planning based on available energy.
 
 ## Connect your system
 
+On an empty installation, **Home → View details** offers JSON file import, paste,
+or **Manual setup**. Import saves supported connections securely while offline;
+readings are checked when refreshed. See the [JSON setup guide](../docs/connection-setup.md)
+for the template. Settings always retains the individual connection forms.
+
 In **Settings → SolarEdge**, enter your site ID and API key, then choose
 **Test & save connection**.
 
@@ -39,7 +44,7 @@ supports the residential X1-Micro 2 in 1. Use a separate developer application
 for each phone: sharing one can invalidate another device's token. Enable the
 Information Management and Monitoring Management services.
 
-Credentials are entered only through mobile Settings. There is no bundled key
+Credentials are entered through mobile setup or Settings. There is no bundled key
 or sample-data mode. SolaX daily energy is the device's AC counter and can differ
 from the plant's daily total. See the [integration notes](../docs/solax-check.md)
 for details.

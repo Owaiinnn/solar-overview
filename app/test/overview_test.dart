@@ -361,14 +361,11 @@ void main() {
       );
       expect(find.text('SolaX only · 1 of 2 sources'), findsOneWidget);
       expect(find.text('Combined solar production'), findsNothing);
-      await tester.scrollUntilVisible(
-        find.textContaining('Household consumption: unavailable'),
-        200,
-      );
       expect(
         find.textContaining('Household consumption: unavailable'),
-        findsOneWidget,
+        findsNothing,
       );
+      expect(find.text('Connect SolarEdge'), findsNothing);
       expect(find.textContaining('PowerFlex solar'), findsNothing);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());

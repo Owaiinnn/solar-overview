@@ -189,6 +189,44 @@ class SolaxController extends ChangeNotifier {
     }
   }
 
+  Future<bool> importConnection(
+    SolaxCredentials credentials,
+    SolaxPlant plant,
+    SolaxDevice device,
+  ) async {
+    if (!initialized ||
+        busy ||
+        storageUnavailable ||
+        connected ||
+        selecting ||
+        !device.supported ||
+        device.plantId != plant.id) {
+      return false;
+    }
+    busy = true;
+    error = null;
+    notifyListeners();
+    try {
+      await _persist(
+        SolaxRecord(
+          credentials: credentials,
+          plant: plant,
+          device: device,
+          nextAttempt: _record.nextAttempt,
+          rateLimited: _record.rateLimited,
+        ),
+      );
+      usingSavedReading = false;
+      return true;
+    } catch (_) {
+      error = 'Could not save SolaX securely. Retry from Settings.';
+      return false;
+    } finally {
+      busy = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> discover(String clientId, String secret) async {
     if (busy || storageUnavailable || !initialized) return false;
     busy = true;

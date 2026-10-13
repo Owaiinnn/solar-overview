@@ -135,6 +135,28 @@ class ConnectionController extends ChangeNotifier {
     }
   }
 
+  Future<bool> importConnection(SolarEdgeCredentials credentials) async {
+    if (!initialized || busy || storageUnavailable || connected) return false;
+    busy = true;
+    error = null;
+    notifyListeners();
+    try {
+      await _loadCache();
+      await _persist(_cache.withoutReading());
+      await _store.write(credentials);
+      _credentials = credentials;
+      overview = null;
+      usingSavedReading = false;
+      return true;
+    } catch (_) {
+      error = 'Could not save SolarEdge securely. Retry from Settings.';
+      return false;
+    } finally {
+      busy = false;
+      notifyListeners();
+    }
+  }
+
   Future<bool> connect(String siteId, String apiKey) async {
     if (busy || storageUnavailable) return false;
     busy = true;

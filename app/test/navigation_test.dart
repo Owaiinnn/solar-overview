@@ -26,11 +26,15 @@ void main() {
     await tester.tap(find.text('View details'));
     await tester.pump();
 
-    expect(find.text('Your solar readings'), findsOneWidget);
+    expect(find.text('Set up your connections'), findsOneWidget);
     expect(find.textContaining('kW'), findsNothing);
-    await tester.scrollUntilVisible(find.text('Connect SolarEdge'), 200);
+    await tester.scrollUntilVisible(
+      find.text('Manual setup'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Connect SolarEdge'));
+    await tester.tap(find.text('Manual setup'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byKey(const Key('site-id')), '123');
     FocusManager.instance.primaryFocus?.unfocus();
@@ -56,7 +60,12 @@ void main() {
     await tester.ensureVisible(find.text('View details'));
     await tester.tap(find.text('View details'));
     await tester.pumpAndSettle();
-    expect(find.text('Connect SolarEdge'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Set up your connections'),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Set up your connections'), findsOneWidget);
     expect(source.calls, 0);
     expect(store.writes, 0);
     expect(tester.takeException(), isNull);
