@@ -60,6 +60,37 @@ void main() {
     },
   );
 
+  testWidgets('six sky paths alternate at thirty second intervals', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: SolarScene(active: true, production: SolarProductionState.zero),
+      ),
+    );
+    final paths = <({Offset start, Offset end})>{};
+    await tester.pump(const Duration(seconds: 29));
+    final first = scene(tester).shootingStarPath;
+    for (var i = 0; i < 6; i++) {
+      final painter = scene(tester);
+      expect(painter.shootingStarProgress, closeTo(1 / 3, .001));
+      expect(paths.add(painter.shootingStarPath), isTrue);
+      for (final point in [
+        painter.shootingStarPath.start,
+        painter.shootingStarPath.end,
+      ]) {
+        expect(point.dx, inInclusiveRange(6, 354));
+        expect(point.dy, inInclusiveRange(6, 169));
+      }
+      await tester.pump(const Duration(seconds: 1));
+      expect(scene(tester).shootingStarProgress, isNull);
+      await tester.pump(const Duration(seconds: 29));
+    }
+    expect(scene(tester).shootingStarPath, first);
+    expect(scene(tester).shootingStarProgress, closeTo(1 / 3, .001));
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('Home theme follows both sources and stays scoped to Home', (
     tester,
   ) async {
@@ -261,7 +292,7 @@ void main() {
       );
       final phase = scene(tester).phase;
       await tester.pump(const Duration(seconds: 3));
-      expect(phase.value, closeTo(.05, .01));
+      expect(phase.value, closeTo(3 / 180, .001));
       await tester.ensureVisible(find.text('View details'));
       await tester.tap(find.text('View details'));
       await tester.pumpAndSettle();

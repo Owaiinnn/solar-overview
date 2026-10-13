@@ -91,6 +91,36 @@ may discharge. Preserve all existing unavailable-data and source-attribution gua
 Compose reduced motion and loading consistently with #46. Do not require every
 cross-product state to have a separate painter or image.
 
+Owner follow-up (2026-10-13): keep the sunny production scene consistent with
+#46's spacious sky, lower shared house, full-screen palette and matching controls.
+Treat this as the producing variant of the same composition. Preserve the loading
+bounce independently; charging here means battery charging only when measured.
+The current daytime illustration still uses its earlier compact composition;
+matching that layout remains part of this follow-up, not a completed change.
+
+Cover the complete cross-product through composed layers and parameterized tests:
+
+| Layer | States to combine independently |
+| --- | --- |
+| Solar/theme | Eligible positive (complete or partial), complete eligible zero, partial zero, unavailable; no connections is an explicit empty state |
+| Battery | Charging, discharging, idle, unavailable/unknown, not configured |
+| Grid | Importing, exporting, no net exchange, unavailable, not configured |
+| Data quality per source | Initial loading, refreshing with eligible data, recent saved cloud data, stale, missing, failed, storage error, inconsistent direction/power, future/skewed timestamps |
+| Battery fill | Unknown, 0%, intermediate, 100%; valid SOC never substitutes for operating state |
+| Motion/layout | Active, offscreen, background, reduced motion, small phone, large text |
+
+Every valid combination receives the same house plus the eligible independent
+layers. Do not create separate screens/assets for each product of these states.
+Unavailable configured devices retain a readable status; unconfigured devices
+can be omitted. Only the affected source stops directional motion on bad data.
+Keep positive solar with grid import, zero solar with battery charging, battery
+discharge with grid export, idle battery with either grid direction, and no solar
+connections with valid local readings in the review gallery. Zero solar is not a
+synonym for an idle home, and concurrent activity never proves an energy path.
+Automate the full solar × battery × grid state matrix; then apply each data-quality
+failure independently and verify reduced-motion/background invariants. No live
+provider or home-network access is required for those synthetic checks.
+
 ## Todo
 
 - [ ] Reuse #38's corrected house geometry and retain only the tall hedge beside the door; check consistency with the revised logo and avoid photographic perspective distortion.
@@ -106,3 +136,6 @@ cross-product state to have a separate painter or image.
 - [ ] Run required Flutter checks and focused Android visual walkthroughs with live readings, Home/Details navigation, restart and off-network recovery; record rendering cost and distinguish emulator from physical-device evidence.
 - [ ] Carry uncompleted physical Android/native iOS verification into an explicit follow-up before closing; retain the existing #19/#25/#30 checks.
 - [ ] Compose independent solar/theme, battery and grid state on one shared house; review the scenario matrix with #46 and test valid simultaneous activity, partial data and independent failures.
+
+- [ ] Align the sunny scene composition with the expanded zero-production scene while preserving shared artwork and independent loading behavior.
+- [ ] Exercise every solar × battery × grid state combination and independent data-quality overrides, including empty sources and SOC boundaries.

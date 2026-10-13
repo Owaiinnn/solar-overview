@@ -168,6 +168,21 @@ notes are also retained locally until publishing is explicitly approved. The
 existing remote PR does not yet contain the constellation/glow refinement or this
 shooting-star follow-up.
 
+Owner follow-up (2026-10-13): rotate six distinct falling-star paths across the
+left and right sky, keeping one 1.5-second pass every thirty active seconds. A
+three-minute master loop preserves the existing star/window pulse periods and
+lifecycle/reduced-motion behavior. Tests traverse the full six-pass cycle, assert
+unique paths and sky bounds, and verify the return to the first path. The sunny
+layout and full battery/grid combination plan are recorded in #35's local copy.
+Remote synchronization remains blocked by the previously reported publication
+approval requirement; no push or GitHub edit was retried.
+
+Agent verification (2026-10-13): formatting and analysis passed, and all 219
+unit/widget tests passed with the concurrent JSON setup work. The Android native
+scene walkthrough passed, including two successive timed meteors. Screenshots
+were inspected: the first crosses the upper right sky, the second the upper left;
+both trails stay above the house. No new performance benchmark was run.
+
 ## Todo
 
 - [x] Introduce explicit eligible-positive, eligible-zero and unavailable/partial production presentation with documented loading/transition precedence.
@@ -186,3 +201,5 @@ shooting-star follow-up.
 - [x] Inspect the revised star/glow layout and navigation on Android, record rendering costs and refresh the owner's zero preview.
 - [x] Lower the house, expand the overhead star field and add a brief shooting star every thirty active seconds with lifecycle/reduced-motion guards.
 - [x] Verify shooting-star timing, expanded small-screen layout and actual Android rendering; refresh the local zero preview and record results.
+
+- [x] Vary the meteor starting positions and direction across six paths without changing the thirty-second interval.
