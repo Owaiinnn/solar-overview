@@ -2,6 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'battery.dart';
+import 'home_energy.dart';
+import 'p1.dart';
 import 'production_total.dart';
 
 class SolarScene extends StatefulWidget {
@@ -10,20 +13,28 @@ class SolarScene extends StatefulWidget {
     required this.active,
     required this.production,
     this.loading = false,
+    this.battery = const HomeBatteryState(),
+    this.grid = const HomeGridState(),
   });
   final bool active;
   final SolarProductionState production;
   final bool loading;
+  final HomeBatteryState battery;
+  final HomeGridState grid;
 
   @override
   State<SolarScene> createState() => _SolarSceneState();
 }
 
 class _SolarSceneState extends State<SolarScene>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _motion = AnimationController(
     vsync: this,
     duration: _duration,
+  );
+  late final AnimationController _flow = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 3),
   );
   bool _foreground = true;
 
@@ -74,9 +85,19 @@ class _SolarSceneState extends State<SolarScene>
         TickerMode.valuesOf(context).enabled &&
         !reduced) {
       if (!_motion.isAnimating) _motion.repeat();
+      if (widget.battery.moving || widget.grid.moving) {
+        if (!_flow.isAnimating) _flow.repeat();
+      } else {
+        _flow.stop();
+        _flow.value = 0;
+      }
     } else {
       _motion.stop();
-      if (reduced) _motion.value = 0;
+      _flow.stop();
+      if (reduced) {
+        _motion.value = 0;
+        _flow.value = 0;
+      }
     }
   }
 
@@ -84,6 +105,7 @@ class _SolarSceneState extends State<SolarScene>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _motion.dispose();
+    _flow.dispose();
     super.dispose();
   }
 
@@ -92,7 +114,7 @@ class _SolarSceneState extends State<SolarScene>
     label: widget.production == SolarProductionState.zero
         ? 'Decorative zero-production scene. '
               'Window light does not indicate household consumption or live weather.'
-        : null,
+        : 'Decorative solar scene. Sun and rays do not indicate live weather.',
     excludeSemantics: true,
     child: RepaintBoundary(
       child: CustomPaint(
@@ -100,6 +122,9 @@ class _SolarSceneState extends State<SolarScene>
           _motion,
           production: widget.production,
           loading: widget.loading,
+          battery: widget.battery,
+          grid: widget.grid,
+          flow: _flow,
         ),
         size: Size.infinite,
       ),
@@ -112,10 +137,16 @@ class SolarScenePainter extends CustomPainter {
     this.phase, {
     required this.production,
     this.loading = false,
-  }) : super(repaint: phase);
+    this.battery = const HomeBatteryState(),
+    this.grid = const HomeGridState(),
+    this.flow = const AlwaysStoppedAnimation(0),
+  }) : super(repaint: Listenable.merge([phase, flow]));
   final Animation<double> phase;
   final SolarProductionState production;
   final bool loading;
+  final HomeBatteryState battery;
+  final HomeGridState grid;
+  final Animation<double> flow;
 
   double get houseLift => loading
       ? 10 * math.pow(math.sin(phase.value * math.pi), 2).toDouble()
@@ -143,7 +174,7 @@ class SolarScenePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final zero = production == SolarProductionState.zero;
-    final sceneHeight = zero ? 420.0 : 260.0;
+    const sceneHeight = 420.0;
     final scale = math.min(size.width / 360, size.height / sceneHeight);
     canvas.save();
     canvas.translate(
@@ -303,7 +334,8 @@ class SolarScenePainter extends CustomPainter {
         );
       }
     }
-    if (zero) canvas.translate(0, 150);
+    canvas.save();
+    canvas.translate(0, 150);
     fill(green.withValues(alpha: .10 - houseLift * .003));
     canvas.drawOval(
       Rect.fromCenter(
@@ -451,7 +483,7 @@ class SolarScenePainter extends CustomPainter {
     if (production == SolarProductionState.positive && !loading) {
       for (var i = 0; i < 3; i++) {
         final t = (phase.value + i / 3) % 1;
-        final start = Offset(267 + i * 6.0, 68);
+        final start = Offset(267 + i * 6.0, -82);
         final end = Offset(207 + i * 16.0, 113 - i * 5.0);
         final opacity = math.sin(t * math.pi).clamp(0.0, 1.0);
         final tip = Offset.lerp(start, end, t)!;
@@ -465,11 +497,190 @@ class SolarScenePainter extends CustomPainter {
       }
     }
     canvas.restore();
+    _paintEnergy(canvas, zero);
+    canvas.restore();
+  }
+
+  void _paintEnergy(Canvas canvas, bool dark) {
+    final ink = dark ? const Color(0xFFD9E8D6) : const Color(0xFF22634A);
+    final accent = dark ? const Color(0xFFFFD483) : const Color(0xFF997123);
+    final muted = ink.withValues(alpha: .3);
+    final paint = Paint()..isAntiAlias = true;
+    void line(Offset start, Offset end, Color color, double width) {
+      paint
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = width
+        ..strokeCap = StrokeCap.round
+        ..color = color;
+      canvas.drawLine(start, end, paint);
+    }
+
+    void flowPath(Offset start, Offset end, bool outward) {
+      line(start, end, muted, 1.5);
+      final from = outward ? start : end;
+      final to = outward ? end : start;
+      for (var i = 0; i < 2; i++) {
+        final t = (flow.value + i / 2) % 1;
+        final tip = Offset.lerp(from, to, .15 + t * .7)!;
+        final sign = to.dx > from.dx ? 1.0 : -1.0;
+        line(tip - Offset(sign * 4, 3), tip, accent, 2);
+        line(tip - Offset(sign * 4, -3), tip, accent, 2);
+      }
+    }
+
+    final green = dark ? const Color(0xFF547B65) : const Color(0xFF22634A);
+    final edge = dark ? const Color(0xFF264E40) : const Color(0xFF174C39);
+    final cream = dark ? const Color(0xFFB1C2A8) : const Color(0xFFFFF2D8);
+    final side = dark ? const Color(0xFF6C8872) : const Color(0xFFBDCEAE);
+    void polygon(List<Offset> points, Color color) {
+      paint
+        ..style = PaintingStyle.fill
+        ..color = color;
+      canvas.drawPath(Path()..addPolygon(points, true), paint);
+    }
+
+    void rounded(Rect bounds, double radius, Color color) {
+      paint
+        ..style = PaintingStyle.fill
+        ..color = color;
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(bounds, Radius.circular(radius)),
+        paint,
+      );
+    }
+
+    void shadow(Offset center, double width) {
+      paint
+        ..style = PaintingStyle.fill
+        ..color = green.withValues(alpha: .12);
+      canvas.drawOval(
+        Rect.fromCenter(center: center, width: width, height: 6),
+        paint,
+      );
+    }
+
+    if (battery.visible) {
+      shadow(const Offset(29, 376), 51);
+      rounded(const Rect.fromLTRB(10, 365, 40, 373), 2, edge);
+      polygon([
+        const Offset(39, 314),
+        const Offset(49, 309),
+        const Offset(49, 363),
+        const Offset(39, 370),
+      ], side);
+      rounded(const Rect.fromLTRB(7, 314, 40, 370), 3, cream);
+      polygon([
+        const Offset(7, 314),
+        const Offset(17, 308),
+        const Offset(49, 308),
+        const Offset(40, 314),
+      ], side);
+      rounded(const Rect.fromLTRB(7, 313, 40, 319), 2, green);
+      polygon([
+        const Offset(40, 313),
+        const Offset(49, 308),
+        const Offset(49, 314),
+        const Offset(40, 319),
+      ], edge);
+      rounded(const Rect.fromLTRB(13, 324, 34, 356), 2, edge);
+      rounded(const Rect.fromLTRB(15, 326, 32, 354), 1, side);
+      final percent = battery.percent;
+      if (percent != null) {
+        rounded(
+          Rect.fromLTRB(15, 354 - 28 * percent / 100, 32, 354),
+          1,
+          battery.recent ? green : green.withValues(alpha: .35),
+        );
+        for (final y in [333.0, 340.0, 347.0]) {
+          line(Offset(16, y), Offset(31, y), cream.withValues(alpha: .35), .7);
+        }
+      } else {
+        line(const Offset(21, 340), const Offset(26, 340), cream, 1.5);
+      }
+      for (final y in [361.0, 364.0]) {
+        line(Offset(17, y), Offset(30, y), side, 1);
+      }
+      line(
+        const Offset(44, 324),
+        const Offset(44, 355),
+        edge.withValues(alpha: .3),
+        1,
+      );
+      if (battery.moving) {
+        flowPath(
+          const Offset(52, 350),
+          const Offset(73, 350),
+          battery.reportedState == BatteryState.discharging,
+        );
+      }
+    }
+    if (grid.visible) {
+      shadow(const Offset(332, 377), 53);
+      polygon([
+        const Offset(327, 308),
+        const Offset(333, 308),
+        const Offset(318, 371),
+        const Offset(311, 371),
+      ], green);
+      polygon([
+        const Offset(333, 308),
+        const Offset(337, 305),
+        const Offset(353, 368),
+        const Offset(348, 371),
+      ], edge);
+      polygon([
+        const Offset(331, 308),
+        const Offset(337, 308),
+        const Offset(348, 371),
+        const Offset(342, 371),
+      ], green);
+      line(const Offset(324, 341), const Offset(341, 361), side, 2.5);
+      line(const Offset(338, 341), const Offset(320, 361), side, 2.5);
+      for (final beam in [
+        const Rect.fromLTRB(310, 320, 350, 325),
+        const Rect.fromLTRB(316, 336, 344, 341),
+      ]) {
+        polygon([
+          beam.topLeft,
+          beam.topLeft + const Offset(4, -3),
+          beam.topRight + const Offset(4, -3),
+          beam.topRight,
+        ], side);
+        rounded(beam, 1, green);
+        polygon([
+          beam.topRight,
+          beam.topRight + const Offset(4, -3),
+          beam.bottomRight + const Offset(4, -3),
+          beam.bottomRight,
+        ], edge);
+        for (final x in [beam.left + 3, beam.right - 4]) {
+          rounded(Rect.fromLTWH(x, beam.top - 7, 3, 7), 1, cream);
+          line(
+            Offset(x - .5, beam.top - 4),
+            Offset(x + 3.5, beam.top - 4),
+            side,
+            1,
+          );
+        }
+      }
+      rounded(const Rect.fromLTRB(308, 370, 320, 374), 1, side);
+      rounded(const Rect.fromLTRB(341, 370, 353, 374), 1, side);
+      if (grid.moving) {
+        flowPath(
+          const Offset(308, 350),
+          const Offset(288, 350),
+          grid.direction == GridDirection.importing,
+        );
+      }
+    }
   }
 
   @override
   bool shouldRepaint(SolarScenePainter oldDelegate) =>
       oldDelegate.production != production ||
       oldDelegate.loading != loading ||
+      oldDelegate.battery != battery ||
+      oldDelegate.grid != grid ||
+      oldDelegate.flow != flow ||
       oldDelegate.phase != phase;
 }
