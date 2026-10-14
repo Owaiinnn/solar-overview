@@ -6,10 +6,13 @@ in the codebase. See the [project overview](../README.md) for the technology sta
 
 ## Built features
 
-- A compact Home screen with combined or partial solar power, source status and
-  an offline animated house scene. **View details** opens the full readings;
-  the house gently bounces while readings load. Motion respects accessibility
-  preferences and pauses away from Home.
+- Home combines qualified solar power with independent battery level/reported
+  state and P1 grid direction. Day and dark scenes share the same house artwork;
+  battery/grid arrows stop for saved, stale, failed or inconsistent data.
+  Battery power is labelled pack DC, with source time unknown. No household
+  balance or solar-to-battery attribution is inferred. **View details** stays
+  accessible above navigation. Motion respects accessibility preferences and
+  pauses away from Home.
 
 - Independent SolarEdge and SolaX connections, with setup, replacement and removal
   in Settings and credentials stored securely on the device.

@@ -47,16 +47,38 @@ The source-coverage subtitle uses an explicit theme foreground for the same reas
 A low-amplitude sun halo continues in nonzero/unknown presentations. The zero
 scene has an accessibility label explaining that window lighting and sky are
 illustrative. Production and source labels remain readable independently of the
-artwork. No battery, household flow, wiring topology, irradiance or API update rate
+artwork. No household balance, wiring topology, irradiance or API update rate
 is implied. `ProductionTotal.presentation` resolves positive, complete zero,
 partial zero and unavailable before the painter receives its typed input.
 
-Battery/grid layers remain owned by [#35](tickets/35-home-battery-grid.md). They
-can use the same house independently of the solar theme; zero solar does not mean
-zero grid exchange or an idle battery. Those layers are not implemented yet, so
-combined layer walkthroughs remain in #35. No duplicate house painter is needed.
+Battery/grid layers use typed `HomeBatteryState` and `HomeGridState`, resolved
+from the same controllers as Details. The shaded battery cabinet and pylon use
+the house's green/ivory palette, side planes and contact shadows. Neither obscures
+the bay, entrance or hedge. The battery inset fills only from valid SOC; a missing
+level has a dash and an explicit unavailable label. A known 0% remains zero.
 
-The zero scene reserves a taller sky above the lowered original house geometry;
+Battery arrows illustrate the recently received **reported** charge/discharge
+state only when nonzero pack DC power agrees. Receipt eligibility is not evidence
+of measurement freshness: the card explicitly says source time unknown. Idle,
+unknown or conflicting state/power remains still. Charging/discharging with zero
+power is withheld as inconsistent. SOC never determines operating state. Cached,
+old, future-receipt, failed or storage-error readings stop arrows and retain a
+qualified last-known level; no stale pack power is shown as current.
+
+Grid arrows require the existing P1 receipt and measurement freshness policy,
+including its five-second clock tolerance. Signed net watts must agree with the
+typed direction. Eligible zero is labelled No net exchange with 0 W; unavailable
+is never zero. Local sources have independent loading/refresh/error states.
+Unconfigured local sources are omitted after initialization. A failed local read
+cannot hide a healthy cloud subtotal or change the solar theme. No scene or
+navigation callback requests data or resets provider waits.
+
+The cards describe independent observations, not a synchronized household balance.
+The caption distinguishes decorative sky/light from reported indicators and says
+arrows do not establish wiring or the battery's charging source. No household-use
+figure is displayed. Battery pack DC is never added to solar AC or grid exchange.
+
+Day and zero scenes reserve the same taller sky above the lowered original house geometry;
 it contains the seven constellation stars and sixteen background stars. All stars
 remain above the highest roof edge, including while loading. Its seven connected
 stars form a stylized Big Dipper, part of Ursa Major, with a few smaller background
@@ -130,8 +152,8 @@ The icon uses a closed scalloped outline so the hedge survives monochrome output
 The scene fills the same silhouette and adds sparse foliage marks, door glazing
 crossbars and a handle at its larger display size. All house parts, including the
 hedge, are drawn inside the same loading translation. The old flanking garden
-plants and lawn-shaped oval are removed; only the animated contact shadow remains. Open space around the house is available for future energy
-indicators. Roof/panels remain schematic and do not establish real placement.
+plants and lawn-shaped oval are removed; only the animated contact shadow remains.
+Open space beside the house contains the independent battery/grid indicators. Roof/panels remain schematic and do not establish real placement.
 
 When editing geometry, update `house.svg`, the matching drawing in
 `solar_scene.dart`, and the banner's existing house group together. Preserve the
@@ -140,20 +162,26 @@ and inspect both the mask/small-size sheet and native Home loading captures belo
 
 ## Rendering and accessibility
 
-One `AnimationController` (five seconds for the sun, a sixty-second master cycle
-for the zero scene, 1.5 seconds while loading) repaints a `RepaintBoundary`; it does not rebuild
-or lay out Home on each frame. The scene uses simple paths, lines and translucent
+The existing `AnimationController` (five seconds for the sun, a three-minute master
+cycle for the zero scene, 1.5 seconds while loading) and a separate three-second
+local-direction controller repaint one `RepaintBoundary`; they do not rebuild or
+lay out Home on each frame. The second controller runs only while at least one
+local direction is eligible, so solar loading cannot change its speed or stop it.
+One bad local source removes only its own arrows. Motion speed is decorative,
+not a wattage scale. No new asset, dependency or license is introduced. The scene uses simple paths, lines and translucent
 circles and radial-gradient halos without image decoding, blur filters or saveLayer
 effects. The static house
 is repainted with the small scene each frame rather than adding a separate cache or
 animation framework. Home performs intrinsic sizing on layout to give the scene the
-remaining space; at larger text sizes the whole page scrolls without shrinking text.
+remaining space; content scrolls without shrinking text and the Details action
+stays above navigation. Local cards stack at narrow widths or large text sizes.
 
-The controller stops in Details, another tab, a disabled `TickerMode`, or any
+Both controllers stop in Details, another tab, a disabled `TickerMode`, or any
 non-resumed app lifecycle state. Disabled-animation and accessible-navigation
 preferences produce a static scene and reset its phase. Resuming restores the loop.
 Individual drawing elements are excluded from semantics; the complete-zero scene
-adds one decorative-scene explanation. Readable labels carry every production and
+adds one decorative-scene explanation. Each local card has a combined accessible
+label covering level, state, power and qualification. Readable labels carry every production and
 source state, independently of color or motion. Star brightness varies gently on
 four/six-second cycles with different phase offsets, varying brightness,
 radius and ray length. Window color and soft radial halos breathe over twelve
@@ -161,8 +189,7 @@ seconds. Reduced motion keeps the stars and warm panes visible at phase zero.
 
 `integration_test/home_scene_test.dart` measures steady-state build/raster times for
 12 seconds after a two-second warm-up for each positive and zero theme. It draws
-only the scene with synthetic test
-state, never opens secure storage, and never contacts a provider. Run it in profile
+only the scene with both synthetic local-direction layers active; it never opens secure storage or contacts a provider. Run it in profile
 mode on Android using:
 
 ```sh
@@ -218,3 +245,16 @@ entry point has no mock switch. Rebuild that target to return to live readings;
 keep the installed app/data when switching targets. A separately ignored local
 preview entry point can keep synthetic zero visible for owner review without
 changing saved connections, caches or provider waits.
+
+The review gallery uses synthetic controllers and never opens production storage:
+
+```sh
+cd app
+flutter drive --keep-app-running -d DEVICE_ID --driver integration_test/home_visual_driver.dart --target integration_test/home_energy_test.dart
+```
+
+Captures are written to ignored `app/build/home-preview/`. They cover positive,
+zero, partial and empty solar with active/idle/unavailable battery and grid states,
+plus saved local data. State/widget tests cover all 150 solar × battery × grid
+combinations, independent quality failures, SOC limits, motion policies and large
+text. Restore the normal application after running the native gallery.

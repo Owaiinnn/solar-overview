@@ -40,6 +40,23 @@ file selection, review, save and configured Details. Native iOS file selection,
 secure import persistence, and physical-phone layout/accessibility remain pending.
 Use synthetic import files for these checks and preserve existing connections.
 
+Battery/grid Home follow-up from #35 (2026-10-14): verify the shared day/dark
+house with reported battery fill/state/pack DC power and independent grid
+import/export. Native iOS and physical Android checks must cover reduced motion,
+large text, fixed Details navigation, background/resume, saved/off-network labels
+and return-home recovery. Arrows represent independently reported statuses, not
+verified wiring, charging attribution or a synchronized household balance.
+Keep physical rendering measurements separate from emulator profile evidence.
+Existing #25/#30/#42/#53 provider/device checks remain open and unchanged.
+
+The #35 normal-app emulator walkthrough on 2026-10-14 verified live SolarEdge
+alongside retained/unreachable battery status, navigation and cold-restart
+persistence of saved readings/retry waits. Fresh battery/P1 Home and off-network
+recovery remain unverified: the saved battery was unreachable and no P1 connection
+was configured on that emulator. Repeat those Home checks when home-network access
+and an owner-configured P1 connection are available; preserve all existing setup.
+Synthetic scene tests and historical Details checks do not complete this follow-up.
+
 ## Todo
 
 - [x] Confirm a real SolarEdge reading on the Android emulator with the updated Home/Details app (agent-run #28 / PR #33, 2026-10-02).
@@ -57,3 +74,7 @@ Use synthetic import files for these checks and preserve existing connections.
 - [ ] Verify #46's zero-production scene, positive/partial-zero transitions, reduced motion, navigation and lifecycle behavior on physical Android and native iOS; record physical rendering cost separately from emulator results.
 
 - [ ] Verify #60 JSON file selection/cancellation, paste/manual setup, offline secure persistence and configured-only Details on native iOS and a physical Android phone, including small screens and large text.
+
+- [ ] Verify #35 battery/grid Home layers, independent failure/zero states, large text, reduced motion, navigation, background/resume and restart/off-network recovery on physical Android and native iOS; record physical rendering cost.
+
+- [ ] Complete #35 live Android emulator Home checks with reachable battery and configured P1: independently observed status/direction, Home/Details agreement, cold restart, off-network saved status, persistent waits and return-home recovery, preserving solar connections and cooldowns.
