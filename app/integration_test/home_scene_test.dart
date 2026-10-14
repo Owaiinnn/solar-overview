@@ -3,6 +3,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:solar_overview/src/solar_scene.dart';
+import 'package:solar_overview/src/home_energy.dart';
+import 'package:solar_overview/src/battery.dart';
+import 'package:solar_overview/src/p1.dart';
 import 'package:solar_overview/src/production_total.dart';
 
 void main() {
@@ -26,8 +29,22 @@ void main() {
               body: Center(
                 child: SizedBox(
                   width: 360,
-                  height: production == SolarProductionState.zero ? 420 : 260,
-                  child: SolarScene(active: true, production: production),
+                  height: 420,
+                  child: SolarScene(
+                    active: true,
+                    production: production,
+                    battery: const HomeBatteryState(
+                      quality: LocalReadingQuality.recent,
+                      percent: 60,
+                      state: BatteryState.charging,
+                      packWatts: -520,
+                    ),
+                    grid: const HomeGridState(
+                      quality: LocalReadingQuality.recent,
+                      direction: GridDirection.exporting,
+                      watts: -520,
+                    ),
+                  ),
                 ),
               ),
             ),
