@@ -213,6 +213,8 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
                               index: _showDetails ? 1 : 0,
                               children: [
                                 HomePage(
+                                  battery: widget.battery,
+                                  p1: widget.p1,
                                   controller: controller,
                                   solax: widget.solax,
                                   active: _tab == _AppTab.home && !_showDetails,
