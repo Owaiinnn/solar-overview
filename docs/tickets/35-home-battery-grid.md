@@ -8,10 +8,10 @@ grid import/export at a glance alongside the two solar sources.
 Owner-requested follow-up on 2026-10-04 to the merged Home scene in #28 / PR #33.
 Reuse the green/ivory visual identity, roof panels, sun rays, loading bounce and
 Home-to-Details navigation. The updated shared house artwork is tracked in #38. Do not reopen #28 or the superseded bolt ticket #11.
-The current scene only accepts solar production/loading state; battery and meter
-support in Home are not implemented. P1 Settings/Details and emulator verification
-are implemented in #7; physical/native follow-ups remain in #42. Battery
-integration remains open in #6, and household calculation is tracked in #43.
+The original scene accepted only solar production/loading state. P1 and battery
+Settings/Details are now implemented in merged #7 and #6; physical/native
+follow-ups remain in #42 and #53. Household calculation is tracked in #43.
+The Home implementation and verification recorded below extend those controllers.
 
 House-reference update (2026-10-04): use #38's corrected front elevation from the
 new normal/ultrawide photographs. Account for camera offset, tilt and lens distortion;
@@ -95,8 +95,8 @@ Owner follow-up (2026-10-13): keep the sunny production scene consistent with
 #46's spacious sky, lower shared house, full-screen palette and matching controls.
 Treat this as the producing variant of the same composition. Preserve the loading
 bounce independently; charging here means battery charging only when measured.
-The current daytime illustration still uses its earlier compact composition;
-matching that layout remains part of this follow-up, not a completed change.
+At the time of that request, the daytime illustration still used its earlier
+compact composition. The implementation below now aligns the day and dark layouts.
 
 Cover the complete cross-product through composed layers and parameterized tests:
 
@@ -121,21 +121,75 @@ Automate the full solar × battery × grid state matrix; then apply each data-qu
 failure independently and verify reduced-motion/background invariants. No live
 provider or home-network access is required for those synthetic checks.
 
+Implementation on 2026-10-14 (agent-run; awaiting PR review/merge):
+
+- Home shares the existing battery/P1 controllers with Details. Typed local states
+  qualify each source independently; no requests, timers or cooldown changes were
+  added to Home. The original house geometry and single entrance hedge remain.
+- Both solar themes use the same spacious 360×420 composition. The owner requested
+  refinement of the initial flat battery/pylon icons; the final code-native artwork
+  uses shaded cabinets/beams, ivory/green faces, charge gauge, insulators and ground
+  shadows to match the house. No asset/dependency or license change was needed.
+- Readable cards show reported SOC/state/pack DC power and P1 direction/net watts.
+  Cached SOC is explicitly last-known. Unknown/conflicting, stale, failed, invalid
+  timing and storage-error sources stop their own arrows without hiding others.
+  Known zero stays distinct from unavailable. Unconfigured local sources are omitted.
+- Battery animation is a schematic of recently received reported state, never a
+  claim of current measurement time. Source time remains unknown. Caption and
+  accessible labels distinguish decorative imagery and independent observations;
+  no household-use number, solar-to-battery attribution or AC/DC balance is shown.
+- Local direction has a separate three-second controller so solar loading bounce
+  cannot control local activity. Both controllers respect reduced motion, disabled
+  ticker mode, navigation and lifecycle. Details stays fixed above navigation;
+  content scrolls and cards stack for small screens/large text.
+- Required checks passed with pinned Flutter 3.47.5: dependency resolution,
+  formatter (73 files), analyzer (no issues), all 283 unit/widget tests. Tests cover
+  the 150 solar × battery × grid combinations, per-source quality overrides, SOC
+  unknown/0/intermediate/100%, inconsistent power, direction changes, loading,
+  reduced motion/background/offscreen behavior and 360×640 at 200% text.
+- Android API 36 emulator synthetic gallery passed for ten independent scenarios,
+  with Home/Details navigation and offscreen suspension. Day/dark active, idle,
+  unavailable and saved combinations were visually inspected. Gallery images stay
+  in ignored app/build/home-preview; no test/sample mode ships in the application.
+- Final Android profile run (two-second warm-up, 12 seconds per theme, both local
+  directions active, no concurrent builds/tests): positive 722 frames, build p95
+  0.551 ms / raster p95 2.038 ms; dark 720 frames, build p95 0.604 ms / raster p95
+  2.275 ms. Neither sample had build/raster frames above 16.67 ms. Earlier samples
+  overlapped build/test work and were noisier; these remain emulator samples,
+  not physical-device performance claims.
+- Restored the normal debug app with data-preserving installation. A real recent
+  SolarEdge reading remained visible alongside saved/unreachable battery status;
+  SolaX independently needed attention. The configured battery was unreachable
+  and P1 was not configured on this emulator. Existing connections were preserved.
+  Home/Details navigation and force-stop/reopen retained the last-known SOC,
+  saved cloud power and battery retry deadline (238 seconds before restart,
+  177 seconds afterward), without resetting waits. An initial UI capture hit the
+  splash screen; only the subsequent fresh UI dump is counted as restart evidence.
+  No emulator network settings were changed; Wi-Fi/mobile data remained enabled.
+- Fresh battery/P1 Home readings and off-network/return-home recovery could not
+  be checked with these connections. Those live emulator checks are explicitly
+  transferred to open #19, alongside physical Android/native iOS. Synthetic
+  combinations and historical #6/#7 evidence do not substitute for this check.
+- Physical Android and native iOS scene verification is explicitly carried into
+  open #19; #25/#30/#42/#53 remain open for their existing provider/device checks.
+  Only an emulator is connected; full Xcode is unavailable. These are deferred
+  checks, not results claimed from synthetic or emulator evidence.
+
 ## Todo
 
-- [ ] Reuse #38's corrected house geometry and retain only the tall hedge beside the door; check consistency with the revised logo and avoid photographic perspective distortion.
-- [ ] Produce a reviewable extension of the existing Home scene with battery percentage/state/power and grid direction/power while preserving the solar headline and Details action.
-- [ ] Bind battery fill and state to #6; implement charging, discharging, idle, zero SOC, full SOC, unknown, loading, stale and off-network presentation.
-- [ ] Bind grid direction and power to #7; distinguish import, export, zero net exchange and unavailable readings.
-- [ ] Gate any household-use figure or combined flow claim on verified AC boundaries and timestamp alignment; do not infer solar-to-battery attribution.
-- [ ] Share source controllers/caches with Details; keep loading and source failures independent and add no animation-driven requests or cooldown resets.
-- [ ] Keep saved/off-network status explicit while SolarEdge/SolaX cloud readings remain usable; preserve missing-versus-zero semantics.
-- [ ] Update captions/accessibility semantics so decorative motion and measured status are distinguishable without relying on color or movement.
-- [ ] Preserve reduced motion, lifecycle suspension, loading bounce behavior and offline artwork; keep small-screen/large-text layouts readable.
-- [ ] Add meaningful synthetic widget/state tests for direction changes, stale/error states, independent sources, reduced motion and lifecycle behavior; no shipped sample mode.
-- [ ] Run required Flutter checks and focused Android visual walkthroughs with live readings, Home/Details navigation, restart and off-network recovery; record rendering cost and distinguish emulator from physical-device evidence.
-- [ ] Carry uncompleted physical Android/native iOS verification into an explicit follow-up before closing; retain the existing #19/#25/#30 checks.
-- [ ] Compose independent solar/theme, battery and grid state on one shared house; review the scenario matrix with #46 and test valid simultaneous activity, partial data and independent failures.
+- [x] Reuse #38's corrected house geometry and retain only the tall hedge beside the door; check consistency with the revised logo and avoid photographic perspective distortion.
+- [x] Produce a reviewable extension of the existing Home scene with battery percentage/state/power and grid direction/power while preserving the solar headline and Details action.
+- [x] Bind battery fill and state to #6; implement charging, discharging, idle, zero SOC, full SOC, unknown, loading, stale and off-network presentation.
+- [x] Bind grid direction and power to #7; distinguish import, export, zero net exchange and unavailable readings.
+- [x] Gate any household-use figure or combined flow claim on verified AC boundaries and timestamp alignment; do not infer solar-to-battery attribution.
+- [x] Share source controllers/caches with Details; keep loading and source failures independent and add no animation-driven requests or cooldown resets.
+- [x] Keep saved/off-network status explicit while SolarEdge/SolaX cloud readings remain usable; preserve missing-versus-zero semantics.
+- [x] Update captions/accessibility semantics so decorative motion and measured status are distinguishable without relying on color or movement.
+- [x] Preserve reduced motion, lifecycle suspension, loading bounce behavior and offline artwork; keep small-screen/large-text layouts readable.
+- [x] Add meaningful synthetic widget/state tests for direction changes, stale/error states, independent sources, reduced motion and lifecycle behavior; no shipped sample mode.
+- [ ] Run required Flutter checks and focused Android visual walkthroughs with live readings, Home/Details navigation, restart and off-network recovery; record rendering cost and distinguish emulator from physical-device evidence. Available checks passed as recorded above; the unavailable live battery/P1 and off-network recovery portion is transferred to #19.
+- [x] Carry uncompleted physical Android/native iOS verification into an explicit follow-up before closing; retain the existing #19/#25/#30 checks.
+- [x] Compose independent solar/theme, battery and grid state on one shared house; review the scenario matrix with #46 and test valid simultaneous activity, partial data and independent failures.
 
-- [ ] Align the sunny scene composition with the expanded zero-production scene while preserving shared artwork and independent loading behavior.
-- [ ] Exercise every solar × battery × grid state combination and independent data-quality overrides, including empty sources and SOC boundaries.
+- [x] Align the sunny scene composition with the expanded zero-production scene while preserving shared artwork and independent loading behavior.
+- [x] Exercise every solar × battery × grid state combination and independent data-quality overrides, including empty sources and SOC boundaries.
