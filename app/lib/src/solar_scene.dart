@@ -42,7 +42,7 @@ class _SolarSceneState extends State<SolarScene>
       ? const Duration(milliseconds: 1500)
       : widget.production == SolarProductionState.zero
       ? const Duration(seconds: 180)
-      : const Duration(seconds: 5);
+      : const Duration(seconds: 120);
 
   @override
   void initState() {
@@ -325,9 +325,10 @@ class SolarScenePainter extends CustomPainter {
         canvas.drawCircle(tip, 1.8, paint);
       }
     } else {
+      _paintClouds(canvas);
       final pulse = loading
           ? .5
-          : .5 + .5 * math.sin(phase.value * math.pi * 2);
+          : .5 + .5 * math.sin(phase.value * 24 * math.pi * 2);
       const center = Offset(276, 66);
       final haloRadius = 58 + pulse * 5;
       paint
@@ -503,6 +504,35 @@ class SolarScenePainter extends CustomPainter {
     canvas.restore();
     _paintEnergy(canvas, zero);
     canvas.restore();
+  }
+
+  void _paintClouds(Canvas canvas) {
+    final drift = loading ? 0.0 : math.sin(phase.value * math.pi * 2);
+    final silhouette = Path()
+      ..moveTo(12, 28)
+      ..cubicTo(5, 28, 0, 24, 0, 18)
+      ..cubicTo(0, 12, 5, 8, 12, 9)
+      ..cubicTo(15, -3, 33, -3, 38, 8)
+      ..cubicTo(46, 3, 56, 8, 57, 15)
+      ..cubicTo(72, 14, 73, 28, 60, 28)
+      ..close();
+    final cloudPaint = Paint()
+      ..isAntiAlias = true
+      ..shader = const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0xFFF0F3E9), Color(0xFFD8E2D4)],
+      ).createShader(const Rect.fromLTWH(0, 0, 70, 28));
+    for (final cloud in [
+      (position: Offset(70 + drift * 50, 26), scale: .8),
+      (position: Offset(174 - drift * 108, 138), scale: 1.0),
+    ]) {
+      canvas.save();
+      canvas.translate(cloud.position.dx, cloud.position.dy);
+      canvas.scale(cloud.scale);
+      canvas.drawPath(silhouette, cloudPaint);
+      canvas.restore();
+    }
   }
 
   void _paintEnergy(Canvas canvas, bool dark) {

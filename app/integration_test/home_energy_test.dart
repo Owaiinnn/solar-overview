@@ -105,6 +105,15 @@ void main() {
       await binding.takeScreenshot(scenario.name);
       await tester.ensureVisible(find.text('View details'));
       await binding.takeScreenshot('${scenario.name}-labels');
+      if (scenario.name == 'positive-charge-export') {
+        final sky = scene(tester).phase as AnimationController;
+        for (final phase in [.25, .75]) {
+          sky.value = phase;
+          await tester.pump();
+          await Future<void>.delayed(const Duration(milliseconds: 200));
+          await binding.takeScreenshot('cloud-drift-$phase');
+        }
+      }
       final animation = scene(tester).flow;
       await tester.tap(find.text('View details'));
       await tester.pumpAndSettle();
