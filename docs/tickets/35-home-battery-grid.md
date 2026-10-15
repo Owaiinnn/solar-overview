@@ -212,6 +212,22 @@ Owner refinement on 2026-10-15 (supersedes the Home status cards above):
 - Live battery/P1 recovery and physical Android/native iOS remain deferred to open
   #19 as already recorded; these layout checks do not claim new provider evidence.
 
+Owner cloud follow-up on 2026-10-15:
+
+- Added two softly shaded clouds to the daytime/unknown sky, drifting in opposite
+  directions and easing through turns over two minutes. Bounded lanes stay left
+  of or below the sun's full halo and above the roof; no cloud crosses the sun.
+- Reused the existing scene controller, keeping the five-second halo pulse,
+  loading bounce and independent battery/grid flow speed. Cloud drift pauses
+  during loading, offscreen/background and reduced motion. The starry theme is
+  unchanged; no weather data, dependencies, extra timers or assets were added.
+- Required Flutter dependency/format/analyze checks and all 284 tests passed.
+  Android API 36 synthetic gallery covers both cloud travel extremes along with
+  the existing ten independent energy scenarios and navigation checks. The
+  updated normal debug APK is restored without removing saved connections.
+- Existing live-source/physical-device follow-ups remain in #19; the cloud change
+  adds no new provider behavior or physical performance claim.
+
 ## Todo
 
 - [x] Reuse #38's corrected house geometry and retain only the tall hedge beside the door; check consistency with the revised logo and avoid photographic perspective distortion.
@@ -231,3 +247,4 @@ Owner refinement on 2026-10-15 (supersedes the Home status cards above):
 - [x] Align the sunny scene composition with the expanded zero-production scene while preserving shared artwork and independent loading behavior.
 - [x] Exercise every solar × battery × grid state combination and independent data-quality overrides, including empty sources and SOC boundaries.
 - [x] Apply the 2026-10-15 refinement: enlarged Home animation without percentage cards, reference-shaped battery, softer sun without panel rays, and compact Details cards with tappable explanations.
+- [x] Add slow clouds moving in opposite directions with paths that never cover the sun; preserve the night sky and motion preferences.

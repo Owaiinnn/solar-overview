@@ -24,7 +24,9 @@ The source-coverage subtitle uses an explicit theme foreground for the same reas
 - Two eligible, aligned readings: combined power and named source coverage.
 - One eligible reading: explicitly named partial subtotal, never a whole-system total.
 - Positive eligible power: a softly shaded amber sun with a gently breathing halo.
-  There are no beams hitting the panels or rotating radial spokes.
+  Two softly shaded clouds drift in opposite directions on a two-minute loop,
+  easing through each turn. Their bounded paths stay left of or below the sun
+  halo and above the roof. There are no panel beams or radial spokes.
 - Complete eligible zero: `0.00 kW`, explicit no-production text, a dark green sky,
   warm window panes and softly staggered stars. Both sources must be eligible,
   time-compatible and zero, even during daytime. No sun appears.
@@ -36,7 +38,7 @@ The source-coverage subtitle uses an explicit theme foreground for the same reas
   The bounce ends when opening/refresh finishes, including failures; no minimum
   wait or extra provider request is introduced. The eligible production state is
   retained while refreshing: a complete cached zero stays dark, and a partial
-  positive retains the warm sun. Loading suspends the sun halo pulse and ambient twinkles/window
+  positive retains the warm sun. Loading suspends cloud drift, the sun halo pulse and ambient twinkles/window
   variation while the house bounces. Loading without eligible data is unavailable,
   never zero. A failed refresh immediately re-evaluates source eligibility.
 - Stale/missing readings: unavailable or an eligible partial subtotal; per-source badges
@@ -173,8 +175,8 @@ and inspect both the mask/small-size sheet and native Home loading captures belo
 
 ## Rendering and accessibility
 
-The existing `AnimationController` (five seconds for the sun, a three-minute master
-cycle for the zero scene, 1.5 seconds while loading) and a separate three-second
+The existing `AnimationController` (a two-minute day cycle with a five-second sun
+halo pulse, a three-minute zero cycle, 1.5 seconds while loading) and a separate three-second
 local-direction controller repaint one `RepaintBoundary`; they do not rebuild or
 lay out Home on each frame. The second controller runs only while at least one
 local direction is eligible, so solar loading cannot change its speed or stop it.
@@ -237,7 +239,10 @@ As with the scene benchmark, keep the app installed, then rebuild the normal
 The house rests on the ground at phase zero, including reduced-motion mode.
 The contact shadow changes with the loading lift. The entrance hedge stays inside
 the same house transform; the background belongs to Home and adds no other vegetation.
-The sun halo gently expands and contracts without rays hitting the roof.
+The sun halo gently expands and contracts without rays hitting the roof. Two
+clouds travel slowly in opposite directions inside clear sky lanes; smooth turns
+keep the two-minute loop continuous without jumps or covering the sun. Night
+retains its stars without clouds.
 This timing is decorative and never represents a measured flow rate.
 
 ## Zero-production visual check
@@ -267,7 +272,7 @@ flutter drive --keep-app-running -d DEVICE_ID --driver integration_test/home_vis
 
 Captures are written to ignored `app/build/home-preview/`. They cover positive,
 zero, partial and empty solar with active/idle/unavailable battery and grid states,
-plus saved local data. State/widget tests cover all 150 solar × battery × grid
+plus saved local data and both cloud travel extremes. State/widget tests cover all 150 solar × battery × grid
 combinations, independent quality failures, SOC limits, motion policies and large
 text. Restore the normal application after running the native gallery.
 

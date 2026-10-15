@@ -142,7 +142,7 @@ void main() {
       final animation = scene(tester).phase;
       await tester.pump(const Duration(milliseconds: 700));
       expect(animation.value, greaterThan(0));
-      await tester.pump(const Duration(seconds: 6));
+      await tester.pump(const Duration(seconds: 121));
       expect(animation.value, greaterThan(0));
       expect(animation.value, lessThan(1));
       await tester.ensureVisible(find.text('View details'));
