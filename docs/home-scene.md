@@ -23,10 +23,11 @@ The source-coverage subtitle uses an explicit theme foreground for the same reas
 
 - Two eligible, aligned readings: combined power and named source coverage.
 - One eligible reading: explicitly named partial subtotal, never a whole-system total.
-- Positive eligible power: warm sun and three staggered rays that reach the panels.
+- Positive eligible power: a softly shaded amber sun with a gently breathing halo.
+  There are no beams hitting the panels or rotating radial spokes.
 - Complete eligible zero: `0.00 kW`, explicit no-production text, a dark green sky,
   warm window panes and softly staggered stars. Both sources must be eligible,
-  time-compatible and zero, even during daytime. No sun or travelling rays appear.
+  time-compatible and zero, even during daytime. No sun appears.
   This decorative theme does not establish nighttime, weather or household use.
 - Partial zero: keep the muted sun and the named source qualification. A missing
   second source cannot establish whole-system zero.
@@ -35,7 +36,7 @@ The source-coverage subtitle uses an explicit theme foreground for the same reas
   The bounce ends when opening/refresh finishes, including failures; no minimum
   wait or extra provider request is introduced. The eligible production state is
   retained while refreshing: a complete cached zero stays dark, and a partial
-  positive retains the warm sun. Loading suspends rays and ambient twinkles/window
+  positive retains the warm sun. Loading suspends the sun halo pulse and ambient twinkles/window
   variation while the house bounces. Loading without eligible data is unavailable,
   never zero. A failed refresh immediately re-evaluates source eligibility.
 - Stale/missing readings: unavailable or an eligible partial subtotal; per-source badges
@@ -54,12 +55,15 @@ partial zero and unavailable before the painter receives its typed input.
 Battery/grid layers use typed `HomeBatteryState` and `HomeGridState`, resolved
 from the same controllers as Details. The shaded battery cabinet and pylon use
 the house's green/ivory palette, side planes and contact shadows. Neither obscures
-the bay, entrance or hedge. The battery inset fills only from valid SOC; a missing
-level has a dash and an explicit unavailable label. A known 0% remains zero.
+the bay, entrance or hedge. The battery follows the owner's enclosure reference:
+a wide face, narrow left indicator strip and shaded right edge with connectors.
+The photo, branding and original colors are not bundled. Its slim indicator fills
+only from valid SOC; missing SOC uses a dash and known 0% stays empty. Percentage,
+power and source status are shown on Details, leaving Home focused on the artwork.
 
 Battery arrows illustrate the recently received **reported** charge/discharge
 state only when nonzero pack DC power agrees. Receipt eligibility is not evidence
-of measurement freshness: the card explicitly says source time unknown. Idle,
+of measurement freshness: Details explicitly says source time unknown. Idle,
 unknown or conflicting state/power remains still. Charging/discharging with zero
 power is withheld as inconsistent. SOC never determines operating state. Cached,
 old, future-receipt, failed or storage-error readings stop arrows and retain a
@@ -67,16 +71,23 @@ qualified last-known level; no stale pack power is shown as current.
 
 Grid arrows require the existing P1 receipt and measurement freshness policy,
 including its five-second clock tolerance. Signed net watts must agree with the
-typed direction. Eligible zero is labelled No net exchange with 0 W; unavailable
+typed direction. Eligible zero is labelled No net exchange with 0 W on Details; unavailable
 is never zero. Local sources have independent loading/refresh/error states.
 Unconfigured local sources are omitted after initialization. A failed local read
 cannot hide a healthy cloud subtotal or change the solar theme. No scene or
 navigation callback requests data or resets provider waits.
 
-The cards describe independent observations, not a synchronized household balance.
-The caption distinguishes decorative sky/light from reported indicators and says
-arrows do not establish wiring or the battery's charging source. No household-use
-figure is displayed. Battery pack DC is never added to solar AC or grid exchange.
+Details describes independent observations, not a synchronized household balance.
+The info button beside View details explains decorative sky/light, reported
+indicators and why arrows cannot establish wiring or the battery's charging source.
+Home scene semantics announce each local status and its qualification without a
+percentage readout. No household-use figure is displayed. Battery pack DC is never
+added to solar AC or grid exchange.
+
+Each Details card has a tappable info icon for measurement caveats, source
+definitions and refresh policies. Dialog text scrolls at large text sizes. The
+main card retains values, current/saved/stale status, errors and refresh controls;
+source timestamps and secondary measurements sit in collapsed reading details.
 
 Day and zero scenes reserve the same taller sky above the lowered original house geometry;
 it contains the seven constellation stars and sixteen background stars. All stars
@@ -93,7 +104,7 @@ three minutes. The existing controller supplies this timing: ambient lighting ke
 its four/six/twelve-second periods inside a three-minute master loop, with no new
 timer or ticker. Navigation/background pauses preserve the phase. Loading or a
 production-state change resets the cycle; reduced motion leaves no shooting star.
-The expanded scene has a 360×420 design area and scrollable minimum height so the
+The expanded scene has a 360×420 design area and a 420-pixel scrollable minimum height so the
 sky/house stay separated on small phones and with large text.
 
 ## Asset and runtime choice
@@ -174,15 +185,16 @@ effects. The static house
 is repainted with the small scene each frame rather than adding a separate cache or
 animation framework. Home performs intrinsic sizing on layout to give the scene the
 remaining space; content scrolls without shrinking text and the Details action
-stays above navigation. Local cards stack at narrow widths or large text sizes.
+stays above navigation. Info dialogs scroll and keep their close action reachable
+at narrow widths and large text sizes.
 
 Both controllers stop in Details, another tab, a disabled `TickerMode`, or any
 non-resumed app lifecycle state. Disabled-animation and accessible-navigation
 preferences produce a static scene and reset its phase. Resuming restores the loop.
 Individual drawing elements are excluded from semantics; the complete-zero scene
-adds one decorative-scene explanation. Each local card has a combined accessible
-label covering level, state, power and qualification. Readable labels carry every production and
-source state, independently of color or motion. Star brightness varies gently on
+adds a decorative-scene explanation. Home scene semantics include each local
+state and its qualification. Details carries readable level, power and source
+state, independently of color or motion. Star brightness varies gently on
 four/six-second cycles with different phase offsets, varying brightness,
 radius and ray length. Window color and soft radial halos breathe over twelve
 seconds. Reduced motion keeps the stars and warm panes visible at phase zero.
@@ -225,8 +237,8 @@ As with the scene benchmark, keep the app installed, then rebuild the normal
 The house rests on the ground at phase zero, including reduced-motion mode.
 The contact shadow changes with the loading lift. The entrance hedge stays inside
 the same house transform; the background belongs to Home and adds no other vegetation.
-Three staggered rays reach the panel surface each loop when eligible power is
-positive. This timing is decorative and never represents a measured flow rate.
+The sun halo gently expands and contracts without rays hitting the roof.
+This timing is decorative and never represents a measured flow rate.
 
 ## Zero-production visual check
 
@@ -258,3 +270,14 @@ zero, partial and empty solar with active/idle/unavailable battery and grid stat
 plus saved local data. State/widget tests cover all 150 solar × battery × grid
 combinations, independent quality failures, SOC limits, motion policies and large
 text. Restore the normal application after running the native gallery.
+
+The compact Details walkthrough opens each card's info dialog and captures the
+card and explanation separately using synthetic controllers:
+
+```sh
+cd app
+flutter drive --keep-app-running -d DEVICE_ID --driver integration_test/compact_details_driver.dart --target integration_test/compact_details_test.dart
+```
+
+Captures stay in ignored `app/build/details-preview/`. Restore the normal app
+with a data-preserving installation afterwards.
