@@ -264,6 +264,10 @@ void main() {
       await tester.pump();
       await tester.scrollUntilVisible(find.text('SolaX panels'), 300);
       expect(find.text('1.20 kWh'), findsNothing);
+      await tester.ensureVisible(find.text('SolaX source details'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('SolaX source details'));
+      await tester.pumpAndSettle();
       expect(
         find.textContaining('Today’s counter is unavailable'),
         findsOneWidget,

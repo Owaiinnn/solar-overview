@@ -5,6 +5,7 @@ import 'connection_controller.dart';
 import 'home_energy.dart';
 import 'p1_controller.dart';
 import 'production_total.dart';
+import 'reading_info.dart';
 import 'solar_freshness.dart';
 import 'solar_scene.dart';
 import 'solax_controller.dart';
@@ -175,7 +176,7 @@ class HomePage extends StatelessWidget {
                             Expanded(
                               child: ConstrainedBox(
                                 constraints: const BoxConstraints(
-                                  minHeight: 300,
+                                  minHeight: 420,
                                 ),
                                 child: SolarScene(
                                   active: active,
@@ -186,69 +187,6 @@ class HomePage extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (batteryState.visible || gridState.visible) ...[
-                              Builder(
-                                builder: (context) {
-                                  final contentWidth =
-                                      (constraints.maxWidth - 48).clamp(
-                                        0.0,
-                                        520.0,
-                                      );
-                                  final stacked =
-                                      contentWidth < 300 ||
-                                      MediaQuery.textScalerOf(context)
-                                              .scale(14) >
-                                          20;
-                                  final cards = [
-                                    if (batteryState.visible)
-                                      _EnergyStatus(
-                                        title: 'Battery',
-                                        status: batteryState.status,
-                                        value: batteryState.levelLabel,
-                                        power: batteryState.powerLabel,
-                                        qualification:
-                                            batteryState.qualification,
-                                        semantics: batteryState.semantics,
-                                      ),
-                                    if (gridState.visible)
-                                      _EnergyStatus(
-                                        title: 'Grid',
-                                        status: gridState.status,
-                                        value: gridState.powerLabel,
-                                        qualification: gridState.qualification,
-                                        semantics: gridState.semantics,
-                                      ),
-                                  ];
-                                  return Wrap(
-                                    spacing: 12,
-                                    runSpacing: 12,
-                                    children: [
-                                      for (final card in cards)
-                                        SizedBox(
-                                          width: stacked || cards.length == 1
-                                              ? contentWidth
-                                              : (contentWidth - 12) / 2,
-                                          child: card,
-                                        ),
-                                    ],
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 12),
-                            ],
-                            Text(
-                              batteryState.visible || gridState.visible
-                                  ? 'Separate reported readings, not synchronized flows. '
-                                        'Sky and light are decorative. Arrows do not establish '
-                                        'wiring or the battery’s charging source.'
-                                  : 'Sky, light and rays are decorative, not live weather.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: colors.onSurfaceVariant,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
                             Wrap(
                               alignment: WrapAlignment.center,
                               spacing: 8,
@@ -275,16 +213,32 @@ class HomePage extends StatelessWidget {
                     constraints: const BoxConstraints(maxWidth: 520),
                     child: SizedBox(
                       width: double.infinity,
-                      child: FilledButton.icon(
-                        style: FilledButton.styleFrom(
-                          animationDuration: Duration.zero,
-                        ),
-                        onPressed: openDetails,
-                        icon: const Icon(Icons.arrow_forward_rounded),
-                        label: const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          child: Text('View details'),
-                        ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: FilledButton.icon(
+                              style: FilledButton.styleFrom(
+                                animationDuration: Duration.zero,
+                              ),
+                              onPressed: openDetails,
+                              icon: const Icon(Icons.arrow_forward_rounded),
+                              label: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                child: Text('View details'),
+                              ),
+                            ),
+                          ),
+                          const ReadingInfoButton(
+                            title: 'this scene',
+                            information:
+                                'Sky and light are decorative, not live weather. '
+                                'Battery and grid movement follows independently reported states, '
+                                'not synchronized flows or verified wiring. Battery charging may '
+                                'come from the grid; the source is unknown. Battery measurement '
+                                'time is unavailable. Saved, stale, failed or conflicting readings '
+                                'stop their arrows. See Details for readings and source status.',
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -321,56 +275,4 @@ class _SourceStatus extends StatelessWidget {
       ),
     ),
   );
-}
-
-class _EnergyStatus extends StatelessWidget {
-  const _EnergyStatus({
-    required this.title,
-    required this.status,
-    required this.qualification,
-    required this.semantics,
-    this.value,
-    this.power,
-  });
-
-  final String title;
-  final String status;
-  final String? value;
-  final String? power;
-  final String qualification;
-  final String semantics;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Semantics(
-      label: semantics,
-      excludeSemantics: true,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: colors.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
-            ),
-            const SizedBox(height: 4),
-            Text(status, style: const TextStyle(fontWeight: FontWeight.w700)),
-            if (value != null) Text(value!),
-            if (power != null) Text(power!),
-            const SizedBox(height: 4),
-            Text(
-              qualification,
-              style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

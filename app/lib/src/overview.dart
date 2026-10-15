@@ -6,6 +6,7 @@ import 'connection_controller.dart';
 import 'p1_controller.dart';
 import 'p1_widgets.dart';
 import 'production_total.dart';
+import 'reading_info.dart';
 import 'solar_freshness.dart';
 import 'solax_controller.dart';
 
@@ -69,15 +70,14 @@ class OverviewPage extends StatelessWidget {
           if (!configuredOnly)
             const _SourceCard(
               title: 'Your other energy sources',
+              information:
+                  'Household consumption needs verified measurement coverage, battery AC '
+                  'power and aligned source times. Spare power cannot be calculated '
+                  'until those inputs are available.',
               children: [
-                Text(
-                  'Household consumption: unavailable — compatible measurements and meter coverage need verification.',
-                ),
+                Text('Household consumption: unavailable'),
                 SizedBox(height: 8),
-                Text(
-                  'Spare power for appliances is unavailable until household '
-                  'and relevant battery flows are measured.',
-                ),
+                Text('Spare power: unavailable'),
               ],
             ),
         ]) ...[card, const SizedBox(height: 16)],
@@ -86,11 +86,6 @@ class OverviewPage extends StatelessWidget {
             onPressed: openSettings,
             child: const Text('Manage connections'),
           ),
-        const Text(
-          'Power (W / kW) is the rate of production. Energy '
-          '(Wh / kWh) accumulates over time. 1 kW = 1,000 W; '
-          '1 kWh = 1,000 Wh.',
-        ),
       ],
     ),
   );
@@ -99,6 +94,12 @@ class OverviewPage extends StatelessWidget {
     final total = ProductionTotal(controller, solax);
     return _SourceCard(
       title: total.title,
+      information:
+          'Uses reported solar-only AC output, including recent saved readings. Both '
+          'readings must be under 30 minutes old and within five minutes of each other. '
+          'Cloud readings are not instantaneous.\n\n'
+          'Power (W / kW) is a rate; energy (Wh / kWh) accumulates over time. 1 kW = '
+          '1,000 W; 1 kWh = 1,000 Wh.',
       children: [
         _Measurement(label: total.coverage, value: _kilo(total.watts, 'kW')),
         if (total.timeMismatch)
@@ -107,17 +108,9 @@ class OverviewPage extends StatelessWidget {
             'A combined reading is unavailable.',
           )
         else if (total.partial)
-          const Text(
-            'The other source is disconnected, missing, stale or needs '
-            'attention. This is a subtotal, not whole-home solar production.',
-          )
+          const Text('One eligible source · partial total')
         else if (total.watts == null)
           const Text('No compatible recent power readings are available.'),
-        const Text(
-          'Uses reported solar-only AC output, including recent saved '
-          'readings. Both readings must be under 30 minutes old and within '
-          'five minutes of each other. Cloud readings are not instantaneous.',
-        ),
       ],
     );
   }
@@ -127,6 +120,12 @@ class OverviewPage extends StatelessWidget {
     final data = c.overview;
     return _SourceCard(
       title: 'SolarEdge panels',
+      information:
+          'Cloud readings may lag behind your panels. Refresh is available every 15 '
+          'minutes.\n\n'
+          'Energy source: SolarEdge site daily production.\n\n'
+          'Daily energy needs a reading dated today in the site timezone. Saved or '
+          'stale values retain their original measurement time.',
       children: [
         if (c.busy) const LinearProgressIndicator(),
         if (c.error != null) _SourceError(c.error!),
@@ -160,26 +159,28 @@ class OverviewPage extends StatelessWidget {
             label: 'Today’s energy',
             value: _kilo(c.todayEnergyWh, 'kWh'),
           ),
-          Text(
-            'Last reported: ${data?.reportedAt ?? 'unavailable'}'
-            '${data?.reportedAt == null ? '' : ' (${data?.timeZone ?? 'site timezone unavailable'})'}',
-          ),
-          if (c.todayEnergyWh == null && data?.energyWh != null)
-            const Text(
-              'Today’s energy is unavailable until a reading dated today '
-              'in the site timezone arrives.',
-            ),
-          const Text(
-            'Cloud readings may lag behind your panels. '
-            'Refresh is available every 15 minutes.',
-          ),
-          const Text('Energy source: SolarEdge site daily production.'),
           OutlinedButton.icon(
             onPressed: c.busy || c.storageUnavailable || !c.canRequest
                 ? null
                 : c.refresh,
             icon: const Icon(Icons.refresh),
             label: const Text('Refresh readings'),
+          ),
+          ExpansionTile(
+            title: const Text('SolarEdge reading details'),
+            tilePadding: EdgeInsets.zero,
+            expandedCrossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Last reported: ${data?.reportedAt ?? 'unavailable'}'
+                '${data?.reportedAt == null ? '' : ' (${data?.timeZone ?? 'site timezone unavailable'})'}',
+              ),
+              if (c.todayEnergyWh == null && data?.energyWh != null)
+                const Text(
+                  'Today’s energy is unavailable until a reading dated today '
+                  'in the site timezone arrives.',
+                ),
+            ],
           ),
         ],
         if (c.refreshNotice != null) Text(c.refreshNotice!),
@@ -192,6 +193,14 @@ class OverviewPage extends StatelessWidget {
     final data = c?.reading;
     return _SourceCard(
       title: 'SolaX panels',
+      information:
+          'Device energy counters may reset or differ from plant totals. A verified '
+          'daily total is not yet available.\n\n'
+          'DC panel inputs — not added to AC inverter output.\n\n'
+          'Source: SolaX device telemetry. Power: acPower1; daily / lifetime AC energy: '
+          'dailyACOutput / totalACOutput. Plant totals and PV yield are separate '
+          'measurements and are never substituted. All details use the timestamp '
+          'shown in SolaX source details.',
       children: [
         if (c?.busy ?? false) const LinearProgressIndicator(),
         if (c?.error != null) _SourceError(c!.error!),
@@ -221,23 +230,9 @@ class OverviewPage extends StatelessWidget {
             value: _kilo(data?.powerWatts, 'kW'),
           ),
           _Measurement(
-            label: 'Today’s inverter AC energy (device counter)',
+            label: 'Today’s AC energy · device counter',
             value: _kilo(c.todayEnergyWh, 'kWh'),
           ),
-          const Text(
-            'Device energy counters may reset or differ from plant totals. '
-            'A verified daily total is not yet available.',
-          ),
-          if (c.todayEnergyWh == null && data?.dailyEnergyWh != null)
-            const Text(
-              'Today’s counter is unavailable until a reading dated today '
-              'in the plant timezone arrives.',
-            ),
-          Text('Inverter status: ${data?.status ?? 'Unavailable'}'),
-          Text(
-            'Source time (UTC): ${data?.reportedAtUtc?.toIso8601String() ?? 'Unavailable'}',
-          ),
-          Text('Plant timezone: ${data?.timeZone ?? 'Unavailable'}'),
           if (c.reconnectRequired)
             TextButton(
               onPressed: openSettings,
@@ -254,7 +249,16 @@ class OverviewPage extends StatelessWidget {
             childrenPadding: const EdgeInsets.only(bottom: 12),
             expandedCrossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('DC panel inputs — not added to AC inverter output.'),
+              if (c.todayEnergyWh == null && data?.dailyEnergyWh != null)
+                const Text(
+                  'Today’s counter is unavailable until a reading dated today '
+                  'in the plant timezone arrives.',
+                ),
+              Text('Inverter status: ${data?.status ?? 'Unavailable'}'),
+              Text(
+                'Source time (UTC): ${data?.reportedAtUtc?.toIso8601String() ?? 'Unavailable'}',
+              ),
+              Text('Plant timezone: ${data?.timeZone ?? 'Unavailable'}'),
               for (final channel in [1, 2]) ...[
                 const SizedBox(height: 12),
                 Text(
@@ -274,13 +278,6 @@ class OverviewPage extends StatelessWidget {
               Text(
                 'Lifetime inverter AC energy: ${_kilo(data?.lifetimeEnergyWh, 'kWh')}',
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Source: SolaX device telemetry. Power: acPower1; '
-                'daily / lifetime AC energy: dailyACOutput / totalACOutput. '
-                'Plant totals and PV yield are separate measurements and '
-                'are never substituted. All details use the source time above.',
-              ),
             ],
           ),
         ],
@@ -297,7 +294,12 @@ String _value(double? value, String unit) =>
     value == null ? 'Unavailable' : '${value.toStringAsFixed(1)} $unit';
 
 class _SourceCard extends StatelessWidget {
-  const _SourceCard({required this.title, required this.children});
+  const _SourceCard({
+    required this.title,
+    required this.children,
+    this.information,
+  });
+  final String? information;
   final String title;
   final List<Widget> children;
   @override
@@ -307,7 +309,7 @@ class _SourceCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(title, style: Theme.of(context).textTheme.titleLarge),
+          ReadingCardHeader(title: title, information: information),
           const SizedBox(height: 12),
           ...children,
         ],

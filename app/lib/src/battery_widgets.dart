@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'battery.dart';
 import 'battery_controller.dart';
+import 'reading_info.dart';
 
 class BatterySettingsCard extends StatefulWidget {
   const BatterySettingsCard({super.key, this.controller, this.preview = false});
@@ -210,6 +211,19 @@ class BatteryDetailsCard extends StatelessWidget {
           ? '${age.inMinutes}m ago'
           : '${age.inHours}h ago';
       return _BatteryCard(
+        information:
+            'Pack power: negative = charging; positive = discharging. This is not '
+            'household AC power or solar production.\n\n'
+            'Measurement time is unavailable. A recent response does not confirm that the '
+            'device’s measurements are current.\n\n'
+            'AC power uses the opposite sign: positive input, negative output. Total AC '
+            'may include bypass flow; its wiring boundaries remain unverified.\n\n'
+            'Daily counters are device-reported values. Reset timing and completeness are '
+            'unverified; these are not confirmed totals for today.\n\n'
+            'Available energy: unavailable until usable capacity and reserve are '
+            'verified.\n\n'
+            'Refreshes every 30 seconds while the app is open; failed requests back off '
+            'up to 5 minutes. After 90 seconds without success, readings are saved only.',
         children: [
           if (c?.busy ?? false) const LinearProgressIndicator(),
           if (c?.error != null)
@@ -254,19 +268,9 @@ class BatteryDetailsCard extends StatelessWidget {
               '${recent ? 'Reported' : 'Saved'} pack DC power: ${_value(r?.packWatts, 'W')}',
             ),
             if (r?.statePowerConflict ?? false)
-              const Text(
-                'Reported state and power disagree. Battery flow is unconfirmed.',
-              ),
-            const Text(
-              'Pack power: negative = charging; positive = discharging. This is not household AC power or solar production.',
-            ),
+              const Text('State and power disagree · flow unconfirmed'),
             const SizedBox(height: 12),
             Text('Received: $ageLabel'),
-            if (c.receivedAt != null)
-              Text('Receipt time (UTC): ${c.receivedAt!.toIso8601String()}'),
-            const Text(
-              'Measurement time is unavailable. A recent response does not confirm that the device’s measurements are current.',
-            ),
             OutlinedButton.icon(
               onPressed: c.canRequest ? c.refresh : null,
               icon: const Icon(Icons.refresh),
@@ -277,15 +281,17 @@ class BatteryDetailsCard extends StatelessWidget {
             ExpansionTile(
               title: const Text('Battery measurement details'),
               tilePadding: EdgeInsets.zero,
+              expandedCrossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (c.receivedAt != null)
+                  Text(
+                    'Receipt time (UTC): ${c.receivedAt!.toIso8601String()}',
+                  ),
                 Text(
                   'Reported inverter AC power: ${_value(r?.inverterAcWatts, 'W')}',
                 ),
                 Text(
                   'Reported total AC power: ${_value(r?.totalAcWatts, 'W')}',
-                ),
-                const Text(
-                  'AC power uses the opposite sign: positive input, negative output. Total AC may include bypass flow; its wiring boundaries remain unverified.',
                 ),
                 Text(
                   'Last reported daily charge counter: ${_value(r?.dailyChargeKwh, 'kWh', decimals: 3)}',
@@ -293,16 +299,7 @@ class BatteryDetailsCard extends StatelessWidget {
                 Text(
                   'Last reported daily discharge counter: ${_value(r?.dailyDischargeKwh, 'kWh', decimals: 3)}',
                 ),
-                const Text(
-                  'Daily counters are device-reported values. Reset timing and completeness are unverified; these are not confirmed totals for today.',
-                ),
-                const Text(
-                  'Available energy: unavailable until usable capacity and reserve are verified.',
-                ),
               ],
-            ),
-            const Text(
-              'Refreshes every 30 seconds while the app is open; failed requests back off up to 5 minutes. After 90 seconds without success, readings are saved only.',
             ),
           ],
         ],
@@ -312,7 +309,8 @@ class BatteryDetailsCard extends StatelessWidget {
 }
 
 class _BatteryCard extends StatelessWidget {
-  const _BatteryCard({required this.children});
+  const _BatteryCard({required this.children, this.information});
+  final String? information;
   final List<Widget> children;
   @override
   Widget build(BuildContext context) => Card(
@@ -321,9 +319,9 @@ class _BatteryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'INDEVOLT PowerFlex battery',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+          ReadingCardHeader(
+            title: 'INDEVOLT PowerFlex battery',
+            information: information,
           ),
           const SizedBox(height: 16),
           ...children,

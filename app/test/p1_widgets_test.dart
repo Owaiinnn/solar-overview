@@ -144,6 +144,11 @@ void main() {
           find.text('Cumulative import tariff 1: 1234.567 kWh'),
           findsOneWidget,
         );
+        expect(find.textContaining('not today’s energy'), findsNothing);
+        await tester.ensureVisible(find.byTooltip('About P1 grid meter'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('About P1 grid meter'));
+        await tester.pumpAndSettle();
         expect(find.textContaining('not today’s energy'), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());

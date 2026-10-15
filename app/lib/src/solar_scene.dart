@@ -109,12 +109,21 @@ class _SolarSceneState extends State<SolarScene>
     super.dispose();
   }
 
+  String get _energySemantics => [
+    if (widget.battery.visible)
+      'Battery: ${widget.battery.status}. ${widget.battery.qualification}.',
+    if (widget.grid.visible)
+      'Grid: ${widget.grid.status}. ${widget.grid.qualification}.',
+  ].join(' ');
+
   @override
   Widget build(BuildContext context) => Semantics(
     label: widget.production == SolarProductionState.zero
         ? 'Decorative zero-production scene. '
-              'Window light does not indicate household consumption or live weather.'
-        : 'Decorative solar scene. Sun and rays do not indicate live weather.',
+              'Window light does not indicate household consumption or live weather. '
+              '$_energySemantics'
+        : 'Decorative solar scene. Sunlight does not indicate live weather. '
+              '$_energySemantics',
     excludeSemantics: true,
     child: RepaintBoundary(
       child: CustomPaint(
@@ -316,23 +325,34 @@ class SolarScenePainter extends CustomPainter {
         canvas.drawCircle(tip, 1.8, paint);
       }
     } else {
-      final pulse = .5 + .5 * math.sin(phase.value * math.pi * 2);
-      fill(sunColor.withValues(alpha: .09 + pulse * .04));
-      canvas.drawCircle(const Offset(282, 46), 37 + pulse * 3, paint);
-      fill(sunColor.withValues(alpha: .18));
-      canvas.drawCircle(const Offset(282, 46), 28, paint);
-      fill(sunColor);
-      canvas.drawCircle(const Offset(282, 46), 19, paint);
-      for (var i = 0; i < 8; i++) {
-        final angle = i * math.pi / 4;
-        final direction = Offset(math.cos(angle), math.sin(angle));
-        line(
-          const Offset(282, 46) + direction * 25,
-          const Offset(282, 46) + direction * 30,
-          sunColor.withValues(alpha: .7),
-          2,
-        );
-      }
+      final pulse = loading
+          ? .5
+          : .5 + .5 * math.sin(phase.value * math.pi * 2);
+      const center = Offset(276, 66);
+      final haloRadius = 58 + pulse * 5;
+      paint
+        ..style = PaintingStyle.fill
+        ..shader = RadialGradient(
+          colors: [
+            sunColor.withValues(alpha: .25),
+            sunColor.withValues(alpha: 0),
+          ],
+          stops: const [.15, 1],
+        ).createShader(Rect.fromCircle(center: center, radius: haloRadius));
+      canvas.drawCircle(center, haloRadius, paint);
+      paint.shader = null;
+      fill(sunColor.withValues(alpha: .07 + pulse * .03));
+      canvas.drawCircle(center, 38 + pulse * 2, paint);
+      paint.color = const Color(0xFFFFFFFF);
+      paint.shader = RadialGradient(
+        center: const Alignment(-.4, -.5),
+        radius: 1.1,
+        colors: production == SolarProductionState.positive
+            ? const [Color(0xFFFFEAC1), Color(0xFFF2CB76), Color(0xFFE0AD4F)]
+            : const [Color(0xFFDCE4D5), Color(0xFFAFBCAB), Color(0xFF94A78F)],
+      ).createShader(Rect.fromCircle(center: center, radius: 27));
+      canvas.drawCircle(center, 27, paint);
+      paint.shader = null;
     }
     canvas.save();
     canvas.translate(0, 150);
@@ -480,22 +500,6 @@ class SolarScenePainter extends CustomPainter {
       );
     }
     canvas.restore();
-    if (production == SolarProductionState.positive && !loading) {
-      for (var i = 0; i < 3; i++) {
-        final t = (phase.value + i / 3) % 1;
-        final start = Offset(267 + i * 6.0, -82);
-        final end = Offset(207 + i * 16.0, 113 - i * 5.0);
-        final opacity = math.sin(t * math.pi).clamp(0.0, 1.0);
-        final tip = Offset.lerp(start, end, t)!;
-        final tail = Offset.lerp(start, end, math.max(0, t - .22))!;
-        line(tail, tip, sunColor.withValues(alpha: opacity * .12), 12);
-        line(tail, tip, sunColor.withValues(alpha: opacity * .85), 3);
-        if (t > .8) {
-          fill(sunColor.withValues(alpha: (1 - t) * 2));
-          canvas.drawCircle(end, 3 + (t - .8) * 25, paint);
-        }
-      }
-    }
     canvas.restore();
     _paintEnergy(canvas, zero);
     canvas.restore();
@@ -560,55 +564,75 @@ class SolarScenePainter extends CustomPainter {
     }
 
     if (battery.visible) {
-      shadow(const Offset(29, 376), 51);
-      rounded(const Rect.fromLTRB(10, 365, 40, 373), 2, edge);
+      shadow(const Offset(28, 375), 59);
       polygon([
-        const Offset(39, 314),
-        const Offset(49, 309),
-        const Offset(49, 363),
-        const Offset(39, 370),
+        const Offset(45, 322),
+        const Offset(57, 316),
+        const Offset(57, 361),
+        const Offset(45, 371),
       ], side);
-      rounded(const Rect.fromLTRB(7, 314, 40, 370), 3, cream);
       polygon([
-        const Offset(7, 314),
-        const Offset(17, 308),
-        const Offset(49, 308),
-        const Offset(40, 314),
-      ], side);
-      rounded(const Rect.fromLTRB(7, 313, 40, 319), 2, green);
+        const Offset(0, 324),
+        const Offset(12, 317),
+        const Offset(57, 316),
+        const Offset(45, 323),
+      ], cream);
+      rounded(const Rect.fromLTRB(0, 323, 46, 370), 3, cream);
+      rounded(const Rect.fromLTRB(1, 324, 11, 368), 2, edge);
       polygon([
-        const Offset(40, 313),
-        const Offset(49, 308),
-        const Offset(49, 314),
-        const Offset(40, 319),
+        const Offset(0, 369),
+        const Offset(45, 369),
+        const Offset(57, 360),
+        const Offset(57, 365),
+        const Offset(46, 374),
+        const Offset(4, 374),
       ], edge);
-      rounded(const Rect.fromLTRB(13, 324, 34, 356), 2, edge);
-      rounded(const Rect.fromLTRB(15, 326, 32, 354), 1, side);
+      line(
+        const Offset(13, 326),
+        const Offset(13, 366),
+        side.withValues(alpha: .5),
+        .8,
+      );
+      line(const Offset(6, 333), const Offset(6, 359), side, 1.4);
       final percent = battery.percent;
       if (percent != null) {
-        rounded(
-          Rect.fromLTRB(15, 354 - 28 * percent / 100, 32, 354),
-          1,
-          battery.recent ? green : green.withValues(alpha: .35),
+        line(
+          const Offset(6, 359),
+          Offset(6, 359 - 26 * percent / 100),
+          cream.withValues(alpha: battery.recent ? .95 : .35),
+          1.4,
         );
-        for (final y in [333.0, 340.0, 347.0]) {
-          line(Offset(16, y), Offset(31, y), cream.withValues(alpha: .35), .7);
-        }
       } else {
-        line(const Offset(21, 340), const Offset(26, 340), cream, 1.5);
+        line(const Offset(4, 346), const Offset(8, 346), cream, 1.4);
       }
-      for (final y in [361.0, 364.0]) {
-        line(Offset(17, y), Offset(30, y), side, 1);
+      polygon([
+        const Offset(48, 335),
+        const Offset(51, 333),
+        const Offset(51, 357),
+        const Offset(48, 359),
+      ], green.withValues(alpha: .45));
+      for (final connector in [
+        (y: 337.0, radius: 1.5),
+        (y: 345.0, radius: 2.5),
+        (y: 354.0, radius: 3.0),
+      ]) {
+        paint
+          ..style = PaintingStyle.fill
+          ..color = edge;
+        canvas.drawOval(
+          Rect.fromCenter(
+            center: Offset(54, connector.y),
+            width: connector.radius * 1.3,
+            height: connector.radius * 2,
+          ),
+          paint,
+        );
       }
-      line(
-        const Offset(44, 324),
-        const Offset(44, 355),
-        edge.withValues(alpha: .3),
-        1,
-      );
+      line(const Offset(49, 323), const Offset(57, 319), green, 1.5);
+      line(const Offset(48, 367), const Offset(57, 361), green, 1.5);
       if (battery.moving) {
         flowPath(
-          const Offset(52, 350),
+          const Offset(60, 350),
           const Offset(73, 350),
           battery.reportedState == BatteryState.discharging,
         );
