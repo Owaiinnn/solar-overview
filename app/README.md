@@ -6,14 +6,14 @@ in the codebase. See the [project overview](../README.md) for the technology sta
 
 ## Built features
 
-- Home combines qualified solar power with independent battery level/reported
-  state and P1 grid direction. Day and dark scenes share the same house artwork;
-  battery/grid arrows stop for saved, stale, failed or inconsistent data.
-  Battery power is labelled pack DC, with source time unknown. No household
-  balance or solar-to-battery attribution is inferred. **View details** stays
-  accessible above navigation. Motion respects accessibility preferences and
+- Home focuses on the shared animated house, a soft sun or starry sky, and
+  independent battery/grid indicators. Battery percentage and local power readings
+  live on Details; arrows stop for saved, stale, failed or inconsistent data.
+  No household balance or solar-to-battery attribution is inferred. **View details**
+  stays accessible above navigation. Motion respects accessibility preferences and
   pauses away from Home.
-
+- Details keeps readings, source status and refresh controls visible, with concise
+  cards, expandable measurements and tappable info icons for explanations.
 - Independent SolarEdge and SolaX connections, with setup, replacement and removal
   in Settings and credentials stored securely on the device.
 - Details cards for configured sources showing power, energy, measurement time, connection status and
