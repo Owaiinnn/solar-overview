@@ -106,6 +106,12 @@ void main() {
     await tester.ensureVisible(find.text('Battery measurement details'));
     await tester.tap(find.text('Battery measurement details'));
     await tester.pumpAndSettle();
+    expect(find.textContaining('not confirmed totals for today'), findsNothing);
+    await tester.ensureVisible(
+      find.byTooltip('About INDEVOLT PowerFlex battery'),
+    );
+    await tester.tap(find.byTooltip('About INDEVOLT PowerFlex battery'));
+    await tester.pumpAndSettle();
     expect(
       find.textContaining('not confirmed totals for today'),
       findsOneWidget,

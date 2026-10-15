@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'p1.dart';
 import 'p1_controller.dart';
+import 'reading_info.dart';
 
 class P1SettingsCard extends StatefulWidget {
   const P1SettingsCard({
@@ -208,6 +209,21 @@ class P1DetailsCard extends StatelessWidget {
       final c = controller;
       final r = c?.reading;
       return _P1Card(
+        information:
+            'Both import and export readings are needed to determine net exchange.\n\n'
+            'These are meter totals, not today’s energy. Tariff 1/2 names do not assume '
+            'your electricity contract.\n\n'
+            'Decreasing tariff counters can indicate a reset or rollover; no daily '
+            'or interval energy is calculated from them.\n\n'
+            'Missing phases are unavailable, not zero. Phase readings may update at '
+            'different times.\n\n'
+            'Source: electricity meter readings through your local P1 reader.\n\n'
+            'Refreshes every 30 seconds while the app is open, backing off up to 5 '
+            'minutes on failure. Meter readings become stale after 90 seconds. Away from '
+            'home, only saved readings are available.\n\n'
+            'Grid exchange is not household consumption. Household use remains '
+            'unavailable until meter coverage, battery AC power and measurement timing '
+            'are verified.',
         children: [
           if (c?.busy ?? false) const LinearProgressIndicator(),
           if (c?.error != null)
@@ -247,13 +263,6 @@ class P1DetailsCard extends StatelessWidget {
               _power(r?.netWatts?.abs()),
               style: Theme.of(context).textTheme.headlineSmall,
             ),
-            if (r?.netWatts == null)
-              const Text(
-                'Both import and export readings are needed to determine net exchange.',
-              ),
-            Text(
-              'Meter time (Europe/Amsterdam): ${r == null ? 'Unavailable' : _meterTime(r.timestamp)}',
-            ),
             if (c.measurementAge != null)
               Text(
                 c.measurementAge!.isNegative
@@ -267,15 +276,15 @@ class P1DetailsCard extends StatelessWidget {
             ),
             if (c.wait > Duration.zero)
               Text('Next P1 attempt in ${c.wait.inSeconds + 1}s.'),
-            if (c.counterReset)
-              const Text(
-                'A tariff counter decreased during this connection. It may have reset or rolled over; no interval or daily energy is calculated.',
-              ),
+            if (c.counterReset) const Text('Tariff counter reset detected'),
             ExpansionTile(
               title: const Text('Meter measurement details'),
               tilePadding: EdgeInsets.zero,
               expandedCrossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  'Meter time (Europe/Amsterdam): ${r == null ? 'Unavailable' : _meterTime(r.timestamp)}',
+                ),
                 if (r != null)
                   Text(
                     'Measurement time (UTC): ${r.measuredAt.toIso8601String()}',
@@ -297,30 +306,15 @@ class P1DetailsCard extends StatelessWidget {
                 Text(
                   'Cumulative export tariff 2: ${_energy(r?.fields['1-0:2.8.2'])}',
                 ),
-                const Text(
-                  'These are meter totals, not today’s energy. Tariff 1/2 names do not assume your electricity contract.',
-                ),
                 const SizedBox(height: 8),
                 for (var phase = 1; phase <= 3; phase++)
                   Text(
                     'L$phase: ${r?.fields['1-0:${phase * 2 + 1}2.7.0'] ?? 'Unavailable'} V · ${r?.fields['1-0:${phase * 2 + 1}1.7.0'] ?? 'Unavailable'} A',
                   ),
-                const Text(
-                  'Missing phases are unavailable, not zero. Phase readings may update at different times.',
-                ),
-                const Text(
-                  'Source: electricity meter readings through your local P1 reader.',
-                ),
               ],
-            ),
-            const Text(
-              'Refreshes every 30 seconds while the app is open, backing off up to 5 minutes on failure. Meter readings become stale after 90 seconds. Away from home, only saved readings are available.',
             ),
           ],
           const SizedBox(height: 8),
-          const Text(
-            'Grid exchange is not household consumption. Household use remains unavailable until meter coverage, battery AC power and measurement timing are verified.',
-          ),
         ],
       );
     },
@@ -331,7 +325,8 @@ class P1DetailsCard extends StatelessWidget {
 }
 
 class _P1Card extends StatelessWidget {
-  const _P1Card({required this.children});
+  const _P1Card({required this.children, this.information});
+  final String? information;
   final List<Widget> children;
   @override
   Widget build(BuildContext context) => Card(
@@ -340,10 +335,7 @@ class _P1Card extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'P1 grid meter',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-          ),
+          ReadingCardHeader(title: 'P1 grid meter', information: information),
           const SizedBox(height: 16),
           ...children,
         ],

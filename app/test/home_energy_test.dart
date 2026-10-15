@@ -8,6 +8,7 @@ import 'package:solar_overview/src/battery_store.dart';
 import 'package:solar_overview/src/connection_controller.dart';
 import 'package:solar_overview/src/home_energy.dart';
 import 'package:solar_overview/src/p1.dart';
+import 'package:solar_overview/src/overview.dart';
 import 'package:solar_overview/src/p1_store.dart';
 import 'package:solar_overview/src/production_total.dart';
 import 'package:solar_overview/src/solar_scene.dart';
@@ -87,12 +88,12 @@ void main() {
                 gridState == GridDirection.exporting,
           );
           if (batteryState != null) {
-            expect(find.text(painter.battery.status), findsWidgets);
-            expect(find.text('60%'), findsOneWidget);
+            expect(find.textContaining('%'), findsNothing);
           }
-          if (gridState != null) {
-            expect(find.text(painter.grid.status), findsWidgets);
-          }
+          expect(
+            tester.getSize(find.byType(SolarScene)).height,
+            greaterThanOrEqualTo(420),
+          );
           await tester.pump(const Duration(milliseconds: 600));
           expect(tester.takeException(), isNull);
           await tester.pumpWidget(const SizedBox());
@@ -377,7 +378,8 @@ void main() {
       );
       await refresh;
       await tester.pump();
-      expect(find.text('Last known · 60%'), findsOneWidget);
+      expect(scene(tester).battery.percent, 60);
+      expect(find.textContaining('%'), findsNothing);
       expect(scene(tester).battery.moving, isFalse);
       expect(scene(tester).grid.moving, isTrue);
       await tester.pumpWidget(const SizedBox());
@@ -473,20 +475,31 @@ void main() {
         await tester.pumpWidget(
           SolarApp(controller: edge, solax: solax, battery: battery, p1: grid),
         );
-        await tester.ensureVisible(find.text('Charging'));
+        await tester.ensureVisible(find.byType(SolarScene));
+        expect(find.textContaining('%'), findsNothing);
         expect(
-          find.bySemanticsLabel(RegExp('Battery. 60%. Charging.')),
+          find.bySemanticsLabel(RegExp('Battery: Charging')),
           findsOneWidget,
         );
-        await tester.ensureVisible(find.text('Importing'));
         expect(
-          find.bySemanticsLabel(RegExp('Grid. Importing. 1.20 kW.')),
+          find.bySemanticsLabel(RegExp('Grid: Importing')),
           findsOneWidget,
         );
         await tester.ensureVisible(find.text('View details'));
         await tester.tap(find.text('View details'));
         await tester.pumpAndSettle();
         expect(find.text('Your solar readings'), findsOneWidget);
+        await tester.scrollUntilVisible(
+          find.text('Reported battery level: 60 %'),
+          300,
+          scrollable: find
+              .descendant(
+                of: find.byType(OverviewPage),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+        );
+        expect(find.text('Reported battery level: 60 %'), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox());
         battery.dispose();
