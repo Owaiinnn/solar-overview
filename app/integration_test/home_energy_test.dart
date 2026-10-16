@@ -113,6 +113,12 @@ void main() {
           await Future<void>.delayed(const Duration(milliseconds: 200));
           await binding.takeScreenshot('cloud-drift-$phase');
         }
+        for (final seconds in [25.0, 25.5, 55.0, 55.5]) {
+          sky.value = seconds / 120;
+          await tester.pump();
+          await Future<void>.delayed(const Duration(milliseconds: 200));
+          await binding.takeScreenshot('bird-flight-$seconds');
+        }
       }
       final animation = scene(tester).flow;
       await tester.tap(find.text('View details'));
