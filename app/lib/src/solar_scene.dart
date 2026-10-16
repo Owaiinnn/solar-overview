@@ -180,6 +180,15 @@ class SolarScenePainter extends CustomPainter {
     return (seconds - 28.5) / 1.5;
   }
 
+  double? get birdProgress {
+    if (production == SolarProductionState.zero || loading) return null;
+    final seconds = (phase.value * 120) % 30;
+    if (seconds < 22 || seconds >= 29) return null;
+    return (seconds - 22) / 7;
+  }
+
+  bool get birdFlyingRight => (phase.value * 4).floor().isEven;
+
   @override
   void paint(Canvas canvas, Size size) {
     final zero = production == SolarProductionState.zero;
@@ -354,6 +363,7 @@ class SolarScenePainter extends CustomPainter {
       ).createShader(Rect.fromCircle(center: center, radius: 27));
       canvas.drawCircle(center, 27, paint);
       paint.shader = null;
+      _paintBird(canvas);
     }
     canvas.save();
     canvas.translate(0, 150);
@@ -524,8 +534,8 @@ class SolarScenePainter extends CustomPainter {
         colors: [Color(0xFFF0F3E9), Color(0xFFD8E2D4)],
       ).createShader(const Rect.fromLTWH(0, 0, 70, 28));
     for (final cloud in [
-      (position: Offset(70 + drift * 50, 26), scale: .8),
-      (position: Offset(174 - drift * 108, 138), scale: 1.0),
+      (position: Offset(60 + drift * 48, 24), scale: 1.0),
+      (position: Offset(160 - drift * 102, 138), scale: 1.22),
     ]) {
       canvas.save();
       canvas.translate(cloud.position.dx, cloud.position.dy);
@@ -533,6 +543,46 @@ class SolarScenePainter extends CustomPainter {
       canvas.drawPath(silhouette, cloudPaint);
       canvas.restore();
     }
+  }
+
+  void _paintBird(Canvas canvas) {
+    final progress = birdProgress;
+    if (progress == null) return;
+    final travel = birdFlyingRight ? progress : 1 - progress;
+    final wing = 2.5 + 4.5 * math.cos(progress * math.pi * 12);
+    final opacity = (math.min(progress, 1 - progress) * 8).clamp(0.0, 1.0);
+    final birdPaint = Paint()
+      ..isAntiAlias = true
+      ..color = const Color(0xFF567667).withValues(alpha: opacity * .85)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round;
+    canvas.save();
+    canvas.translate(
+      -12 + travel * 384,
+      110 + 4 * math.sin(progress * math.pi * 2),
+    );
+    canvas.scale(birdFlyingRight ? 1 : -1, 1);
+    canvas.drawPath(
+      Path()
+        ..moveTo(0, 0)
+        ..cubicTo(-2, -wing, -7, -wing - 2, -10, -wing * .8)
+        ..moveTo(0, 0)
+        ..cubicTo(3, -wing * .7, 6, -wing * .65, 9, -wing * .5),
+      birdPaint,
+    );
+    birdPaint.style = PaintingStyle.fill;
+    canvas.drawOval(const Rect.fromLTWH(-3, -1, 7, 2.5), birdPaint);
+    canvas.drawCircle(const Offset(3, -.5), 1.3, birdPaint);
+    canvas.drawPath(
+      Path()..addPolygon(const [
+        Offset(-2, 0),
+        Offset(-6, 2),
+        Offset(-4, -1),
+      ], true),
+      birdPaint,
+    );
+    canvas.restore();
   }
 
   void _paintEnergy(Canvas canvas, bool dark) {

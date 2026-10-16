@@ -228,6 +228,24 @@ Owner cloud follow-up on 2026-10-15:
 - Existing live-source/physical-device follow-ups remain in #19; the cloud change
   adds no new provider behavior or physical performance claim.
 
+Owner cloud/bird refinement on 2026-10-16:
+
+- Increased the upper cloud by 25% and lower cloud by 22%, adjusting their travel
+  bounds so the larger silhouettes stay clear of the sun and roof.
+- Added a small green bird with a subtle wingbeat and curved flight. It crosses
+  the daytime sky for seven seconds every thirty active seconds, starting at
+  22 seconds; successive passes alternate direction, including across loop wrap.
+  The existing controller supplies all timing. Loading/reduced motion suppress
+  the bird; navigation/background pause it. The night stars remain unchanged.
+- Required Flutter 3.47.5 dependency resolution, formatting (78 files), analysis
+  and all 285 tests passed. The new motion test covers quiet intervals, five
+  alternating passes, loop wrap, offscreen pause, reduced motion, loading and
+  the night theme. Android API 36 synthetic gallery passed; inspected both cloud
+  extremes and bird directions/wingbeat poses. Captures remain ignored.
+- Restored the normal debug app with a data-preserving install. No provider,
+  storage or request behavior changed. Existing live-source/physical-device
+  checks remain in #19; no new physical performance result is claimed.
+
 ## Todo
 
 - [x] Reuse #38's corrected house geometry and retain only the tall hedge beside the door; check consistency with the revised logo and avoid photographic perspective distortion.
@@ -248,3 +266,4 @@ Owner cloud follow-up on 2026-10-15:
 - [x] Exercise every solar × battery × grid state combination and independent data-quality overrides, including empty sources and SOC boundaries.
 - [x] Apply the 2026-10-15 refinement: enlarged Home animation without percentage cards, reference-shaped battery, softer sun without panel rays, and compact Details cards with tappable explanations.
 - [x] Add slow clouds moving in opposite directions with paths that never cover the sun; preserve the night sky and motion preferences.
+- [x] Enlarge the clouds and add an occasional bird passing in alternating directions, with native visual review and motion-policy coverage.

@@ -241,8 +241,15 @@ The contact shadow changes with the loading lift. The entrance hedge stays insid
 the same house transform; the background belongs to Home and adds no other vegetation.
 The sun halo gently expands and contracts without rays hitting the roof. Two
 clouds travel slowly in opposite directions inside clear sky lanes; smooth turns
-keep the two-minute loop continuous without jumps or covering the sun. Night
-retains its stars without clouds.
+keep the two-minute loop continuous without jumps or covering the sun. Their
+larger silhouettes remain clear of the roof, including the loading bounce.
+
+A small bird crosses the daytime sky for seven seconds every thirty active
+seconds, first appearing at 22 seconds. Successive passes alternate left-to-right
+and right-to-left, with a gentle curved flight and wingbeat. Its path passes
+below the sun disc and above the lower cloud lane. It uses the existing day
+controller, disappears while loading or in reduced motion, and pauses with Home.
+Night retains its stars without clouds or birds.
 This timing is decorative and never represents a measured flow rate.
 
 ## Zero-production visual check
@@ -272,7 +279,7 @@ flutter drive --keep-app-running -d DEVICE_ID --driver integration_test/home_vis
 
 Captures are written to ignored `app/build/home-preview/`. They cover positive,
 zero, partial and empty solar with active/idle/unavailable battery and grid states,
-plus saved local data and both cloud travel extremes. State/widget tests cover all 150 solar × battery × grid
+plus saved local data, both cloud travel extremes and bird passes in each direction. State/widget tests cover all 150 solar × battery × grid
 combinations, independent quality failures, SOC limits, motion policies and large
 text. Restore the normal application after running the native gallery.
 
