@@ -246,6 +246,11 @@ Owner cloud/bird refinement on 2026-10-16:
   storage or request behavior changed. Existing live-source/physical-device
   checks remain in #19; no new physical performance result is claimed.
 
+Closure on 2026-10-16: PR #62 was rebase-merged after both final CI runs passed.
+GitHub issue #35 is verified closed. All owner-requested refinements in this
+conversation are implemented; the explicitly deferred live-source and physical
+device checks remain in open #19. This copy is archived following verified closure.
+
 ## Todo
 
 - [x] Reuse #38's corrected house geometry and retain only the tall hedge beside the door; check consistency with the revised logo and avoid photographic perspective distortion.
