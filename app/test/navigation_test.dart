@@ -48,7 +48,8 @@ void main() {
     await tester.tap(find.text('History'));
     await tester.pumpAndSettle();
     expect(find.text('Your production history'), findsOneWidget);
-    expect(find.text('Coming later'), findsOneWidget);
+    expect(find.text('Load SolarEdge history'), findsNothing);
+    expect(find.text('Coming later'), findsNothing);
     expect(tester.takeException(), isNull);
 
     await tester.tap(find.text('Settings'));

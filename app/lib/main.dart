@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'src/app.dart';
+import 'src/history_store.dart';
 import 'src/battery.dart';
 import 'src/battery_controller.dart';
 import 'src/battery_store.dart';
@@ -39,7 +40,13 @@ Future<void> main() async {
     BatteryApi(http.Client()),
   );
   runApp(
-    SolarApp(controller: controller, solax: solax, p1: p1, battery: battery),
+    SolarApp(
+      controller: controller,
+      solax: solax,
+      p1: p1,
+      battery: battery,
+      historyStore: SecureHistoryStore(),
+    ),
   );
   battery.initialize();
   p1.initialize();

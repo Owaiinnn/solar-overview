@@ -6,6 +6,9 @@ import 'package:flutter/services.dart';
 import 'battery_controller.dart';
 import 'connection_controller.dart';
 import 'home.dart';
+import 'history_controller.dart';
+import 'history_store.dart';
+import 'history_page.dart';
 import 'connection_setup.dart';
 import 'p1_controller.dart';
 import 'production_total.dart';
@@ -20,7 +23,9 @@ class SolarApp extends StatefulWidget {
     this.solax,
     this.p1,
     this.battery,
+    this.historyStore,
   });
+  final HistoryStore? historyStore;
   final P1Controller? p1;
   final BatteryController? battery;
   final SolaxController? solax;
@@ -38,11 +43,18 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
   Timer? _p1Timer;
   Timer? _batteryTimer;
   bool _showDetails = false;
+  late final HistoryController _history;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _history = HistoryController(
+      widget.controller,
+      widget.solax,
+      widget.historyStore ?? MemoryHistoryStore(),
+    );
+    _history.initialize();
     final state = WidgetsBinding.instance.lifecycleState;
     _syncP1(state == null || state == AppLifecycleState.resumed);
     _syncBattery(state == null || state == AppLifecycleState.resumed);
@@ -86,6 +98,7 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _history.dispose();
     _freshnessTimer?.cancel();
     _p1Timer?.cancel();
     widget.p1?.setForeground(false);
@@ -241,13 +254,10 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
                                   'demand with available power once your energy '
                                   'sources are connected.',
                             ),
-                            const _ComingSoonPage(
-                              title: 'Your production history',
-                              icon: Icons.show_chart,
-                              description:
-                                  'Production history is coming later. '
-                                  'Your SolarEdge history will appear here once '
-                                  'history charts are available.',
+                            HistoryPage(
+                              controller: _history,
+                              openSettings: () =>
+                                  setState(() => _tab = _AppTab.settings),
                             ),
                             SettingsPage(
                               p1: widget.p1,

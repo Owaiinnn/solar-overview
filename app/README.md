@@ -25,11 +25,14 @@ in the codebase. See the [project overview](../README.md) for the technology sta
   partial production when only one source qualifies. Energy counters stay separate.
 - Local P1 grid-meter connection with timestamped import/export, cumulative
   tariff counters, secure saved readings and independent foreground refresh.
+- History with selected-day AC power graphs, separate source totals and daily
+  comparisons, optional SolaX DC inputs, site timezone/DST handling and saved days.
+  Load each source explicitly; History shares its request wait with Details.
 - Saved readings across restarts, manual refresh and persistent request waits.
   Missing readings remain unavailable rather than displaying zero.
 
-The broader direction includes production history, battery and household
-consumption monitoring, and appliance planning based on available energy.
+The broader direction includes local energy history, household consumption
+monitoring, and appliance planning based on available energy.
 
 ## Connect your system
 
@@ -49,7 +52,7 @@ Information Management and Monitoring Management services.
 
 Credentials are entered through mobile setup or Settings. There is no bundled key
 or sample-data mode. SolaX daily energy is the device's AC counter and can differ
-from the plant's daily total. See the [integration notes](../docs/solax-check.md)
+from the plant's daily total. History uses separate plant AC statistics. See the [integration notes](../docs/solax-check.md)
 for details.
 
 In **Settings → P1 grid meter**, enter the reader's private IPv4 address after
