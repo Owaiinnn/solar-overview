@@ -57,6 +57,7 @@ class HistoryController extends ChangeNotifier {
       solax == null ||
           solax!.busy ||
           solax!.storageUnavailable ||
+          solax!.reconnectRequired ||
           solax!.selecting,
   };
   String? waitNotice(HistorySource source) => switch (source) {

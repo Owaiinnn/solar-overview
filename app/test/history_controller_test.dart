@@ -176,6 +176,12 @@ void main() {
       expect(solax.reconnectRequired, isTrue);
       expect(solaxStore.record.token, isNull);
       expect(controller.states[HistorySource.solax]!.saved, isNotNull);
+      final calls = solaxSource.historyCalls;
+      final deadline = solaxStore.record.nextAttempt;
+      now = now.add(const Duration(minutes: 16));
+      await controller.load(HistorySource.solax);
+      expect(solaxSource.historyCalls, calls);
+      expect(solaxStore.record.nextAttempt, deadline);
     },
   );
 

@@ -53,7 +53,10 @@ revoked tokens and source/account isolation. Interaction/layout checks passed at
 360×640 with 1.8× text. Android API 36 native secure-cache restoration, corrupt-cache
 detection and the focused AC/DC screen walkthrough passed with isolated synthetic
 records. Screenshots remain in ignored build output; no fixture mode or credentials
-were added to the normal app.
+were added to the normal app. The normal Android target was restored; its History
+navigation displayed the saved SolarEdge connection and persistent request wait.
+The existing SolaX reconnect requirement now disables history loading with a
+direct Settings action, without consuming another quota slot.
 
 Remaining validation: selected historical readings and energy totals have not been
 compared against both providers' monitoring portals. The old investigation token
