@@ -266,6 +266,16 @@ class _HistoryPageState extends State<HistoryPage> {
                 child: const Text('Open Settings'),
               ),
             ] else ...[
+              if (source == HistorySource.solax &&
+                  controller.solax?.reconnectRequired == true) ...[
+                const Text(
+                  'SolaX needs attention. Reconnect in Settings to load history.',
+                ),
+                TextButton(
+                  onPressed: widget.openSettings,
+                  child: const Text('Open Settings'),
+                ),
+              ],
               if (zone == null)
                 const Text(
                   'Site timezone unavailable. Refresh this connection in Details first.',
