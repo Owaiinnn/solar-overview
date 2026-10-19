@@ -162,8 +162,17 @@ class _HistoryPageState extends State<HistoryPage> {
               child: const Text('Clear saved history'),
             ),
           ],
-          for (final source in HistorySource.values.where(_visible.contains))
-            _sourceCard(source),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final source in HistorySource.values.where(
+                _visible.contains,
+              ))
+                if (controller.identity(source) != null) _loadButton(source),
+            ],
+          ),
+          if (loaded.isEmpty) _waitingChart(),
           for (final graph in graphs.where((graph) => graph.isNotEmpty)) ...[
             const SizedBox(height: 16),
             HistoryGraph(
@@ -187,6 +196,9 @@ class _HistoryPageState extends State<HistoryPage> {
                 dc: true,
               ),
           ],
+          const SizedBox(height: 16),
+          for (final source in HistorySource.values.where(_visible.contains))
+            _sourceCard(source),
           const SizedBox(height: 16),
           Card(
             child: ExpansionTile(
@@ -221,6 +233,101 @@ class _HistoryPageState extends State<HistoryPage> {
       );
     },
   );
+
+  Widget _loadButton(HistorySource source) {
+    final controller = widget.controller;
+    final state = controller.states[source]!;
+    final enabled =
+        controller.initialized &&
+        controller.storageError == null &&
+        !state.loading &&
+        !controller.busy(source) &&
+        controller.timeZone(source) != null &&
+        controller.waitNotice(source) == null &&
+        !controller.selectedDay.isAfter(controller.today(source));
+    return FilledButton.tonalIcon(
+      onPressed: enabled ? () => controller.load(source) : null,
+      icon: const Icon(Icons.refresh),
+      label: Text(
+        '${state.saved == null ? 'Load' : 'Reload'} ${historySourceName(source)} history',
+      ),
+    );
+  }
+
+  Widget _waitingChart() {
+    final controller = widget.controller;
+    final loading = _visible.any(
+      (source) => controller.states[source]!.loading,
+    );
+    return Card(
+      key: const ValueKey('history-waiting-chart'),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'AC production power',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              constraints: const BoxConstraints(minHeight: 140),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.show_chart, size: 32),
+                  const SizedBox(height: 8),
+                  Text(
+                    loading
+                        ? 'Loading production history…'
+                        : _visible.isEmpty
+                        ? 'Select a source to view its graph.'
+                        : 'No power history loaded for this day.',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+            if (loading) const LinearProgressIndicator(),
+            for (final source in HistorySource.values.where(_visible.contains))
+              if (controller.waitNotice(source) != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    '${historySourceName(source)}: ${controller.waitNotice(source)}',
+                  ),
+                ),
+            if (_visible.contains(HistorySource.solax) &&
+                controller.solax?.reconnectRequired == true)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text(
+                  'SolaX needs reconnection in Settings before its graph can load.',
+                ),
+              ),
+            if (!loading && _visible.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  _visible.any((source) => controller.identity(source) != null)
+                      ? 'Load a connected source above to draw its power curve.'
+                      : 'Connect a solar source in Settings to view its graph.',
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _sourceCard(HistorySource source) {
     final controller = widget.controller;
@@ -311,23 +418,6 @@ class _HistoryPageState extends State<HistoryPage> {
               if (wait != null) Text(wait),
               if (controller.selectedDay.isAfter(controller.today(source)))
                 const Text('This date is still in the future at the site.'),
-              const SizedBox(height: 8),
-              FilledButton.tonalIcon(
-                onPressed:
-                    !controller.initialized ||
-                        controller.storageError != null ||
-                        state.loading ||
-                        controller.busy(source) ||
-                        zone == null ||
-                        wait != null ||
-                        controller.selectedDay.isAfter(controller.today(source))
-                    ? null
-                    : () => controller.load(source),
-                icon: const Icon(Icons.refresh),
-                label: Text(
-                  '${saved == null ? 'Load' : 'Reload'} $name history',
-                ),
-              ),
             ],
           ],
         ),

@@ -58,6 +58,15 @@ navigation displayed the saved SolarEdge connection and persistent request wait.
 The existing SolaX reconnect requirement now disables history loading with a
 direct Settings action, without consuming another quota slot.
 
+Graph visibility follow-up (2026-10-19): the chart area and source load controls
+now appear immediately below the date selector, before the source summary cards.
+An uncached day shows an explicit chart empty/loading/cooldown state rather than
+hiding the chart entirely. Source and date changes still make no automatic API
+requests and existing provider waits are preserved. Follow-up verification passed:
+303 unit/widget tests, analyzer/format checks, and the Android cache/graph
+walkthrough. The revised normal app was installed and its top chart waiting
+state was inspected with the real saved connections.
+
 Remaining validation: selected historical readings and energy totals have not been
 compared against both providers' monitoring portals. The old investigation token
 was rejected and the emulator had no usable saved SolaX token; the agent did not
