@@ -4,6 +4,7 @@ import 'credential_store.dart';
 import 'reading_store.dart';
 import 'solar_freshness.dart';
 import 'solaredge.dart';
+import 'history.dart';
 
 class ConnectionController extends ChangeNotifier {
   ConnectionController(
@@ -30,6 +31,8 @@ class ConnectionController extends ChangeNotifier {
   String? error;
 
   String? get siteId => _credentials?.siteId;
+  String? get historyIdentity => siteId;
+  String? get historyTimeZone => overview?.timeZone;
   bool get connected => _credentials != null;
   ReadingFreshness get freshness =>
       overview?.freshness(_now()) ?? ReadingFreshness.unknown;
@@ -197,6 +200,42 @@ class ConnectionController extends ChangeNotifier {
     } on SolarEdgeFailure catch (failure) {
       usingSavedReading = overview != null;
       error = failure.message;
+    } finally {
+      busy = false;
+      notifyListeners();
+    }
+  }
+
+  Future<ProductionHistory> loadHistory(HistoryDay day) async {
+    if (busy ||
+        storageUnavailable ||
+        _credentials == null ||
+        _source is! SolarEdgeHistorySource ||
+        day.timeZone != historyTimeZone) {
+      throw const SolarEdgeFailure(
+        'SolarEdge history is unavailable. Check the connection in Settings.',
+      );
+    }
+    busy = true;
+    notifyListeners();
+    try {
+      await _loadCache();
+      if (!canRequest) throw SolarEdgeFailure(refreshNotice!);
+      await _persist(_cache.withGate(_now().toUtc().add(refreshInterval)));
+      return await (_source as SolarEdgeHistorySource).history(
+        _credentials!,
+        day,
+      );
+    } on SolarEdgeFailure catch (failure) {
+      if (failure.rateLimited) {
+        await _persist(
+          _cache.withGate(
+            _now().toUtc().add(const Duration(hours: 24)),
+            limited: true,
+          ),
+        );
+      }
+      rethrow;
     } finally {
       busy = false;
       notifyListeners();

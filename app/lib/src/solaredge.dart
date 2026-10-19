@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import 'site_time.dart';
 import 'solar_freshness.dart';
+import 'history.dart';
 
 class SolarEdgeCredentials {
   SolarEdgeCredentials(String siteId, String apiKey)
@@ -92,7 +93,14 @@ abstract interface class SolarEdgeSource {
   Future<SolarOverview> overview(SolarEdgeCredentials credentials);
 }
 
-class SolarEdgeApi implements SolarEdgeSource {
+abstract interface class SolarEdgeHistorySource {
+  Future<ProductionHistory> history(
+    SolarEdgeCredentials credentials,
+    HistoryDay day,
+  );
+}
+
+class SolarEdgeApi implements SolarEdgeSource, SolarEdgeHistorySource {
   SolarEdgeApi(this._client);
   final http.Client _client;
 
@@ -105,19 +113,89 @@ class SolarEdgeApi implements SolarEdgeSource {
     return SolarOverview.fromJson(data, timeZone: zone is String ? zone : null);
   }
 
+  @override
+  Future<ProductionHistory> history(
+    SolarEdgeCredentials credentials,
+    HistoryDay day,
+  ) async {
+    final date = historyDate(day.date);
+    final power = await _get(credentials, 'power', {
+      'startTime': '$date 00:00:00',
+      'endTime': '$date 23:59:59',
+    });
+    final monthStart = DateTime.utc(day.date.year, day.date.month);
+    final monthEnd = DateTime.utc(day.date.year, day.date.month + 1, 0);
+    final energy = await _get(credentials, 'energy', {
+      'timeUnit': 'DAY',
+      'startDate': historyDate(monthStart),
+      'endDate': historyDate(monthEnd),
+    });
+    if (power['unit'] != 'W' ||
+        power['timeUnit'] != 'QUARTER_OF_AN_HOUR' ||
+        power['values'] is! List ||
+        energy['unit'] != 'Wh' ||
+        energy['timeUnit'] != 'DAY' ||
+        energy['values'] is! List) {
+      throw const SolarEdgeFailure(
+        'SolarEdge history has unsupported units or intervals.',
+      );
+    }
+    final samples = <HistorySample>[];
+    for (final row in power['values'] as List) {
+      if (row is! Map) {
+        throw const SolarEdgeFailure('SolarEdge returned invalid history.');
+      }
+      final stamp = siteTimestampUtc(
+        validSiteTimestamp(row['date']),
+        day.timeZone,
+      );
+      if (stamp != null && day.contains(stamp)) {
+        samples.add(HistorySample(stamp, historyNumber(row['value'])));
+      }
+    }
+    final daily = <String, double?>{};
+    for (final row in energy['values'] as List) {
+      if (row is! Map) {
+        throw const SolarEdgeFailure(
+          'SolarEdge returned invalid daily energy.',
+        );
+      }
+      final stamp = validSiteTimestamp(row['date']);
+      if (stamp == null || !stamp.endsWith('00:00:00')) continue;
+      final date = stamp.substring(0, 10);
+      if (!date.startsWith(historyMonth(day.date))) continue;
+      if (daily.containsKey(date)) {
+        throw const SolarEdgeFailure(
+          'SolarEdge returned duplicate daily energy.',
+        );
+      }
+      daily[date] = historyNumber(row['value']);
+    }
+    const interval = Duration(minutes: 15);
+    return ProductionHistory(
+      day: day,
+      interval: interval,
+      samples: historyBuckets(day, interval, samples),
+      dailyWh: daily,
+    );
+  }
+
   Future<Map<String, dynamic>> _get(
     SolarEdgeCredentials credentials,
-    String endpoint,
-  ) async {
+    String endpoint, [
+    Map<String, String> parameters = const {},
+  ]) async {
+    final abort = Completer<void>();
     try {
       final request =
-          http.Request(
+          http.AbortableRequest(
               'GET',
               Uri.https(
                 'monitoringapi.solaredge.com',
                 '/site/${credentials.siteId}/$endpoint',
-                {'api_key': credentials.apiKey},
+                {...parameters, 'api_key': credentials.apiKey},
               ),
+              abortTrigger: abort.future,
             )
             ..followRedirects = false
             ..headers['Accept'] = 'application/json';
@@ -161,6 +239,8 @@ class SolarEdgeApi implements SolarEdgeSource {
       throw const SolarEdgeFailure(
         'Could not reach SolarEdge. Check your internet connection and try again.',
       );
+    } finally {
+      abort.complete();
     }
   }
 }

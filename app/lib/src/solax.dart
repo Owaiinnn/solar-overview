@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import 'site_time.dart';
 import 'solar_freshness.dart';
+import 'history.dart';
 
 String? solaxTimeZone(String? value) {
   if (value?.replaceAll(' ', '') ==
@@ -282,7 +283,16 @@ abstract interface class SolaxSource {
   );
 }
 
-class SolaxApi implements SolaxSource {
+abstract interface class SolaxHistorySource {
+  Future<ProductionHistory> history(
+    SolaxToken token,
+    SolaxPlant plant,
+    SolaxDevice device,
+    HistoryDay day,
+  );
+}
+
+class SolaxApi implements SolaxSource, SolaxHistorySource {
   SolaxApi(
     this._client, {
     DateTime Function()? now,
@@ -464,9 +474,131 @@ class SolaxApi implements SolaxSource {
     return SolaxReading.fromResponse(row, plant.timeZone);
   }
 
+  @override
+  Future<ProductionHistory> history(
+    SolaxToken token,
+    SolaxPlant plant,
+    SolaxDevice device,
+    HistoryDay day,
+  ) async {
+    if (!device.supported ||
+        device.plantId != plant.id ||
+        day.timeZone != plant.timeZone) {
+      throw const SolaxFailure(
+        'This inverter or site timezone is not supported for history.',
+      );
+    }
+    final now = _now().toUtc();
+    final earliest = DateTime.utc(
+      now.year - 1,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+      now.second,
+    );
+    if (day.start.isBefore(earliest) || day.start.isAfter(now)) {
+      throw const SolaxFailure(
+        'SolaX power history is available only within the past year.',
+      );
+    }
+    final samples = <HistorySample>[];
+    final queryEnd = day.end.isAfter(now) ? now : day.end;
+    for (
+      var start = day.start;
+      start.isBefore(queryEnd);
+      start = start.add(const Duration(hours: 12))
+    ) {
+      final next = start.add(const Duration(hours: 12));
+      final end = next.isAfter(queryEnd) ? queryEnd : next;
+      final result = await _request(
+        '/openapi/v2/device/history_data',
+        token: token,
+        query: {
+          'businessType': '1',
+          'deviceType': '1',
+          'snList': device.sn,
+          'startTime': '${start.millisecondsSinceEpoch}',
+          'endTime':
+              '${end.subtract(const Duration(milliseconds: 1)).millisecondsSinceEpoch}',
+          'timeInterval': '5',
+        },
+      );
+      if (result is! List || result.length > 150) {
+        throw const SolaxFailure(
+          'SolaX returned an unexpected history response.',
+        );
+      }
+      for (final row in result) {
+        if (row is! Map<String, dynamic> || row['deviceSn'] != device.sn) {
+          throw const SolaxFailure(
+            'SolaX returned history for an unexpected inverter.',
+          );
+        }
+        final reading = SolaxReading.fromResponse(row, plant.timeZone);
+        final stamp = reading.reportedAtUtc;
+        if (stamp != null && !stamp.isBefore(start) && stamp.isBefore(end)) {
+          samples.add(
+            HistorySample(
+              stamp,
+              reading.powerWatts,
+              mppt1: reading.mpptPowerWatts(1),
+              mppt2: reading.mpptPowerWatts(2),
+            ),
+          );
+        }
+      }
+    }
+    final result = await _request(
+      '/openapi/v2/plant/energy/get_stat_data',
+      token: token,
+      jsonBody: {
+        'plantId': plant.id,
+        'businessType': 1,
+        'dateType': 2,
+        'date': historyMonth(day.date),
+      },
+    );
+    if (result is! Map ||
+        result['plantId'] != plant.id ||
+        result['date'] != historyMonth(day.date) ||
+        result['plantEnergyStatDataList'] is! List) {
+      throw const SolaxFailure(
+        'SolaX returned unexpected plant energy statistics.',
+      );
+    }
+    final daily = <String, double?>{};
+    for (final row in result['plantEnergyStatDataList'] as List) {
+      if (row is! Map) {
+        throw const SolaxFailure('SolaX returned invalid daily energy.');
+      }
+      final date = row['date'];
+      if (date is! String ||
+          validSiteTimestamp('$date 00:00:00') == null ||
+          !date.startsWith(historyMonth(day.date))) {
+        continue;
+      }
+      if (daily.containsKey(date)) {
+        throw const SolaxFailure('SolaX returned duplicate daily energy.');
+      }
+      final value = historyNumber(row['inverterACOutputEnergy']);
+      daily[date] = value != null && (value * 1000).isFinite
+          ? value * 1000
+          : null;
+    }
+    const interval = Duration(minutes: 5);
+    return ProductionHistory(
+      day: day,
+      interval: interval,
+      samples: historyBuckets(day, interval, samples),
+      dailyWh: daily,
+    );
+  }
+
   Future<Object?> _request(
     String path, {
     Map<String, String>? form,
+    Map<String, Object>? jsonBody,
     Map<String, String>? query,
     SolaxToken? token,
   }) async {
@@ -474,7 +606,7 @@ class SolaxApi implements SolaxSource {
     try {
       final request =
           http.AbortableRequest(
-              form == null ? 'GET' : 'POST',
+              form == null && jsonBody == null ? 'GET' : 'POST',
               Uri.https(host, path, query),
               abortTrigger: abort.future,
             )
@@ -484,6 +616,10 @@ class SolaxApi implements SolaxSource {
         request.headers['Authorization'] = 'bearer ${token.value}';
       }
       if (form != null) request.bodyFields = form;
+      if (jsonBody != null) {
+        request.headers['Content-Type'] = 'application/json';
+        request.body = jsonEncode(jsonBody);
+      }
       final response = await _client
           .send(request)
           .then(http.Response.fromStream)

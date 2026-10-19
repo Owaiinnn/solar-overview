@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'solar_freshness.dart';
 import 'solax.dart';
 import 'solax_store.dart';
+import 'history.dart';
 
 class SolaxController extends ChangeNotifier {
   SolaxController(this._store, this._source, {DateTime Function()? now})
@@ -28,6 +29,10 @@ class SolaxController extends ChangeNotifier {
   SolaxPlant? selectedPlant;
   SolaxDevice? selectedDevice;
   SolaxReading? get reading => _record.reading;
+  String? get historyIdentity => !connected
+      ? null
+      : 'solax:${_record.credentials!.clientId}:${_record.plant!.id}:${_record.device!.sn}';
+  String? get historyTimeZone => _record.plant?.timeZone;
   bool get connected => _record.credentials != null && _record.device != null;
   bool get reconnectRequired => _record.reconnectRequired;
   bool get selecting => _candidate != null;
@@ -183,6 +188,40 @@ class SolaxController extends ChangeNotifier {
       await _refreshReading();
     } catch (failure) {
       await _failure(failure, savedAccount: true);
+    } finally {
+      busy = false;
+      notifyListeners();
+    }
+  }
+
+  Future<ProductionHistory> loadHistory(HistoryDay day) async {
+    if (busy ||
+        storageUnavailable ||
+        !connected ||
+        selecting ||
+        _source is! SolaxHistorySource ||
+        day.timeZone != historyTimeZone) {
+      throw const SolaxFailure(
+        'SolaX history is unavailable. Check the connection in Settings.',
+      );
+    }
+    busy = true;
+    notifyListeners();
+    try {
+      await _reserve();
+      final token = await _token();
+      return await (_source as SolaxHistorySource).history(
+        token,
+        _record.plant!,
+        _record.device!,
+        day,
+      );
+    } catch (failure) {
+      await _failure(failure, savedAccount: true);
+      if (failure is SolaxFailure) rethrow;
+      throw const SolaxFailure(
+        'SolaX history could not be loaded. Retry later.',
+      );
     } finally {
       busy = false;
       notifyListeners();
