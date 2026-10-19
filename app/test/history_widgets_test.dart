@@ -63,7 +63,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('2.00 kWh'), findsOneWidget);
+      expect(find.text('AC production power').hitTestable(), findsOneWidget);
       await tester.tap(find.widgetWithText(FilterChip, 'SolarEdge'));
       await tester.pumpAndSettle();
       expect(find.text('2.00 kWh'), findsNothing);
@@ -93,6 +93,37 @@ void main() {
       await tester.pumpAndSettle();
       expect(controller.selectedDay, DateTime.utc(2026, 9, 27));
       expect(controller.edge.busy, isFalse);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'the graph area remains visible before any source history is loaded',
+    (tester) async {
+      final controller = await savedHistoryController();
+      await controller.clearSavedHistory();
+      addTearDown(() {
+        controller.dispose();
+        controller.edge.dispose();
+        controller.solax!.dispose();
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: HistoryPage(controller: controller, openSettings: () {}),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('AC production power').hitTestable(), findsOneWidget);
+      expect(
+        find.text('No power history loaded for this day.'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('SolarEdge: Next request available in 15 minutes.'),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     },
   );

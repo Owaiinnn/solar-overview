@@ -1,7 +1,9 @@
 # Production history
 
 History compares SolarEdge and SolaX as separate AC series. Select a site calendar
-day, then load each connected source explicitly. Source filters and date changes
+day, then load each connected source explicitly. The chart area and load controls
+appear directly below the date selector; uncached days show an explicit waiting
+state instead of hiding the chart. Source filters and date changes
 read the cache without fetching. The daily comparison lists each source's reported
 energy for the selected month. There is no combined curve, combined energy total,
 power integration, household consumption calculation or sample-data mode.
