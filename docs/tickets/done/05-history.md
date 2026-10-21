@@ -164,6 +164,14 @@ review and synthetic/native tests are not live portal verification. Native iOS c
 remain deferred in #65. Close #5 after the implementation PR is merged and the
 linked follow-ups are verified open, then archive this copy through a PR.
 
+Closure (2026-10-21): PR #64 was rebase-merged after both checks passed on its
+final rebased head. GitHub confirms #5 is closed, while #65 and #25 remain open
+for the explicitly deferred verification and counter investigation. The primary
+checkout was updated to merged main, the feature branch was removed after content
+verification, and the owner's unrelated local APK-helper edits were restored.
+This copy is archived after verified merge and closure; unchecked follow-up
+requirements remain visible rather than being reported as completed.
+
 ## Todo
 
 - [x] Provide a selected-day power graph (W/kW) and daily energy totals (Wh/kWh).
