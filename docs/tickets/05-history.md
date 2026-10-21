@@ -67,6 +67,18 @@ requests and existing provider waits are preserved. Follow-up verification passe
 walkthrough. The revised normal app was installed and its top chart waiting
 state was inspected with the real saved connections.
 
+Live Android graph verification (2026-10-21): loaded real SolarEdge power for
+2026-10-19 and the associated monthly daily energy through the normal History
+control after its saved request wait expired. The curve, daily energy, sample
+coverage (45/96 buckets) and tap-to-inspect reading were rendered successfully;
+missing intervals remained gaps. No saved connection or provider wait was reset.
+A resume/date-rollover bug discovered during this check is fixed: an explicit
+history load now keeps the displayed calendar date selected while it completes.
+The new regression and all 304 unit/widget tests passed, along with analysis and
+format checks. This is live API/UI verification, not comparison with either
+provider's monitoring portal. SolaX remains blocked on its existing reconnect
+requirement.
+
 Remaining validation: selected historical readings and energy totals have not been
 compared against both providers' monitoring portals. The old investigation token
 was rejected and the emulator had no usable saved SolaX token; the agent did not

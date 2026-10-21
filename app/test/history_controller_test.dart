@@ -69,6 +69,23 @@ void main() {
   });
 
   test(
+    'loading the displayed default day keeps it selected across a clock change',
+    () async {
+      final resumed = HistoryController(edge, solax, store, now: () => now);
+      await resumed.initialize();
+      final displayedDay = resumed.selectedDay;
+      now = now.add(const Duration(days: 2));
+      await resumed.load(HistorySource.solarEdge);
+      expect(resumed.selectedDay, displayedDay);
+      expect(
+        resumed.states[HistorySource.solarEdge]!.saved!.data.day.date,
+        displayedDay,
+      );
+      resumed.dispose();
+    },
+  );
+
+  test(
     'cache restores across controllers and day/source changes make no requests',
     () async {
       await Future.wait([
