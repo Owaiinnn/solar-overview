@@ -25,8 +25,9 @@ in the codebase. See the [project overview](../README.md) for the technology sta
   partial production when only one source qualifies. Energy counters stay separate.
 - Local P1 grid-meter connection with timestamped import/export, cumulative
   tariff counters, secure saved readings and independent foreground refresh.
-- History with selected-day AC power graphs, separate source totals and daily
-  comparisons, optional SolaX DC inputs, site timezone/DST handling and saved days.
+- History with SolarEdge, SolaX and combined AC power on one selected-day graph,
+  using matching 15-minute samples for the combined line; separate source totals,
+  daily comparisons, optional SolaX DC inputs, site timezone/DST handling and saved days.
   Load each source explicitly; History shares its request wait with Details.
 - Saved readings across restarts, manual refresh and persistent request waits.
   Missing readings remain unavailable rather than displaying zero.

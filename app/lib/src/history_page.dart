@@ -233,7 +233,7 @@ class _HistoryPageState extends State<HistoryPage> {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Daily energy comes from provider statistics, not from integrating the graph. Today is incomplete; missing daily totals are unavailable. Curves and totals remain separate by source.',
+            'Daily energy comes from provider statistics, not from integrating the graph. Today is incomplete; missing daily totals are unavailable. Daily energy totals remain separate by source.',
           ),
         ],
       );

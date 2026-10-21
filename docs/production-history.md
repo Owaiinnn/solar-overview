@@ -1,11 +1,12 @@
 # Production history
 
-History compares SolarEdge and SolaX as separate AC series. Select a site calendar
-day, then load each connected source explicitly. The chart area and load controls
+History shows SolarEdge, SolaX and their combined AC power on one daily graph
+when both sources share the site's calendar day and timezone. Select a site
+calendar day, then load each connected source explicitly. The chart area and load controls
 appear directly below the date selector; uncached days show an explicit waiting
 state instead of hiding the chart. Source filters and date changes
 read the cache without fetching. The daily comparison lists each source's reported
-energy for the selected month. There is no combined curve, combined energy total,
+energy for the selected month. There is no combined energy total,
 power integration, household consumption calculation or sample-data mode.
 
 ## Provider contracts
@@ -55,6 +56,18 @@ midnight boundaries use the existing IANA database, producing 23/24/25-hour days
 SolaX uses UTC millisecond query bounds and prioritizes the source UTC timestamp.
 Ambiguous SolarEdge wall timestamps during a repeated DST hour stay unavailable.
 The graph inspector and accessible readings include the timezone abbreviation.
+
+The blue combined AC line adds SolarEdge site production and the selected SolaX
+inverter at matching normalized 15-minute UTC timestamps. Each source must use
+the supported five- or fifteen-minute cadence. SolaX's intervening five-minute
+points remain on its own curve; they are not averaged, interpolated or carried
+forward to create a total. Missing, invalid or duplicate readings from either
+source leave a gap in the combined line, including during repeated DST hours.
+This is a sum of aligned provider samples, not continuous metered energy. The
+inspector labels each line's sample time. Hiding or unloading either source hides
+the combined line and explains its requirements. Different dates or timezones
+cannot combine. The derived line is calculated from saved source power without
+additional API requests, cache writes, DC inputs, batteries or summed daily energy.
 
 Power is normalized into the requested source cadence. Missing, malformed,
 negative, duplicate-bucket and ambiguous-time readings remain gaps. Reported zero

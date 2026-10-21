@@ -132,6 +132,57 @@ List<HistorySample> historyBuckets(
   ];
 }
 
+ProductionHistory? combinedPowerHistory(
+  ProductionHistory? solarEdge,
+  ProductionHistory? solax,
+) {
+  if (solarEdge == null || solax == null) return null;
+  final day = solarEdge.day;
+  if (day.date != solax.day.date || day.timeZone != solax.day.timeZone) {
+    return null;
+  }
+  const interval = Duration(minutes: 15);
+  if ([solarEdge, solax].any(
+    (source) =>
+        source.interval != interval &&
+        source.interval != const Duration(minutes: 5),
+  )) {
+    return null;
+  }
+  final sources = <Map<DateTime, List<HistorySample>>>[];
+  for (final source in [solarEdge, solax]) {
+    final byTime = <DateTime, List<HistorySample>>{};
+    for (final sample in source.samples) {
+      byTime.putIfAbsent(sample.time.toUtc(), () => []).add(sample);
+    }
+    sources.add(byTime);
+  }
+  return ProductionHistory(
+    day: day,
+    interval: interval,
+    samples: [
+      for (final time in day.buckets(interval))
+        HistorySample(time, _combinedWatts(sources, time)),
+    ],
+    dailyWh: const {},
+  );
+}
+
+double? _combinedWatts(
+  List<Map<DateTime, List<HistorySample>>> sources,
+  DateTime time,
+) {
+  var total = 0.0;
+  for (final source in sources) {
+    final samples = source[time];
+    if (samples == null || samples.length != 1) return null;
+    final watts = historyNumber(samples.single.watts);
+    if (watts == null) return null;
+    total += watts;
+  }
+  return historyNumber(total);
+}
+
 String historyClock(DateTime instant, String zone) {
   final time = tz.TZDateTime.from(instant, siteLocation(zone)!);
   return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')} ${time.timeZoneName}';
