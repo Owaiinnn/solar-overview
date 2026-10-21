@@ -172,6 +172,12 @@ class _HistoryPageState extends State<HistoryPage> {
                 if (controller.identity(source) != null) _loadButton(source),
             ],
           ),
+          if (loaded.isNotEmpty)
+            for (final source in HistorySource.values.where(_visible.contains))
+              if (controller.states[source]!.saved == null ||
+                  controller.states[source]!.error != null ||
+                  controller.states[source]!.loading)
+                _graphSourceNotice(source),
           if (loaded.isEmpty) _waitingChart(),
           for (final graph in graphs.where((graph) => graph.isNotEmpty)) ...[
             const SizedBox(height: 16),
@@ -299,6 +305,17 @@ class _HistoryPageState extends State<HistoryPage> {
             ),
             if (loading) const LinearProgressIndicator(),
             for (final source in HistorySource.values.where(_visible.contains))
+              if (controller.states[source]!.error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    '${historySourceName(source)}: ${controller.states[source]!.error}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+            for (final source in HistorySource.values.where(_visible.contains))
               if (controller.waitNotice(source) != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -324,6 +341,43 @@ class _HistoryPageState extends State<HistoryPage> {
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _graphSourceNotice(HistorySource source) {
+    final controller = widget.controller;
+    final state = controller.states[source]!;
+    final name = historySourceName(source);
+    final message = state.loading
+        ? 'Loading $name power history…'
+        : state.error != null
+        ? '${state.saved == null ? '$name history could not be loaded' : '$name refresh failed; showing its saved curve'}. ${state.error}'
+        : controller.identity(source) == null
+        ? '$name is not connected.'
+        : source == HistorySource.solax && controller.solax!.reconnectRequired
+        ? 'Reconnect SolaX in Settings to load its curve.'
+        : '$name has no power history loaded for ${historyDate(controller.selectedDay)}.';
+    final wait = controller.waitNotice(source);
+    return Semantics(
+      liveRegion: state.error != null,
+      child: Card(
+        color: state.error == null
+            ? null
+            : Theme.of(context).colorScheme.errorContainer,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                state.error == null ? Icons.info_outline : Icons.error_outline,
+              ),
+              const SizedBox(width: 8),
+              Expanded(child: Text('$message${wait == null ? '' : '\n$wait'}')),
+            ],
+          ),
         ),
       ),
     );

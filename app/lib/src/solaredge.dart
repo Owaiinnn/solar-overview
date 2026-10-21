@@ -217,8 +217,13 @@ class SolarEdgeApi implements SolarEdgeSource, SolarEdgeHistorySource {
             rateLimited: true,
           );
         default:
-          throw const SolarEdgeFailure(
-            'SolarEdge could not complete the request. Please try again later.',
+          final reading = switch (endpoint) {
+            'power' => 'power history',
+            'energy' => 'daily energy',
+            _ => 'data',
+          };
+          throw SolarEdgeFailure(
+            'SolarEdge could not load $reading (HTTP ${response.statusCode}). Please try again later.',
           );
       }
       final data = jsonDecode(response.body);

@@ -68,6 +68,24 @@ void main() {
       await binding.takeScreenshot('history-uncached');
       expect(controller.states[HistorySource.solarEdge]!.saved, isNull);
       expect(tester.takeException(), isNull);
+      await store.write(
+        restored.where((entry) => entry.identity != 'edge:123').toList(),
+      );
+      await controller.initialize();
+      controller.selectDay(DateTime.utc(2026, 9, 28));
+      controller.states[HistorySource.solarEdge]!.error = 'SolarEdge could not load power history (HTTP 503). Please try again later.';
+      controller.edge.updateFreshness();
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find
+            .textContaining('SolarEdge history could not be loaded.')
+            .hitTestable(),
+        150,
+      );
+      expect(find.text('SolaX (AC)'), findsOneWidget);
+      expect(find.text('SolarEdge (AC)'), findsNothing);
+      await binding.takeScreenshot('history-partial-failure');
+      expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
       await const FlutterSecureStorage().write(
         key: key,
