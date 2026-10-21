@@ -147,21 +147,29 @@ SolarEdge 245 W + SolaX 97 W = combined 342 W. The app was left open on that
 graph; connections, prior history and request waits were preserved. This is
 live API/UI verification, not comparison with either monitoring portal.
 
+Merge handoff (2026-10-21): after the real combined-day walkthrough, the owner
+requested pushing and merging all open PRs. The History implementation is ready
+for closure after merge. Historical sample/energy comparison with both monitoring
+portals and native iOS History verification are explicitly deferred to open #65;
+the SolaX daily/lifetime and zero-PV counter investigation remains in open #25.
+The original acceptance checks below remain unchecked where those follow-ups
+still own the work; closing the implementation does not claim they passed.
+
 Remaining validation: selected historical readings and energy totals have not been
 compared against both providers' monitoring portals. The old investigation token
 was rejected during the initial investigation; the owner subsequently authorized
 the saved emulator connection to be renewed, as recorded above. The agent did not mint a
 separate investigation token or switch to another connection. Documentation/schema
 review and synthetic/native tests are not live portal verification. Native iOS checks
-remain deferred. Keep #5 open until portal comparison is recorded or explicitly
-preserved in a linked follow-up before closing a merged implementation.
+remain deferred in #65. Close #5 after the implementation PR is merged and the
+linked follow-ups are verified open, then archive this copy through a PR.
 
 ## Todo
 
 - [x] Provide a selected-day power graph (W/kW) and daily energy totals (Wh/kWh).
 - [x] Support SolarEdge and SolaX source selection/comparison, retaining useful history when only one source is connected.
 - [x] Add SolaX intraday AC output and optional MPPT input series without adding DC input to AC output; use verified plant daily statistics for day/month comparisons.
-- [ ] Document source/field provenance and resolve the SolaX daily/lifetime and zero-production-field discrepancies before using them in totals.
+- [ ] Document source/field provenance and resolve the SolaX daily/lifetime and zero-production-field discrepancies before using them in totals (unresolved counter investigation deferred to #25; historical field selection is documented above).
 - [x] Select documented historical plant AC energy without substituting discrepant realtime/lifetime or zero PV fields; keep the unresolved live-counter cause in #25.
 - [x] Query dates in the site's verified timezone and handle daylight-saving changes.
 - [x] Preserve missing samples as gaps; do not treat missing readings as zero.
@@ -169,5 +177,6 @@ preserved in a linked follow-up before closing a merged implementation.
 - [x] Include readable axis units, loading, empty, and failure states.
 - [x] Label any combined series with its source coverage; combine only compatible units, measurement boundaries, intervals and dates, preserving gaps and partial coverage.
 - [x] Test date/unit handling, missing buckets, API windows, caching and source isolation with synthetic fixtures.
-- [ ] Verify selected historical readings and daily energy against both providers' monitoring portals; record dates, source fields and sanitized comparison results.
+- [ ] Verify selected historical readings and daily energy against both providers' monitoring portals; record dates, source fields and sanitized comparison results (deferred to #65).
+- [x] Preserve remaining portal/native iOS verification in #65 and the unresolved SolaX counter investigation in #25 before closing the implementation.
 - [x] Keep sample mode absent; verify Android first and record any deferred native iOS checks.
