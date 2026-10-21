@@ -162,6 +162,7 @@ class HistoryController extends ChangeNotifier {
       return;
     }
     final day = HistoryDay(selectedDay, zone!);
+    _selectionChosen = true;
     state.loading = true;
     state.error = null;
     _notify();
