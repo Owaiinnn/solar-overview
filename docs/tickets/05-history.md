@@ -76,14 +76,23 @@ A resume/date-rollover bug discovered during this check is fixed: an explicit
 history load now keeps the displayed calendar date selected while it completes.
 The new regression and all 304 unit/widget tests passed, along with analysis and
 format checks. This is live API/UI verification, not comparison with either
-provider's monitoring portal. SolaX remains blocked on its existing reconnect
-requirement.
+provider's monitoring portal. SolaX required reconnection during that graph check.
+
+Owner-authorized SolaX reconnection (2026-10-21): renewed authorization using the
+emulator's existing secure credentials through the normal controller workflow.
+The same account, plant and supported inverter were retained; a usable token,
+source measurement time and live AC reading were persisted and read back from
+secure storage. No other connection was replaced. The existing 15-minute request
+wait was preserved, so a live SolaX history request remains pending after that
+wait. The temporary native reconnection target was removed and the normal app
+restored; no credentials or one-off reconnection code were committed.
 
 Remaining validation: selected historical readings and energy totals have not been
 compared against both providers' monitoring portals. The old investigation token
-was rejected and the emulator had no usable saved SolaX token; the agent did not
-mint an investigation token or replace a connection. Documentation/schema review
-and synthetic/native tests are not live portal verification. Native iOS checks
+was rejected during the initial investigation; the owner subsequently authorized
+the saved emulator connection to be renewed, as recorded above. The agent did not mint a
+separate investigation token or switch to another connection. Documentation/schema
+review and synthetic/native tests are not live portal verification. Native iOS checks
 remain deferred. Keep #5 open until portal comparison is recorded or explicitly
 preserved in a linked follow-up before closing a merged implementation.
 
