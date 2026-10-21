@@ -115,4 +115,5 @@ flutter drive --driver integration_test/history_driver.dart --target integration
 Restore the normal app target after testing. Keep `--keep-app-running` (or
 `--no-uninstall` for `flutter test`) to preserve existing connections. Native iOS
 verification remains deferred; actual checks and portal-comparison status are
-recorded in [ticket 5](tickets/05-history.md).
+recorded in [ticket 5](tickets/done/05-history.md). Remaining portal/native iOS
+verification is tracked in [ticket 65](tickets/65-history-validation.md).
