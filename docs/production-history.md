@@ -70,6 +70,9 @@ controller's token owner and persists renewal before querying. Provider rate
 limits extend the same gate to 24 hours; revoked tokens use the existing reconnect
 path. It does not mint separate investigation tokens or retry automatically.
 Load failures retain earlier saved history and do not hide the other source.
+A missing or failed selected source is explained beside the available curve;
+SolarEdge HTTP failures identify the reading and status code without including
+request URLs or provider response bodies.
 
 A separate atomic secure-storage record holds up to 35 source/day snapshots,
 bounded across sources and accounts. It contains normalized readings, connection

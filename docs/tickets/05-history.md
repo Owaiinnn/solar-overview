@@ -87,6 +87,22 @@ wait was preserved, so a live SolaX history request remains pending after that
 wait. The temporary native reconnection target was removed and the normal app
 restored; no credentials or one-off reconnection code were committed.
 
+Phone refresh investigation (2026-10-21): the owner refreshed History for October
+20. Agent inspection found a valid SolaX cached power curve (123/288 available
+samples) and daily energy, but SolarEdge's power-history load had failed and no
+power snapshot for that date was saved. Its previously cached monthly energy
+remained available. Both connections were retained; Home showed stale readings
+because History refreshes do not update live power. The original generic HTTP
+failure did not retain a status code, so its exact provider cause is unknown.
+
+Per-source missing/loading/failure notices now appear beside a partially available
+chart. Failed reloads explicitly retain the previous saved curve. Future SolarEdge
+HTTP failures include only the status number and whether power history or daily
+energy failed; keys, URLs and provider response bodies stay redacted. All 306
+unit/widget tests, formatting and analysis passed. The Android walkthrough also
+verified the partial-source failure banner with isolated synthetic records. The
+normal app was restored; the live SolarEdge retry respects its persisted wait.
+
 Remaining validation: selected historical readings and energy totals have not been
 compared against both providers' monitoring portals. The old investigation token
 was rejected during the initial investigation; the owner subsequently authorized

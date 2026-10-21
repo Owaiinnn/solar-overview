@@ -46,6 +46,67 @@ Future<HistoryController> savedHistoryController({
 }
 
 void main() {
+  testWidgets('a failed source is explained beside the healthy source graph', (
+    tester,
+  ) async {
+    final store = MemoryHistoryStore();
+    final controller = await savedHistoryController(historyStore: store);
+    store.entries.removeWhere((entry) => entry.identity == 'edge:123');
+    await controller.initialize();
+    controller.states[HistorySource.solarEdge]!.error = 'SolarEdge could not load power history (HTTP 503). Please try again later.';
+    addTearDown(() {
+      controller.dispose();
+      controller.edge.dispose();
+      controller.solax!.dispose();
+    });
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: HistoryPage(controller: controller, openSettings: () {}),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find
+          .textContaining('SolarEdge history could not be loaded.')
+          .hitTestable(),
+      findsOneWidget,
+    );
+    expect(find.text('SolaX (AC)'), findsOneWidget);
+    expect(find.text('SolarEdge (AC)'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a failed reload keeps the saved source curve visible', (
+    tester,
+  ) async {
+    final controller = await savedHistoryController();
+    controller.states[HistorySource.solarEdge]!.error = 'SolarEdge could not load power history (HTTP 503). Please try again later.';
+    addTearDown(() {
+      controller.dispose();
+      controller.edge.dispose();
+      controller.solax!.dispose();
+    });
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: HistoryPage(controller: controller, openSettings: () {}),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find
+          .textContaining('SolarEdge refresh failed; showing its saved curve.')
+          .hitTestable(),
+      findsOneWidget,
+    );
+    expect(find.text('SolarEdge (AC)'), findsOneWidget);
+    expect(find.text('SolaX (AC)'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'source filters, day browsing, DC graph and month comparison use saved data',
     (tester) async {

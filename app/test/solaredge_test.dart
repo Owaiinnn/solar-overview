@@ -53,6 +53,9 @@ void main() {
         } on SolarEdgeFailure catch (error) {
           expect(error.toString(), isNot(contains(fakeKey)));
           expect(error.rateLimited, status == 429);
+          if (![401, 403, 429].contains(status)) {
+            expect(error.message, contains('HTTP $status'));
+          }
         }
       },
     );
