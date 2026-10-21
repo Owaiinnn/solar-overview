@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:solar_overview/src/connection_controller.dart';
 import 'package:solar_overview/src/history.dart';
 import 'package:solar_overview/src/history_controller.dart';
+import 'package:solar_overview/src/history_graph.dart';
 import 'package:solar_overview/src/history_page.dart';
 import 'package:solar_overview/src/history_store.dart';
 import 'package:solar_overview/src/solaredge.dart';
@@ -46,6 +47,38 @@ Future<HistoryController> savedHistoryController({
 }
 
 void main() {
+  testWidgets(
+    'one daily graph shows three AC lines and their inspected readings',
+    (tester) async {
+      final day = HistoryDay(DateTime.utc(2026, 9, 28), 'Europe/Amsterdam');
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: HistoryGraph(
+                data: {
+                  HistorySource.solarEdge: syntheticHistory(day),
+                  HistorySource.solax: syntheticHistory(day, watts: 200),
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('SolarEdge (AC)'), findsOneWidget);
+      expect(find.text('SolaX (AC)'), findsOneWidget);
+      expect(find.text('Combined (AC)'), findsOneWidget);
+      expect(find.text('AC production power'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('history-plot-false')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Combined (AC): 626 W'), findsOneWidget);
+      expect(find.textContaining('SolarEdge (AC): 447 W'), findsOneWidget);
+      expect(find.textContaining('SolaX (AC): 179 W'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('a failed source is explained beside the healthy source graph', (
     tester,
   ) async {
@@ -75,6 +108,8 @@ void main() {
     );
     expect(find.text('SolaX (AC)'), findsOneWidget);
     expect(find.text('SolarEdge (AC)'), findsNothing);
+    expect(find.text('Combined (AC)'), findsNothing);
+    expect(find.textContaining('Combined needs both sources'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -125,8 +160,10 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('AC production power').hitTestable(), findsOneWidget);
+      expect(find.text('Combined (AC)'), findsOneWidget);
       await tester.tap(find.widgetWithText(FilterChip, 'SolarEdge'));
       await tester.pumpAndSettle();
+      expect(find.text('Combined (AC)'), findsNothing);
       expect(find.text('2.00 kWh'), findsNothing);
       await tester.scrollUntilVisible(
         find.text('Show SolaX DC inputs').hitTestable(),

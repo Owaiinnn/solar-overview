@@ -41,8 +41,9 @@ counters, plant lifetime totals, zero `pvGeneration`, and DC inputs are never
 substituted or summed. This resolves the field selection for historical totals;
 the cause of the live counter reset/lifetime discrepancies remains open in #25.
 SolaX power covers the selected inverter; its daily statistics cover the plant.
-No combined curve or combined energy total is synthesized. Sources with different
-timezones receive separate graphs.
+Daily energy totals remain separate. The owner's October 21 follow-up adds a
+combined AC power curve as described below. Sources with different timezones
+receive separate graphs.
 
 Agent-run verification on 2026-10-19: Flutter 3.47.5 dependency resolution,
 formatting, static analysis and all 302 unit/widget tests passed; the four Python
@@ -111,6 +112,31 @@ connections and earlier cached history were retained, and the renewed request
 wait was respected. The previous generic error's status cannot be reconstructed;
 503 is the confirmed result of this retry, not an assumed cause for every prior
 failure. No further request was made after this result.
+
+Combined graph follow-up (2026-10-21): the owner requested one daily graph with
+three lines: combined AC production, SolarEdge and SolaX. The combined line sums
+the two source readings at matching normalized 15-minute UTC timestamps, with
+gaps wherever either reading is unavailable. SolaX keeps its five-minute curve;
+no interpolation, forward filling or interval averaging creates combined data.
+Only matching calendar dates/timezones and supported five-/fifteen-minute
+cadences combine. Duplicate, negative, nonfinite and overflowing samples stay
+gaps; reported zeros remain zero. The legend identifies all three lines, with
+the combined line thicker and blue, and inspection includes each sample's time.
+Filtering or unloading either source removes the combined curve and explains
+its requirements. Daily energy, DC inputs and batteries remain separate; this
+change makes no additional provider requests and does not change saved waits.
+
+Agent-run combined-graph verification: dependency resolution, formatting, analysis
+and all 314 unit/widget tests passed. Tests cover exact sample alignment, missing
+and invalid data, true zero, duplicates, overflow, incompatible dates/zones and
+23/25-hour DST days. The Android API 36 walkthrough passed with isolated synthetic
+cache records; visual inspection confirmed three distinct curves and point
+inspection showing 447 W SolarEdge + 179 W SolaX = 626 W combined. Missing-source
+and DC separation checks also passed. Captures stay in ignored build output.
+The normal app target is restored with real connections and history preserved;
+the earlier real October 20 SolarEdge HTTP 503 result still limits that day's
+combined data. No new provider retry was made for this graph change. Monitoring
+portal comparison and native iOS verification remain outstanding as below.
 
 Remaining validation: selected historical readings and energy totals have not been
 compared against both providers' monitoring portals. The old investigation token

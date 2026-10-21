@@ -33,11 +33,9 @@ void main() {
       await binding.convertFlutterSurfaceToImage();
       await tester.pumpAndSettle();
       await binding.takeScreenshot('history-saved');
-      await tester.scrollUntilVisible(
-        find.text('Readings in W').hitTestable(),
-        250,
-      );
+      await tester.ensureVisible(find.text('AC production power'));
       await tester.pumpAndSettle();
+      expect(find.text('Combined (AC)'), findsOneWidget);
       await binding.takeScreenshot('history-ac-graph');
       await tester.scrollUntilVisible(
         find.byKey(const ValueKey('history-plot-false')).hitTestable(),
@@ -46,6 +44,8 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('history-plot-false')));
       await tester.pumpAndSettle();
       expect(find.textContaining('SolarEdge (AC):'), findsOneWidget);
+      expect(find.textContaining('Combined (AC):'), findsOneWidget);
+      await binding.takeScreenshot('history-inspected');
       await tester.scrollUntilVisible(
         find.text('Show SolaX DC inputs').hitTestable(),
         200,
@@ -84,6 +84,7 @@ void main() {
       );
       expect(find.text('SolaX (AC)'), findsOneWidget);
       expect(find.text('SolarEdge (AC)'), findsNothing);
+      expect(find.text('Combined (AC)'), findsNothing);
       await binding.takeScreenshot('history-partial-failure');
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());

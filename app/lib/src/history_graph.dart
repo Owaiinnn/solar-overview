@@ -28,6 +28,12 @@ class _HistoryGraphState extends State<HistoryGraph> {
   @override
   Widget build(BuildContext context) {
     final day = widget.data.values.first.day;
+    final combined = widget.dc
+        ? null
+        : combinedPowerHistory(
+            widget.data[HistorySource.solarEdge],
+            widget.data[HistorySource.solax],
+          );
     final lines = <_PlotLine>[
       for (final entry in widget.data.entries)
         if (widget.dc) ...[
@@ -52,6 +58,14 @@ class _HistoryGraphState extends State<HistoryGraph> {
             entry.value.samples,
             (sample) => sample.watts,
           ),
+      if (combined != null)
+        _PlotLine(
+          'Combined (AC)',
+          const Color(0xFF3949AB),
+          combined.samples,
+          (sample) => sample.watts,
+          strokeWidth: 3,
+        ),
     ];
     final maxWatts = math.max(
       1000.0,
@@ -99,6 +113,15 @@ class _HistoryGraphState extends State<HistoryGraph> {
                   ),
               ],
             ),
+            if (!widget.dc) ...[
+              const SizedBox(height: 8),
+              Text(
+                combined == null
+                    ? 'Combined needs both sources loaded and selected for the same day and timezone.'
+                    : 'Combined = SolarEdge + SolaX at matching 15-minute timestamps. Missing readings stay as gaps.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
             const SizedBox(height: 12),
             Text('${topKw.toStringAsFixed(1)} kW'),
             LayoutBuilder(
@@ -208,16 +231,26 @@ class _HistoryGraphState extends State<HistoryGraph> {
     final before = line.samples.where((sample) => !sample.time.isAfter(time));
     final sample = before.isEmpty ? null : before.last;
     final value = sample == null ? null : line.value(sample);
-    return '${line.label}: ${value == null ? 'Unavailable' : '${value.toStringAsFixed(0)} W'}';
+    final measuredAt = sample == null
+        ? ''
+        : ' · ${historyClock(sample.time, widget.data.values.first.day.timeZone)}';
+    return '${line.label}: ${value == null ? 'Unavailable' : '${value.toStringAsFixed(0)} W'}$measuredAt';
   }
 }
 
 class _PlotLine {
-  const _PlotLine(this.label, this.color, this.samples, this.value);
+  const _PlotLine(
+    this.label,
+    this.color,
+    this.samples,
+    this.value, {
+    this.strokeWidth = 2,
+  });
   final String label;
   final Color color;
   final List<HistorySample> samples;
   final double? Function(HistorySample) value;
+  final double strokeWidth;
 }
 
 class _HistoryPainter extends CustomPainter {
@@ -248,7 +281,7 @@ class _HistoryPainter extends CustomPainter {
     for (final line in lines) {
       final paint = Paint()
         ..color = line.color
-        ..strokeWidth = 2
+        ..strokeWidth = line.strokeWidth
         ..style = PaintingStyle.stroke;
       Offset? previous;
       for (final sample in line.samples) {
