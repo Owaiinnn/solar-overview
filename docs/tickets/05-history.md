@@ -138,6 +138,15 @@ the earlier real October 20 SolarEdge HTTP 503 result still limits that day's
 combined data. No new provider retry was made for this graph change. Monitoring
 portal comparison and native iOS verification remain outstanding as below.
 
+Real combined-day walkthrough (2026-10-21): the owner could not find a saved day
+containing both providers. October 19 had SolarEdge power saved, while October
+20 had SolaX power. After the existing SolaX request wait expired, one normal
+in-app load saved October 19 SolaX history. The normal Android app now shows all
+three real curves for October 19. Point inspection at 13:00 CEST displayed
+SolarEdge 245 W + SolaX 97 W = combined 342 W. The app was left open on that
+graph; connections, prior history and request waits were preserved. This is
+live API/UI verification, not comparison with either monitoring portal.
+
 Remaining validation: selected historical readings and energy totals have not been
 compared against both providers' monitoring portals. The old investigation token
 was rejected during the initial investigation; the owner subsequently authorized
