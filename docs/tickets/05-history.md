@@ -103,6 +103,15 @@ unit/widget tests, formatting and analysis passed. The Android walkthrough also
 verified the partial-source failure banner with isolated synthetic records. The
 normal app was restored; the live SolarEdge retry respects its persisted wait.
 
+Live retry result (2026-10-21): after the persisted wait expired, the agent made
+one normal in-app retry for October 20. SolarEdge's power-history request returned
+HTTP 503 (Service Unavailable); no new SolarEdge curve could be saved for that
+date. The SolaX curve stayed visible alongside the explicit failure banner. Both
+connections and earlier cached history were retained, and the renewed request
+wait was respected. The previous generic error's status cannot be reconstructed;
+503 is the confirmed result of this retry, not an assumed cause for every prior
+failure. No further request was made after this result.
+
 Remaining validation: selected historical readings and energy totals have not been
 compared against both providers' monitoring portals. The old investigation token
 was rejected during the initial investigation; the owner subsequently authorized
