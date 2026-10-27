@@ -13,6 +13,8 @@ import 'connection_setup.dart';
 import 'p1_controller.dart';
 import 'production_total.dart';
 import 'settings.dart';
+import 'tibber_controller.dart';
+import 'tibber_widgets.dart';
 import 'solax_controller.dart';
 
 class SolarApp extends StatefulWidget {
@@ -24,7 +26,9 @@ class SolarApp extends StatefulWidget {
     this.p1,
     this.battery,
     this.historyStore,
+    this.tibber,
   });
+  final TibberController? tibber;
   final HistoryStore? historyStore;
   final P1Controller? p1;
   final BatteryController? battery;
@@ -36,12 +40,13 @@ class SolarApp extends StatefulWidget {
   State<SolarApp> createState() => _SolarAppState();
 }
 
-enum _AppTab { home, appliances, history, settings }
+enum _AppTab { home, appliances, history, prices, settings }
 
 class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
   Timer? _freshnessTimer;
   Timer? _p1Timer;
   Timer? _batteryTimer;
+  Timer? _tibberTimer;
   bool _showDetails = false;
   late final HistoryController _history;
 
@@ -58,9 +63,25 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
     final state = WidgetsBinding.instance.lifecycleState;
     _syncP1(state == null || state == AppLifecycleState.resumed);
     _syncBattery(state == null || state == AppLifecycleState.resumed);
+    _syncTibber(state == null || state == AppLifecycleState.resumed);
     _freshnessTimer = Timer.periodic(const Duration(minutes: 1), (_) {
       widget.controller.updateFreshness();
       widget.solax?.updateFreshness();
+    });
+  }
+
+  void _syncTibber(bool foreground) {
+    _tibberTimer?.cancel();
+    widget.tibber?.setForeground(foreground);
+    if (foreground && widget.tibber != null) {
+      _scheduleTibberTick();
+    }
+  }
+
+  void _scheduleTibberTick() {
+    _tibberTimer = Timer(widget.tibber!.nextTick, () {
+      widget.tibber!.tick();
+      _scheduleTibberTick();
     });
   }
 
@@ -90,6 +111,7 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _syncP1(state == AppLifecycleState.resumed);
     _syncBattery(state == AppLifecycleState.resumed);
+    _syncTibber(state == AppLifecycleState.resumed);
     if (state == AppLifecycleState.resumed) {
       widget.controller.updateFreshness();
       widget.solax?.updateFreshness();
@@ -104,6 +126,8 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
     widget.p1?.setForeground(false);
     _batteryTimer?.cancel();
     widget.battery?.setForeground(false);
+    _tibberTimer?.cancel();
+    widget.tibber?.setForeground(false);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -259,7 +283,13 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
                               openSettings: () =>
                                   setState(() => _tab = _AppTab.settings),
                             ),
+                            TibberPricesPage(
+                              controller: widget.tibber,
+                              openSettings: () =>
+                                  setState(() => _tab = _AppTab.settings),
+                            ),
                             SettingsPage(
+                              tibber: widget.tibber,
                               p1: widget.p1,
                               battery: widget.battery,
                               active: _tab == _AppTab.settings,
@@ -293,6 +323,11 @@ class _SolarAppState extends State<SolarApp> with WidgetsBindingObserver {
                     NavigationDestination(
                       icon: Icon(Icons.show_chart),
                       label: 'History',
+                    ),
+                    NavigationDestination(
+                      icon: Icon(Icons.payments_outlined),
+                      selectedIcon: Icon(Icons.payments),
+                      label: 'Prices',
                     ),
                     NavigationDestination(
                       icon: Icon(Icons.settings_outlined),

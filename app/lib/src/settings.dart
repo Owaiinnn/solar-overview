@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'tibber_controller.dart';
+import 'tibber_widgets.dart';
 import 'battery_controller.dart';
 import 'battery_widgets.dart';
 import 'connection_controller.dart';
@@ -18,7 +20,9 @@ class SettingsPage extends StatelessWidget {
     this.solax,
     this.p1,
     this.battery,
+    this.tibber,
   });
+  final TibberController? tibber;
   final P1Controller? p1;
   final BatteryController? battery;
   final SolaxController? solax;
@@ -56,6 +60,12 @@ class SettingsPage extends StatelessWidget {
         P1SettingsCard(controller: p1, preview: preview, active: active),
         const SizedBox(height: 24),
         BatterySettingsCard(controller: battery, preview: preview),
+        const SizedBox(height: 24),
+        TibberSettingsCard(
+          controller: tibber,
+          preview: preview,
+          active: active,
+        ),
       ],
     );
   }
