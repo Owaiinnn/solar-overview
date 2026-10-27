@@ -29,6 +29,8 @@ in the codebase. See the [project overview](../README.md) for the technology sta
   using matching 15-minute samples for the combined line; separate source totals,
   daily comparisons, optional SolaX DC inputs, site timezone/DST handling and saved days.
   Load each source explicitly; History shares its request wait with Details.
+- Tibber Prices with current/today/tomorrow purchase-price intervals, negative
+  prices, explicit gaps, timezone/DST handling and an independent secure cache.
 - Saved readings across restarts, manual refresh and persistent request waits.
   Missing readings remain unavailable rather than displaying zero.
 
@@ -69,6 +71,13 @@ unencrypted local-network access without authentication; use your home network.
 Port 8080 is automatic. Digest authentication, hostnames and remote access are
 not supported. Replacement is tested before the saved address changes.
 
+In **Settings → Tibber electricity prices**, enter a personal Tibber API token,
+choose your contract's price resolution, and select **Test token & find homes**.
+Select a home and choose **Save Tibber connection**. **Prices** shows the current
+interval and expandable schedules. Confirm contract resolution and price coverage
+against your Tibber account; the API total is not a verified all-in bill cost.
+See the [Tibber integration notes](../docs/tibber-pricing.md).
+
 ## Refresh, saved readings and freshness
 
 Each solar source has its own 15-minute request wait and restores saved readings when
@@ -88,6 +97,11 @@ saved after restart, a failed refresh, backgrounding, or 90 seconds without a
 successful response. Receipt time is not measurement time: live household flows
 and available battery energy remain unavailable. Daily counters are not verified
 totals for today. See [battery notes](../docs/battery-check.md).
+
+Tibber uses a separate persistent 15-minute request wait. Saved schedules switch
+prices locally at interval boundaries. Foreground refresh checks publication and
+local day rollover, with bounded retries and no background polling. Replacing a
+connection retains the previous schedule until the new selection is saved.
 
 ## Run locally
 
