@@ -78,6 +78,13 @@ Tibber process restart/offline/recovery comparison and native iOS verification
 remain unperformed. No owner-run testing is claimed. Keep #45 open while these
 checks remain; the implementation PR does not claim full ticket completion.
 
+Publication status: the implementation is committed on local branch
+`feature/45-tibber-prices`. Automatic approval review blocked the branch push,
+draft PR creation and remote issue-body update, requiring explicit owner approval
+for GitHub publication. No PR was created and this local copy is not yet
+synchronized remotely. The normal Android app is open on the empty Tibber setup
+form, ready for owner-entered credentials.
+
 ## Todo
 
 - [ ] Verify read-only authentication, selected home, subscription, price fields, units, time zone and resolution with the owner's account without retaining private responses.
