@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import 'src/app.dart';
+import 'src/tibber.dart';
+import 'src/tibber_store.dart';
+import 'src/tibber_controller.dart';
 import 'src/history_store.dart';
 import 'src/battery.dart';
 import 'src/battery_controller.dart';
@@ -39,8 +42,13 @@ Future<void> main() async {
     SecureBatteryStore(),
     BatteryApi(http.Client()),
   );
+  final tibber = TibberController(
+    SecureTibberStore(),
+    TibberApi(http.Client()),
+  );
   runApp(
     SolarApp(
+      tibber: tibber,
       controller: controller,
       solax: solax,
       p1: p1,
@@ -48,6 +56,7 @@ Future<void> main() async {
       historyStore: SecureHistoryStore(),
     ),
   );
+  tibber.initialize();
   battery.initialize();
   p1.initialize();
   controller.initialize();
